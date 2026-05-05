@@ -11,9 +11,24 @@ require_once __DIR__ . '/../config/database.php';
 function setCORSHeaders(): void {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-    // Izinkan semua origin localhost (port berapa pun) untuk development
-    if (preg_match('/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/', $origin)) {
-        header("Access-Control-Allow-Origin: $origin");
+    $allowedOrigins = [
+        // Development
+        '/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/',
+        // Production
+        '/^https?:\/\/smanko\.xo\.je$/',
+        '/^https?:\/\/www\.smanko\.xo\.je$/',
+    ];
+
+    foreach ($allowedOrigins as $pattern) {
+        if (preg_match($pattern, $origin)) {
+            header("Access-Control-Allow-Origin: $origin");
+            break;
+        }
+    }
+
+    // Jika tidak ada Origin header (request langsung / same-origin), izinkan juga
+    if (empty($origin)) {
+        header('Access-Control-Allow-Origin: *');
     }
 
     header('Access-Control-Allow-Credentials: true');
