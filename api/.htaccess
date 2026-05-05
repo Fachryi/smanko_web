@@ -15,6 +15,9 @@ RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 # Jika pakai CGI/FastCGI, teruskan juga dengan cara ini
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 
+# Fallback tambahan untuk hosting seperti InfinityFree
+CGIPassAuth On
+
 # Izinkan semua file diakses langsung
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]

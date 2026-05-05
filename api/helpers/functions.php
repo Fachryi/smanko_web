@@ -74,20 +74,26 @@ function getAuthToken(): ?string {
     } elseif (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
         // Ketika PHP berjalan via mod_rewrite
         $header = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+    } elseif (!empty($_SERVER['HTTP_X_AUTHORIZATION'])) {
+        $header = $_SERVER['HTTP_X_AUTHORIZATION'];
     } elseif (function_exists('apache_request_headers')) {
         // Fallback: baca langsung dari Apache request headers
         $apacheHeaders = apache_request_headers();
         $header = $apacheHeaders['Authorization']
                ?? $apacheHeaders['authorization']
                ?? '';
-    } elseif (!empty($_SERVER['HTTP_X_AUTHORIZATION'])) {
-        // Versi alternatif yang kadang dikirim proxy
-        $header = $_SERVER['HTTP_X_AUTHORIZATION'];
     }
 
     if (preg_match('/Bearer\s+(.+)/i', trim($header), $m)) {
         return trim($m[1]);
     }
+
+    // Fallback terakhir: token via query string ?token=xxx
+    // (digunakan jika hosting benar-benar memblokir Authorization header)
+    if (!empty($_GET['token'])) {
+        return trim($_GET['token']);
+    }
+
     return null;
 }
 
