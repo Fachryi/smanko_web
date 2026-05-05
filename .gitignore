@@ -3,6 +3,9 @@ node_modules/
 .pnp
 .pnp.js
 
+# Database config (contains credentials - NEVER commit this!)
+api/config/database.php
+
 # Build output
 dist/
 build/
