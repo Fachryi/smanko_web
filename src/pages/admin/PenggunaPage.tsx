@@ -47,12 +47,12 @@ export default function PenggunaPage() {
 
   const openAdd = () => {
     setSelected(null)
-    setForm({nama:'',username:'',password:'',role:'guru_olahraga'})
+    setForm({nama:'',username:'',password:'',role:'guru_olahraga', status:'aktif'})
     setError(''); setModal('add')
   }
   const openEdit = (u: User) => {
     setSelected(u)
-    setForm({nama:u.nama,username:u.username,password:'',role:u.role,status:u.status})
+    setForm({nama:u.nama,username:u.username,password:'',role:u.role,status:u.status ?? 'aktif'})
     setError(''); setModal('edit')
   }
 
