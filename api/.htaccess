@@ -1,0 +1,24 @@
+# ============================================================
+# SMANKO API – Apache Configuration
+# Pastikan header Authorization diteruskan ke PHP
+# ============================================================
+
+# Aktifkan mod_rewrite
+Options -MultiViews
+RewriteEngine On
+
+# PENTING: Teruskan header Authorization ke PHP
+# (Apache kadang strip header ini secara default)
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Jika pakai CGI/FastCGI, teruskan juga dengan cara ini
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+# Izinkan semua file diakses langsung
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Intercept OPTIONS (CORS Preflight)
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule .* - [R=204,L]
