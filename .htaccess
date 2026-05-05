@@ -1,0 +1,14 @@
+Options -MultiViews
+RewriteEngine On
+
+# Jika request adalah file nyata (CSS, JS, gambar, dll) → akses langsung
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Jika request mengarah ke /api/ → biarkan PHP yang handle
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^ - [L]
+
+# Semua request lain → arahkan ke index.html (React Router)
+RewriteRule ^ index.html [QSA,L]
