@@ -30,8 +30,8 @@ interface CaborItem {
     cabang_olahraga_id: number
     nama: string
     foto: string | null
-    sertifikasi: string
-    pengalaman: string
+    no_telepon: string | null
+    keterangan: string | null
   }[]
 }
 
@@ -861,42 +861,71 @@ export default function LandingPage() {
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <div style={{
-                        background: 'rgba(17,85,168,0.06)', borderRadius: 10,
-                        padding: '6px 13px', fontSize: '0.72rem', color: '#3a4f80',
-                        border: '1px solid rgba(17,85,168,0.12)', fontWeight: 600,
-                      }}>
-                        🏅 {allPelatih[pelatihSlide]?.sertifikasi || '-'}
-                      </div>
-                      <div style={{
-                        background: 'rgba(17,85,168,0.06)', borderRadius: 10,
-                        padding: '6px 13px', fontSize: '0.72rem', color: '#3a4f80',
-                        border: '1px solid rgba(17,85,168,0.12)', fontWeight: 600,
-                      }}>
-                        ⏱ {allPelatih[pelatihSlide]?.pengalaman || '-'}
-                      </div>
+                      {allPelatih[pelatihSlide]?.no_telepon && (
+                        <div style={{
+                          background: 'rgba(17,85,168,0.06)', borderRadius: 10,
+                          padding: '6px 13px', fontSize: '0.72rem', color: '#3a4f80',
+                          border: '1px solid rgba(17,85,168,0.12)', fontWeight: 600,
+                          display: 'flex', alignItems: 'center', gap: 5,
+                        }}>
+                          📱 {allPelatih[pelatihSlide]?.no_telepon}
+                        </div>
+                      )}
+                      {allPelatih[pelatihSlide]?.keterangan && (
+                        <div style={{
+                          background: 'rgba(17,85,168,0.06)', borderRadius: 10,
+                          padding: '6px 13px', fontSize: '0.72rem', color: '#3a4f80',
+                          border: '1px solid rgba(17,85,168,0.12)', fontWeight: 600,
+                          maxWidth: '100%',
+                        }}>
+                          {allPelatih[pelatihSlide]?.keterangan}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Slide dots */}
+                  {/* Navigation: prev/next arrows + counter */}
                   {allPelatih.length > 1 && (
-                    <div style={{ display: 'flex', gap: 7, marginTop: 20 }}>
-                      {allPelatih.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => {
-                            setPelatihFade(false)
-                            setTimeout(() => { setPelatihSlide(i); setPelatihFade(true) }, 400)
-                          }}
-                          style={{
-                            width: i === pelatihSlide ? 24 : 8, height: 8,
-                            borderRadius: 4, border: 'none', cursor: 'pointer',
-                            background: i === pelatihSlide ? '#1155a8' : '#dce6f7',
-                            transition: 'all 0.3s',
-                            padding: 0,
-                          }}
-                        />
-                      ))}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 20 }}>
+                      <button
+                        onClick={() => {
+                          setPelatihFade(false)
+                          setTimeout(() => {
+                            setPelatihSlide(i => (i - 1 + allPelatih.length) % allPelatih.length)
+                            setPelatihFade(true)
+                          }, 300)
+                        }}
+                        style={{
+                          width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #dce6f7',
+                          background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', color: '#1155a8', transition: 'all 0.2s',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6b7faa', minWidth: 48, textAlign: 'center' }}>
+                        {pelatihSlide + 1} / {allPelatih.length}
+                      </span>
+
+                      <button
+                        onClick={() => {
+                          setPelatihFade(false)
+                          setTimeout(() => {
+                            setPelatihSlide(i => (i + 1) % allPelatih.length)
+                            setPelatihFade(true)
+                          }, 300)
+                        }}
+                        style={{
+                          width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #dce6f7',
+                          background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', color: '#1155a8', transition: 'all 0.2s',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <ChevronRight size={16} />
+                      </button>
                     </div>
                   )}
                 </div>
@@ -958,9 +987,13 @@ export default function LandingPage() {
                         <img src={p.foto || '/coach-male.png'} alt={p.nama} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid #fff', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} />
                         <div>
                           <div style={{ fontWeight: 800, color: '#0b2d6b', fontSize: '1rem', marginBottom: 4 }}>{p.nama}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#6b7faa', display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Medal size={12}/> {p.sertifikasi || '-'}</span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Target size={12}/> {p.pengalaman || '-'}</span>
+                          <div style={{ fontSize: '0.75rem', color: '#6b7faa', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            {p.no_telepon && (
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>📱 {p.no_telepon}</span>
+                            )}
+                            {p.keterangan && (
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Target size={12}/> {p.keterangan}</span>
+                            )}
                           </div>
                         </div>
                       </div>

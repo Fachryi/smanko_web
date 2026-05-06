@@ -5,7 +5,7 @@ import Modal from '../../components/Modal'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { api } from '../../lib/apiClient'
 import type { Siswa, CabangOlahraga, ApiResponse } from '../../types'
-import { Search, Plus, Pencil, Trash2, GraduationCap, TrendingUp, CheckCircle } from 'lucide-react'
+import { Search, Plus, Pencil, Trash2, GraduationCap, TrendingUp, CheckCircle, AlertTriangle, Users } from 'lucide-react'
 
 type FormData = {
   nisn:string; nis:string; nama:string; kelas:string; jenis_kelamin:string; cabang_olahraga_id:string; pelatih_id:string
@@ -28,6 +28,7 @@ export default function SiswaPage() {
   const [selected, setSelected] = useState<Siswa|null>(null)
   const [form,    setForm]    = useState<FormData>({nisn:'',nis:'',nama:'',kelas:'',jenis_kelamin:'L',cabang_olahraga_id:'', pelatih_id:''})
   const [successInfo, setSuccessInfo] = useState<{open:boolean;nama:string;action:'add'|'edit'}>({open:false,nama:'',action:'add'})
+  const [classFullModal, setClassFullModal] = useState<{open:boolean;kelas:string}>({open:false,kelas:''})
 
   // Load cabang & pelatih once
   useEffect(() => {
@@ -66,8 +67,8 @@ export default function SiswaPage() {
   }
 
   const handleSave = async () => {
-    if (!form.nisn||!form.nis||!form.nama||!form.kelas||!form.cabang_olahraga_id)
-      { setError('Semua field wajib diisi (termasuk NISN).'); return }
+    if (!form.nisn||!form.nama||!form.kelas||!form.cabang_olahraga_id)
+      { setError('NISN, Nama, Kelas, dan Cabang Olahraga wajib diisi.'); return }
     setSaving(true); setError('')
     const action = modal as 'add'|'edit'
     const namaDisimpan = form.nama
@@ -78,7 +79,18 @@ export default function SiswaPage() {
       setModal(null)
       setSuccessInfo({open:true, nama:namaDisimpan, action})
       load()
-    } catch (e:unknown) { setError(e instanceof Error ? e.message : 'Terjadi kesalahan.') }
+    } catch (e:unknown) {
+      const msg = e instanceof Error ? e.message : 'Terjadi kesalahan.'
+      // Deteksi error kapasitas kelas penuh
+      if (msg.includes('batas maksimal 40 siswa')) {
+        const kelasMatch = msg.match(/Kelas ([\w-]+)/)
+        const kelasName = kelasMatch ? kelasMatch[1] : form.kelas
+        setModal(null)
+        setClassFullModal({open: true, kelas: kelasName})
+      } else {
+        setError(msg)
+      }
+    }
     finally { setSaving(false) }
   }
 
@@ -129,6 +141,24 @@ export default function SiswaPage() {
         <span className="badge badge-neutral">{siswa.length} siswa</span>
       </div>
 
+      {/* Info banner kapasitas */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        background: 'linear-gradient(90deg, rgba(17,85,168,0.06), rgba(17,85,168,0.02))',
+        border: '1px solid rgba(17,85,168,0.15)',
+        borderLeft: '4px solid #1155a8',
+        borderRadius: 10, padding: '10px 16px',
+        marginBottom: 'var(--sp-4)',
+        fontSize: '0.83rem', color: '#1a3a6b',
+      }}>
+        <Users size={16} style={{color:'#1155a8', flexShrink:0}} />
+        <span>
+          <strong>Kapasitas Kelas:</strong> Setiap kelas dibatasi maksimal{' '}
+          <strong style={{color:'#c1272d'}}>40 siswa</strong> aktif.
+          Sistem akan menolak penambahan siswa jika kelas sudah penuh.
+        </span>
+      </div>
+
       <div className="card" style={{padding:0}}>
         {loading ? (
           <div className="flex-center" style={{padding:60}}><div className="spinner spinner-lg"/></div>
@@ -151,7 +181,7 @@ export default function SiswaPage() {
                   <tr key={s.id}>
                     <td style={{color:'var(--clr-text-3)',width:48}}>{i+1}</td>
                     <td><code style={{fontSize:'0.82rem'}}>{s.nisn}</code></td>
-                    <td><code style={{fontSize:'0.82rem'}}>{s.nis}</code></td>
+                    <td><code style={{fontSize:'0.82rem'}}>{s.nis || <span style={{color:'var(--clr-text-4)',fontStyle:'italic'}}>-</span>}</code></td>
                     <td><strong>{s.nama}</strong></td>
                     <td><span className="badge badge-info">{s.kelas}</span></td>
                     <td><span className={`badge ${s.jenis_kelamin==='L'?'badge-primary':'badge-accent'}`}>
@@ -214,12 +244,12 @@ export default function SiswaPage() {
         <div className="form-row">
           <div className="form-group">
             <label className="form-label">NISN <span className="required">*</span></label>
-            <input className="form-control" placeholder="Nomor Induk Siswa Nasional (10 digit)"
+            <input className="form-control" placeholder="(10 digit)"
               value={form.nisn} onChange={e=>setForm(f=>({...f,nisn:e.target.value}))}/>
           </div>
           <div className="form-group">
-            <label className="form-label">NIS <span className="required">*</span></label>
-            <input className="form-control" placeholder="Nomor Induk Siswa (lokal)"
+            <label className="form-label">NIS <span style={{fontSize:'0.75rem',fontWeight:400,color:'var(--clr-text-3)'}}></span></label>
+            <input className="form-control" placeholder="Kosongkan jika tidak ada"
               value={form.nis} onChange={e=>setForm(f=>({...f,nis:e.target.value}))}/>
           </div>
         </div>
@@ -303,6 +333,42 @@ export default function SiswaPage() {
             Data siswa <strong>{successInfo.nama}</strong> berhasil{' '}
             {successInfo.action === 'add' ? 'ditambahkan ke sistem.' : 'diperbarui.'}
           </p>
+        </div>
+      </Modal>
+
+      {/* Class Full Popup */}
+      <Modal
+        open={classFullModal.open}
+        onClose={() => setClassFullModal(s=>({...s,open:false}))}
+        title="Kelas Sudah Penuh"
+        footer={
+          <button className="btn btn-primary" onClick={() => setClassFullModal(s=>({...s,open:false}))}>
+            Mengerti
+          </button>
+        }
+      >
+        <div className="confirm-body">
+          <div className="confirm-icon" style={{
+            background: 'rgba(234,179,8,0.12)',
+            color: '#ca8a04',
+          }}>
+            <AlertTriangle size={28} />
+          </div>
+          <h3 style={{marginBottom:'var(--sp-2)'}}>
+            Kapasitas Kelas Penuh
+          </h3>
+          <p style={{marginBottom: 'var(--sp-3)'}}>
+            Kelas <strong>{classFullModal.kelas}</strong> sudah mencapai batas maksimal{' '}
+            <strong style={{color:'#c1272d'}}>40 siswa</strong> aktif.
+          </p>
+          <div style={{
+            background: 'rgba(234,179,8,0.08)',
+            border: '1px solid rgba(234,179,8,0.25)',
+            borderRadius: 8, padding: '10px 14px',
+            fontSize: '0.82rem', color: '#92400e',
+          }}>
+            💡 Gunakan <strong>Proses Kenaikan Kelas</strong> untuk memindahkan siswa, atau pilih kelas lain yang masih tersedia.
+          </div>
         </div>
       </Modal>
     </Layout>

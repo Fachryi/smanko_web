@@ -28,8 +28,8 @@ case 'POST':
     
     $nama = trim($_POST['nama'] ?? '');
     $cabang_id = (int)($_POST['cabang_olahraga_id'] ?? 0);
-    $sertifikasi = trim($_POST['sertifikasi'] ?? '');
-    $pengalaman = trim($_POST['pengalaman'] ?? '');
+    $no_telepon = trim($_POST['no_telepon'] ?? '');
+    $keterangan = trim($_POST['keterangan'] ?? '');
     
     if (!$nama || !$cabang_id) {
         errorResponse('Nama dan Cabang Olahraga wajib diisi.', 422);
@@ -66,8 +66,8 @@ case 'POST':
 
     if ($id > 0) {
         // Update
-        $params = [$cabang_id, $nama, $sertifikasi, $pengalaman];
-        $sql = "UPDATE profil_pelatih SET cabang_olahraga_id = ?, nama = ?, sertifikasi = ?, pengalaman = ?";
+        $params = [$cabang_id, $nama, $no_telepon, $keterangan];
+        $sql = "UPDATE profil_pelatih SET cabang_olahraga_id = ?, nama = ?, no_telepon = ?, keterangan = ?";
         
         if ($fotoPath) {
             // hapus foto lama
@@ -86,12 +86,23 @@ case 'POST':
         $params[] = $id;
         
         $pdo->prepare($sql)->execute($params);
+
+        // Sync: update semua siswa di cabor ini agar pelatih_id mengarah ke pelatih ini
+        $pdo->prepare("UPDATE siswa SET pelatih_id = ? WHERE cabang_olahraga_id = ?")
+            ->execute([$id, $cabang_id]);
+
         successResponse(null, 'Profil pelatih berhasil diperbarui.');
     } else {
         // Insert
-        $pdo->prepare("INSERT INTO profil_pelatih (cabang_olahraga_id, nama, foto, sertifikasi, pengalaman) VALUES (?, ?, ?, ?, ?)")
-            ->execute([$cabang_id, $nama, $fotoPath, $sertifikasi, $pengalaman]);
-        successResponse(['id' => (int)$pdo->lastInsertId()], 'Profil pelatih berhasil ditambahkan.', 201);
+        $pdo->prepare("INSERT INTO profil_pelatih (cabang_olahraga_id, nama, foto, no_telepon, keterangan) VALUES (?, ?, ?, ?, ?)")
+            ->execute([$cabang_id, $nama, $fotoPath, $no_telepon, $keterangan]);
+        $newId = (int)$pdo->lastInsertId();
+
+        // Sync: assign pelatih baru ke semua siswa di cabor yang belum punya pelatih
+        $pdo->prepare("UPDATE siswa SET pelatih_id = ? WHERE cabang_olahraga_id = ? AND pelatih_id IS NULL")
+            ->execute([$newId, $cabang_id]);
+
+        successResponse(['id' => $newId], 'Profil pelatih berhasil ditambahkan.', 201);
     }
     break;
 
@@ -108,6 +119,10 @@ case 'DELETE':
     }
     
     $pdo->prepare("DELETE FROM profil_pelatih WHERE id = ?")->execute([$id]);
+
+    // Hapus referensi pelatih_id dari siswa yang menggunakan pelatih ini
+    $pdo->prepare("UPDATE siswa SET pelatih_id = NULL WHERE pelatih_id = ?")->execute([$id]);
+
     successResponse(null, 'Profil pelatih berhasil dihapus.');
     break;
 

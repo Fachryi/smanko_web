@@ -69,7 +69,7 @@ $siswaListStmt = $pdo->prepare("
 
 // Profil pelatih per cabor
 $profilPelatihStmt = $pdo->prepare("
-    SELECT id, nama, foto, sertifikasi, pengalaman
+    SELECT id, nama, foto, no_telepon, keterangan
     FROM profil_pelatih
     WHERE cabang_olahraga_id = ?
     ORDER BY id ASC

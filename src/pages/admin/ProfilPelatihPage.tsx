@@ -12,8 +12,8 @@ type ProfilPelatih = {
   cabang_olahraga_id: number
   nama: string
   foto: string | null
-  sertifikasi: string
-  pengalaman: string
+  no_telepon: string
+  keterangan: string
   nama_cabang?: string
 }
 
@@ -21,8 +21,8 @@ type FormData = {
   id?: number
   cabang_olahraga_id: string
   nama: string
-  sertifikasi: string
-  pengalaman: string
+  no_telepon: string
+  keterangan: string
 }
 
 export default function ProfilPelatihPage() {
@@ -37,7 +37,7 @@ export default function ProfilPelatihPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   
-  const [form, setForm] = useState<FormData>({ cabang_olahraga_id: '', nama: '', sertifikasi: '', pengalaman: '' })
+  const [form, setForm] = useState<FormData>({ cabang_olahraga_id: '', nama: '', no_telepon: '', keterangan: '' })
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -67,7 +67,7 @@ export default function ProfilPelatihPage() {
   })
 
   const openAdd = () => {
-    setForm({ cabang_olahraga_id: cabor[0]?.id?.toString() || '', nama: '', sertifikasi: '', pengalaman: '' })
+    setForm({ cabang_olahraga_id: cabor[0]?.id?.toString() || '', nama: '', no_telepon: '', keterangan: '' })
     setFile(null)
     setPreview(null)
     setError('')
@@ -75,7 +75,7 @@ export default function ProfilPelatihPage() {
   }
 
   const openEdit = (p: ProfilPelatih) => {
-    setForm({ id: p.id, cabang_olahraga_id: String(p.cabang_olahraga_id), nama: p.nama, sertifikasi: p.sertifikasi, pengalaman: p.pengalaman })
+    setForm({ id: p.id, cabang_olahraga_id: String(p.cabang_olahraga_id), nama: p.nama, no_telepon: p.no_telepon, keterangan: p.keterangan })
     setFile(null)
     setPreview(p.foto ? p.foto : null)
     setError('')
@@ -109,8 +109,8 @@ export default function ProfilPelatihPage() {
       if (form.id) fd.append('id', String(form.id))
       fd.append('nama', form.nama)
       fd.append('cabang_olahraga_id', form.cabang_olahraga_id)
-      fd.append('sertifikasi', form.sertifikasi)
-      fd.append('pengalaman', form.pengalaman)
+      fd.append('no_telepon', form.no_telepon)
+      fd.append('keterangan', form.keterangan)
       if (file) fd.append('foto', file)
 
       await api.postForm('/master/profil_pelatih.php', fd)
@@ -173,8 +173,8 @@ export default function ProfilPelatihPage() {
                   <th style={{width: 60}}>Foto</th>
                   <th>Nama Pelatih</th>
                   <th>Cabang Olahraga</th>
-                  <th>Sertifikasi</th>
-                  <th>Pengalaman</th>
+                  <th>No. HP</th>
+                  <th>Keterangan</th>
                   <th style={{width: 100}}>Aksi</th>
                 </tr>
               </thead>
@@ -197,8 +197,8 @@ export default function ProfilPelatihPage() {
                     </td>
                     <td><strong>{p.nama}</strong></td>
                     <td><span className="badge badge-info">{p.nama_cabang}</span></td>
-                    <td><span style={{fontSize: '0.82rem'}}>{p.sertifikasi || '-'}</span></td>
-                    <td><span style={{fontSize: '0.82rem'}}>{p.pengalaman || '-'}</span></td>
+                    <td><span style={{fontSize: '0.82rem'}}>{p.no_telepon || '-'}</span></td>
+                    <td><span style={{fontSize: '0.82rem'}}>{p.keterangan || '-'}</span></td>
                     <td>
                       <div className="td-actions">
                         <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(p)} title="Edit"><Pencil size={15}/></button>
@@ -268,15 +268,15 @@ export default function ProfilPelatihPage() {
         </div>
 
         <div className="form-group">
-          <label className="form-label">Sertifikasi</label>
-          <input className="form-control" placeholder="Contoh: Pelatih Nasional PBSI"
-            value={form.sertifikasi} onChange={e => setForm(f=>({...f, sertifikasi: e.target.value}))} />
+          <label className="form-label">No. Telepon</label>
+          <input className="form-control" placeholder="Contoh: 0812-3456-7890"
+            value={form.no_telepon} onChange={e => setForm(f=>({...f, no_telepon: e.target.value}))} />
         </div>
 
         <div className="form-group">
-          <label className="form-label">Pengalaman</label>
-          <input className="form-control" placeholder="Contoh: 12 Tahun Pengalaman"
-            value={form.pengalaman} onChange={e => setForm(f=>({...f, pengalaman: e.target.value}))} />
+          <label className="form-label">Keterangan</label>
+          <input className="form-control" placeholder="Contoh: Pelatih Tinju berpengalaman 10 tahun"
+            value={form.keterangan} onChange={e => setForm(f=>({...f, keterangan: e.target.value}))} />
         </div>
       </Modal>
 

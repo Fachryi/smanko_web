@@ -31,8 +31,8 @@ export interface ProfilPelatih {
   cabang_olahraga_id: number
   nama: string
   foto: string | null
-  sertifikasi: string
-  pengalaman: string
+  no_telepon: string | null
+  keterangan: string | null
 }
 
 export interface CabangOlahraga {

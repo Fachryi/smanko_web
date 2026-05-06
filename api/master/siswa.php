@@ -114,20 +114,30 @@ case 'POST':
     $cabangId          = (int)($body['cabang_olahraga_id'] ?? 0);
     $pelatihId         = (int)($body['pelatih_id']       ?? 0);
 
-    if (!$nisn || !$nis || !$nama || !$kelas || !$jk || !$cabangId)
-        errorResponse('Semua field wajib diisi (termasuk NISN).', 422);
+    if (!$nisn || !$nama || !$kelas || !$jk || !$cabangId)
+        errorResponse('NISN, Nama, Kelas, Jenis Kelamin, dan Cabang Olahraga wajib diisi.', 422);
 
     if (!in_array($jk, ['L', 'P'], true)) errorResponse('Jenis kelamin tidak valid.', 422);
+
+    // Cek batas maksimal 40 siswa per kelas
+    $cekKapasitas = $pdo->prepare("SELECT COUNT(*) FROM siswa WHERE kelas = ? AND status = 'aktif'");
+    $cekKapasitas->execute([$kelas]);
+    $jumlahSiswaKelas = (int)$cekKapasitas->fetchColumn();
+    if ($jumlahSiswaKelas >= 40) {
+        errorResponse("Kelas $kelas sudah mencapai batas maksimal 40 siswa. Tidak dapat menambahkan siswa baru.", 422);
+    }
 
     // Cek NISN
     $chkNisn = $pdo->prepare("SELECT id FROM siswa WHERE nisn = ?");
     $chkNisn->execute([$nisn]);
     if ($chkNisn->fetch()) errorResponse('NISN sudah terdaftar.', 409);
 
-    // Cek NIS
-    $chk = $pdo->prepare("SELECT id FROM siswa WHERE nis = ?");
-    $chk->execute([$nis]);
-    if ($chk->fetch()) errorResponse('NIS sudah terdaftar.', 409);
+    // Cek NIS hanya jika diisi
+    if ($nis !== '') {
+        $chk = $pdo->prepare("SELECT id FROM siswa WHERE nis = ?");
+        $chk->execute([$nis]);
+        if ($chk->fetch()) errorResponse('NIS sudah terdaftar.', 409);
+    }
 
     // Cek cabang valid
     $cek = $pdo->prepare("SELECT id FROM cabang_olahraga WHERE id = ?");
@@ -141,8 +151,16 @@ case 'POST':
         if (!$cekP->fetch()) errorResponse('Pelatih tidak ditemukan.', 404);
     }
 
+    // Jika pelatih tidak diisi manual, cari otomatis dari cabor
+    if (!$pelatihId) {
+        $autoP = $pdo->prepare("SELECT id FROM profil_pelatih WHERE cabang_olahraga_id = ? LIMIT 1");
+        $autoP->execute([$cabangId]);
+        $autoRow = $autoP->fetch();
+        $pelatihId = $autoRow ? (int)$autoRow['id'] : 0;
+    }
+
     $pdo->prepare("INSERT INTO siswa (nisn, nis, nama, kelas, jenis_kelamin, cabang_olahraga_id, pelatih_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        ->execute([$nisn, $nis, $nama, $kelas, $jk, $cabangId, $pelatihId ?: null]);
+        ->execute([$nisn, $nis !== '' ? $nis : null, $nama, $kelas, $jk, $cabangId, $pelatihId ?: null]);
     $newId = (int)$pdo->lastInsertId();
 
     successResponse(['id' => $newId], 'Siswa berhasil ditambahkan.', 201);
@@ -167,16 +185,30 @@ case 'PUT':
     }
     if (isset($body['nis'])) {
         $newNis = trim($body['nis']);
-        $chk = $pdo->prepare("SELECT id FROM siswa WHERE nis = ? AND id != ?");
-        $chk->execute([$newNis, $id]);
-        if ($chk->fetch()) errorResponse('NIS sudah digunakan siswa lain.', 409);
-        $fields[] = 'nis = ?'; $params[] = $newNis;
+        // Cek duplikat hanya jika NIS diisi (bukan kosong)
+        if ($newNis !== '') {
+            $chk = $pdo->prepare("SELECT id FROM siswa WHERE nis = ? AND id != ?");
+            $chk->execute([$newNis, $id]);
+            if ($chk->fetch()) errorResponse('NIS sudah digunakan siswa lain.', 409);
+        }
+        $fields[] = 'nis = ?'; $params[] = $newNis !== '' ? $newNis : null;
     }
     if (isset($body['nama']))             { $fields[] = 'nama = ?';             $params[] = trim($body['nama']); }
     if (isset($body['kelas']))            { $fields[] = 'kelas = ?';            $params[] = trim($body['kelas']); }
     if (isset($body['jenis_kelamin']))    { $fields[] = 'jenis_kelamin = ?';    $params[] = $body['jenis_kelamin']; }
-    if (isset($body['cabang_olahraga_id'])) { $fields[] = 'cabang_olahraga_id = ?'; $params[] = (int)$body['cabang_olahraga_id']; }
-    if (isset($body['pelatih_id']))       { $fields[] = 'pelatih_id = ?';       $params[] = (int)$body['pelatih_id'] ?: null; }
+    if (isset($body['cabang_olahraga_id'])) {
+        $fields[] = 'cabang_olahraga_id = ?';
+        $params[] = (int)$body['cabang_olahraga_id'];
+        // Auto-assign pelatih berdasarkan cabor baru
+        $autoP = $pdo->prepare("SELECT id FROM profil_pelatih WHERE cabang_olahraga_id = ? LIMIT 1");
+        $autoP->execute([(int)$body['cabang_olahraga_id']]);
+        $autoRow = $autoP->fetch();
+        $fields[] = 'pelatih_id = ?';
+        $params[] = $autoRow ? (int)$autoRow['id'] : null;
+    } elseif (isset($body['pelatih_id'])) {
+        $fields[] = 'pelatih_id = ?';
+        $params[] = (int)$body['pelatih_id'] ?: null;
+    }
     if (isset($body['status']))           { $fields[] = 'status = ?';           $params[] = $body['status']; }
 
     if (!$fields) errorResponse('Tidak ada data yang diubah.', 422);
