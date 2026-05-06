@@ -125,5 +125,5 @@ Project ini dibuat untuk keperluan internal **SMANKO Sulawesi Selatan**.
 ---
 
 <div align="center">
-  Made by <strong>Fachry Paryansyah</strong> – SMA Negeri Khusus Keberbakatan Olahraga Sulawesi Selatan
+  Created by <strong>Fachry Paryansyah</strong> – Sma negeri khusus keberbakatan olahraga sulawesi selatan
 </div>
