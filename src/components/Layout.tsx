@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import {
   LayoutDashboard, Users, GraduationCap, Dumbbell, ListChecks,
   CalendarDays, Settings, ClipboardList, Menu, X,
-  LogOut, BookOpen, Trophy, TrendingUp
+  LogOut, BookOpen, Trophy, TrendingUp, Users2
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import type { Role } from '../types'
@@ -24,20 +24,21 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Data Siswa',        icon: <GraduationCap size={18}/>,     to: '/admin/siswa',           roles: ['admin'] },
   { label: 'Cabang Olahraga',   icon: <Dumbbell size={18}/>,          to: '/admin/cabang',          roles: ['admin'] },
   { label: 'Profil Pelatih',    icon: <Users size={18}/>,             to: '/admin/profil-pelatih',  roles: ['admin'] },
+  { label: 'Pendamping Cabor',  icon: <Users2 size={18}/>,            to: '/admin/pendamping-cabor',roles: ['admin'] },
   { label: 'Kriteria Penilaian',icon: <ListChecks size={18}/>,        to: '/admin/kriteria',        roles: ['admin'] },
   { label: 'Penugasan Guru',    icon: <BookOpen size={18}/>,          to: '/admin/guru-kelas',      roles: ['admin'] },
   { label: 'Pengaturan',        icon: <Settings size={18}/>,          to: '/admin/settings',        roles: ['admin'] },
   // Guru / Staff
   { label: 'Input Nilai',       icon: <ClipboardList size={18}/>,     to: '/guru/input-nilai',      roles: ['guru_olahraga'] },
   { label: 'Rekap Nilai',       icon: <Trophy size={18}/>,            to: '/guru/rekap',            roles: ['guru_olahraga'] },
-  // Pendamping Cabor
+  // Wakasek Kesiswaan
   { label: 'Rekap Nilai',       icon: <Trophy size={18}/>,            to: '/wakasek/rekap',         roles: ['wakasek'] },
 ]
 
 const ROLE_LABELS: Record<Role, string> = {
   admin:          'Administrator',
   guru_olahraga:  'Guru / Staff',
-  wakasek:        'Pendamping Cabor',
+  wakasek:        'Wakasek Kesiswaan',
 }
 
 interface Props { children: React.ReactNode; title?: string }

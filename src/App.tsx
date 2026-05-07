@@ -18,6 +18,7 @@ import CabangPage         from './pages/admin/CabangPage'
 import KriteriaPage       from './pages/admin/KriteriaPage'
 import GuruKelasPage      from './pages/admin/GuruKelasPage'
 import ProfilPelatihPage  from './pages/admin/ProfilPelatihPage'
+import PendampingCaborPage from './pages/admin/PendampingCaborPage'
 import SettingsPage       from './pages/admin/SettingsPage'
 
 // Guru Olahraga
@@ -61,6 +62,9 @@ export default function App() {
           } />
           <Route path="/admin/profil-pelatih" element={
             <ProtectedRoute roles={['admin']}><ProfilPelatihPage /></ProtectedRoute>
+          } />
+          <Route path="/admin/pendamping-cabor" element={
+            <ProtectedRoute roles={['admin']}><PendampingCaborPage /></ProtectedRoute>
           } />
           <Route path="/admin/kriteria" element={
             <ProtectedRoute roles={['admin']}><KriteriaPage /></ProtectedRoute>

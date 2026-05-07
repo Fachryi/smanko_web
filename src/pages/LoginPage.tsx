@@ -264,7 +264,7 @@ export default function LoginPage() {
             {/* Feature list */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
               {[
-                { icon: <Shield size={14} />, text: 'Akses aman berbasis peran (Admin, Guru / Staff, Pendamping Cabor)' },
+                { icon: <Shield size={14} />, text: 'Akses aman berbasis peran (Admin, Guru / Staff, Wakasek Kesiswaan)' },
                 { icon: <BarChart3 size={14} />, text: 'Rekapitulasi otomatis dengan perhitungan berbobot' },
                 { icon: <Award size={14} />, text: 'Keterampilan, Prestasi & Kehadiran terintegrasi' },
               ].map((f, i) => (

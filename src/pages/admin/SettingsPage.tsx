@@ -4,26 +4,27 @@ import Modal from '../../components/Modal'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { api } from '../../lib/apiClient'
 import type { SettingPrestasi, SettingKehadiran, SettingBobotUtama, ApiResponse } from '../../types'
-import { Plus, Pencil, Trash2, AlertCircle, CheckCircle2, Settings2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, AlertCircle, CheckCircle2, Settings2, School } from 'lucide-react'
 
-type Tab = 'bobot' | 'prestasi' | 'kehadiran'
+type Tab = 'sekolah' | 'bobot' | 'prestasi' | 'kehadiran'
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState<Tab>('bobot')
+  const [tab, setTab] = useState<Tab>('sekolah')
 
   return (
     <Layout title="Pengaturan Global">
       <div className="page-header">
         <div className="page-header-left">
           <h1>Pengaturan Global</h1>
-          <p>Konfigurasi kriteria penilaian yang berlaku untuk semua cabang olahraga.</p>
+          <p>Konfigurasi sekolah dan kriteria penilaian yang berlaku untuk semua cabang olahraga.</p>
         </div>
         <Settings2 size={24} style={{color:'var(--clr-primary-2)'}}/>
       </div>
 
       <div className="tabs">
-        {(['bobot','prestasi','kehadiran'] as Tab[]).map(t => (
+        {(['sekolah','bobot','prestasi','kehadiran'] as Tab[]).map(t => (
           <button key={t} className={`tab-btn ${tab===t?'active':''}`} onClick={()=>setTab(t)}>
+            {t==='sekolah'   && '🏫 Profil Sekolah'}
             {t==='bobot'     && '⚖️ Bobot Komponen Utama'}
             {t==='prestasi'  && '🏆 Tingkatan Prestasi'}
             {t==='kehadiran' && '📋 Rentang Kehadiran'}
@@ -31,10 +32,125 @@ export default function SettingsPage() {
         ))}
       </div>
 
+      {tab==='sekolah'   && <SekolahTab/>}
       {tab==='bobot'     && <BobotTab/>}
       {tab==='prestasi'  && <PrestasiTab/>}
       {tab==='kehadiran' && <KehadiranTab/>}
     </Layout>
+  )
+}
+
+/* ============================================================
+   TAB: Profil Sekolah (Kepala Sekolah)
+   ============================================================ */
+function SekolahTab() {
+  const [loading, setLoading] = useState(true)
+  const [saving,  setSaving]  = useState(false)
+  const [error,   setError]   = useState('')
+  const [success, setSuccess] = useState(false)
+  const [form, setForm] = useState({ nama: '', nip: '' })
+
+  useEffect(() => {
+    api.get<ApiResponse<{kepala_sekolah_nama:string; kepala_sekolah_nip:string}>>('/settings/sekolah.php')
+      .then(r => {
+        if (r.data) setForm({ nama: r.data.kepala_sekolah_nama, nip: r.data.kepala_sekolah_nip })
+      }).catch(()=>{}).finally(()=>setLoading(false))
+  }, [])
+
+  const handleSave = async () => {
+    if (!form.nama.trim()) { setError('Nama kepala sekolah tidak boleh kosong.'); return }
+    if (!form.nip.trim())  { setError('NIP tidak boleh kosong.'); return }
+    setSaving(true); setError('')
+    try {
+      await api.put('/settings/sekolah.php', {
+        kepala_sekolah_nama: form.nama.trim(),
+        kepala_sekolah_nip:  form.nip.trim(),
+      })
+      setSuccess(true); setTimeout(()=>setSuccess(false), 3000)
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : 'Gagal menyimpan.') }
+    finally { setSaving(false) }
+  }
+
+  if (loading) return <div className="flex-center" style={{padding:60}}><div className="spinner spinner-lg"/></div>
+
+  return (
+    <div style={{maxWidth:600}}>
+      <div className="card">
+        {/* Info Box */}
+        <div style={{
+          display:'flex', alignItems:'flex-start', gap:12,
+          background:'var(--clr-bg-3)', borderRadius:'var(--r-md)',
+          padding:'var(--sp-4)', marginBottom:'var(--sp-5)',
+          border:'1px solid var(--clr-border)', fontSize:'0.82rem',
+          color:'var(--clr-text-2)', lineHeight:1.7
+        }}>
+          <School size={18} style={{color:'var(--clr-primary-2)',flexShrink:0,marginTop:2}}/>
+          <div>
+            <strong style={{color:'var(--clr-text)'}}>Data Kepala Sekolah</strong><br/>
+            Nama dan NIP yang diisi di sini akan tampil secara otomatis pada setiap dokumen cetak
+            (Raport Nilai Siswa dan Laporan Rekap). Perbarui data ini setiap ada pergantian kepala sekolah.
+          </div>
+        </div>
+
+        {error   && <div className="login-error" style={{marginBottom:'var(--sp-4)'}}><AlertCircle size={14}/>{error}</div>}
+        {success && (
+          <div style={{
+            background:'var(--clr-success-bg)', border:'1px solid rgba(34,197,94,0.3)',
+            color:'var(--clr-success)', borderRadius:'var(--r-md)',
+            padding:'10px 16px', marginBottom:'var(--sp-4)',
+            display:'flex', alignItems:'center', gap:8, fontSize:'0.875rem'
+          }}>
+            <CheckCircle2 size={14}/> Data kepala sekolah berhasil disimpan!
+          </div>
+        )}
+
+        <div className="form-group">
+          <label className="form-label">
+            Nama Kepala Sekolah <span className="required">*</span>
+          </label>
+          <input
+            className="form-control"
+            placeholder="Contoh: A. Syamsualam, S.Pd., M.Si."
+            value={form.nama}
+            onChange={e => setForm(f => ({...f, nama: e.target.value}))}
+          />
+          <div className="form-help">Sertakan gelar akademik jika ada (mis. S.Pd., M.Si.)</div>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">
+            NIP <span className="required">*</span>
+          </label>
+          <input
+            className="form-control"
+            placeholder="Contoh: 198012202009041001"
+            value={form.nip}
+            onChange={e => setForm(f => ({...f, nip: e.target.value}))}
+          />
+          <div className="form-help">Nomor Induk Pegawai kepala sekolah aktif</div>
+        </div>
+
+        {/* Preview tanda tangan */}
+        <div style={{
+          background:'var(--clr-bg-3)', border:'1px solid var(--clr-border)',
+          borderRadius:'var(--r-md)', padding:'var(--sp-4)',
+          marginBottom:'var(--sp-5)'
+        }}>
+          <div style={{fontSize:'0.78rem',color:'var(--clr-text-3)',marginBottom:8,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.4px'}}>Preview Tanda Tangan</div>
+          <div style={{textAlign:'center',padding:'8px 0'}}>
+            <div style={{fontSize:'0.82rem',fontWeight:600,color:'var(--clr-text-2)',lineHeight:1.6,marginBottom:40}}>Mengetahui,<br/>Kepala Sekolah</div>
+            <div style={{borderTop:'1px solid var(--clr-border)',paddingTop:6,display:'inline-block',minWidth:200}}>
+              <div style={{fontWeight:700,color:'var(--clr-text)',fontSize:'0.88rem'}}>{form.nama || <span style={{color:'var(--clr-text-3)',fontStyle:'italic'}}>Belum diisi</span>}</div>
+              <div style={{fontSize:'0.78rem',color:'var(--clr-text-2)',marginTop:2}}>NIP. {form.nip || '—'}</div>
+            </div>
+          </div>
+        </div>
+
+        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+          {saving ? <><span className="spinner"/>Menyimpan...</> : 'Simpan Data Kepala Sekolah'}
+        </button>
+      </div>
+    </div>
   )
 }
 

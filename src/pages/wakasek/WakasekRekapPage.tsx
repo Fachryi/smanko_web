@@ -63,6 +63,24 @@ interface DashboardData {
   top_performers: TopPerformer[]; predikat_dist: PredikatDist[]
   all_siswa: AllSiswa[]
 }
+// Tipe untuk rekap kehadiran per semester
+interface RekapKehadiranRow {
+  siswa_id: number; nisn: string; nis: string; nama_siswa: string
+  kelas: string; jenis_kelamin: string
+  cabang_olahraga_id: number; nama_cabang: string; kode_cabang: string
+  penilaian_id: number; status_penilaian: string
+  semester: number; nama_tahun_ajaran: string
+  total_sesi: number; total_hadir: number
+  persentase_hadir: number; nilai_kehadiran: number
+  nama_penilai: string
+  pendamping_nama: string; pendamping_nip: string; pendamping_telepon: string
+}
+interface RingkasanCabor {
+  cabang_olahraga_id: number; nama_cabang: string; kode_cabang: string
+  total_siswa_dinilai: number; avg_kehadiran: number
+  total_sesi_all: number; total_hadir_all: number
+  pendamping_nama: string; pendamping_nip: string
+}
 
 // ── Constants ──────────────────────────────────────────────
 const PREDIKAT_COLOR: Record<string, string> = {
@@ -287,10 +305,19 @@ export default function WakasekRekapPage() {
   const [drillDown,       setDrillDown]       = useState<PrestasiDist | null>(null)
   const [activeChart,     setActiveChart]     = useState<'akhir' | 'keterampilan' | 'prestasi' | 'kehadiran'>('akhir')
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'rekap'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'rekap' | 'kehadiran'>('dashboard')
   const [prestasiData, setPrestasiData] = useState<any[]>([])
   const [loadingPrestasi, setLoadingPrestasi] = useState(false)
   const [previewUrl,      setPreviewUrl]      = useState<string | null>(null)
+
+  // State rekap kehadiran
+  const [rekapKehadiran,     setRekapKehadiran]     = useState<RekapKehadiranRow[]>([])
+  const [ringkasanCabor,     setRingkasanCabor]     = useState<RingkasanCabor[]>([])
+  const [semesterLabel,      setSemesterLabel]      = useState('')
+  const [loadingKehadiran,   setLoadingKehadiran]   = useState(false)
+  const [filterKhdCabor,     setFilterKhdCabor]     = useState('')
+  const [filterKhdStatus,    setFilterKhdStatus]    = useState('')
+  const [viewMode,           setViewMode]           = useState<'detail' | 'ringkasan'>('ringkasan')
   
   const [filterCabang, setFilterCabang] = useState<string>('')
   const [filterSeluruhCabor, setFilterSeluruhCabor] = useState<string>('')
@@ -324,9 +351,25 @@ export default function WakasekRekapPage() {
     } catch {} finally { setLoadingPrestasi(false) }
   }, [selectedTA])
 
+  const loadKehadiran = useCallback(async () => {
+    if (!selectedTA) return
+    setLoadingKehadiran(true)
+    try {
+      const res = await api.get<ApiResponse<{
+        rekap: RekapKehadiranRow[]
+        ringkasan_cabor: RingkasanCabor[]
+        semester_label: string
+      }>>(`/wakasek/rekap_kehadiran.php?tahun_ajaran_id=${selectedTA}`)
+      setRekapKehadiran(res.data?.rekap ?? [])
+      setRingkasanCabor(res.data?.ringkasan_cabor ?? [])
+      setSemesterLabel(res.data?.semester_label ?? '')
+    } catch {} finally { setLoadingKehadiran(false) }
+  }, [selectedTA])
+
   useEffect(() => {
     loadPrestasi()
-  }, [loadPrestasi])
+    loadKehadiran()
+  }, [loadPrestasi, loadKehadiran])
 
   useEffect(() => {
     setLeaderboardPage(1)
@@ -372,7 +415,7 @@ export default function WakasekRekapPage() {
           terendah:      Number(dash.overview.terendah),
         },
         allSiswa: dash.all_siswa,
-        wakasekNama: user?.nama ?? 'Pendamping Cabor',
+        wakasekNama: user?.nama ?? 'Wakasek Kesiswaan',
       })
     } finally {
       setTimeout(() => setPrinting(false), 1000)
@@ -425,7 +468,7 @@ export default function WakasekRekapPage() {
   const medals = ['🥇', '🥈', '🥉']
 
   return (
-    <Layout title="Dashboard Pendamping Cabor">
+    <Layout title="Dashboard Wakasek Kesiswaan">
       {/* ── Page Header ──────────────────────────────── */}
       <div style={{
         borderRadius: 'var(--r-xl)',
@@ -496,7 +539,7 @@ export default function WakasekRekapPage() {
                 🎯 Dashboard Eksekutif
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: '0.85rem', margin: 0 }}>
-                Helicopter View – Pendamping Cabor SMANKO Sulawesi Selatan
+                Helicopter View – Wakasek Kesiswaan SMANKO Sulawesi Selatan
               </p>
             </div>
           </div>
@@ -548,11 +591,12 @@ export default function WakasekRekapPage() {
       {/* ── Tab Navigation ── */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 'var(--sp-5)', borderBottom: '1px solid var(--clr-border)', paddingBottom: 0 }}>
         {[
-          { key: 'dashboard', label: 'Dashboard Eksekutif', icon: <TrendingUp size={15} /> },
-          { key: 'rekap',     label: 'Rekap Seluruh Siswa', icon: <Users size={15} /> },
+          { key: 'dashboard', label: 'Dashboard Eksekutif',  icon: <TrendingUp size={15} /> },
+          { key: 'rekap',     label: 'Rekap Seluruh Siswa',  icon: <Users size={15} /> },
+          { key: 'kehadiran', label: 'Rekap Kehadiran',      icon: <FileText size={15} /> },
         ].map(tab => (
           <button key={tab.key} type="button"
-            onClick={() => setActiveTab(tab.key as 'dashboard' | 'rekap')}
+            onClick={() => setActiveTab(tab.key as 'dashboard' | 'rekap' | 'kehadiran')}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '10px 20px', border: 'none', cursor: 'pointer',
@@ -573,6 +617,16 @@ export default function WakasekRekapPage() {
         </div>
       ) : !dash ? (
         <div className="card" style={{ padding: 40, textAlign: 'center' }}>Gagal memuat data dashboard.</div>
+      ) : activeTab === 'kehadiran' ? (
+        <RekapKehadiranTab
+          rekapKehadiran={rekapKehadiran}
+          ringkasanCabor={ringkasanCabor}
+          semesterLabel={semesterLabel}
+          loading={loadingKehadiran}
+          filterKhdCabor={filterKhdCabor}   setFilterKhdCabor={setFilterKhdCabor}
+          filterKhdStatus={filterKhdStatus} setFilterKhdStatus={setFilterKhdStatus}
+          viewMode={viewMode} setViewMode={setViewMode}
+        />
       ) : activeTab === 'dashboard' ? (
         <>
           {/* ── 1. Overview Cards ── */}
@@ -932,7 +986,7 @@ export default function WakasekRekapPage() {
               </div>
               <button 
                 className="btn btn-secondary btn-sm"
-                onClick={() => printWakasekPrestasiReport({ tahunAjaran: tahunAjaranList.find(t => t.id === selectedTA)?.nama || '', prestasi: filteredPrestasiData, wakasekNama: user?.nama || 'Pendamping Cabor' })}
+                onClick={() => printWakasekPrestasiReport({ tahunAjaran: tahunAjaranList.find(t => t.id === selectedTA)?.nama || '', prestasi: filteredPrestasiData, wakasekNama: user?.nama || 'Wakasek Kesiswaan' })}
               >
                 <FileText size={14} /> Export PDF
               </button>
@@ -1236,5 +1290,285 @@ export default function WakasekRekapPage() {
         <BuktiLightbox url={previewUrl} onClose={() => setPreviewUrl(null)} />
       )}
     </Layout>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
+// Komponen Tab Rekap Kehadiran
+// ─────────────────────────────────────────────────────────────
+function RekapKehadiranTab({
+  rekapKehadiran, ringkasanCabor, semesterLabel, loading,
+  filterKhdCabor, setFilterKhdCabor,
+  filterKhdStatus, setFilterKhdStatus,
+  viewMode, setViewMode,
+}: {
+  rekapKehadiran:  RekapKehadiranRow[]
+  ringkasanCabor:  RingkasanCabor[]
+  semesterLabel:   string
+  loading:         boolean
+  filterKhdCabor:  string;  setFilterKhdCabor:  (v: string) => void
+  filterKhdStatus: string;  setFilterKhdStatus: (v: string) => void
+  viewMode:        'detail'|'ringkasan'; setViewMode: (v: 'detail'|'ringkasan') => void
+}) {
+  // Helper: warna berdasarkan persentase kehadiran
+  const pctColor = (pct: number) => {
+    if (pct >= 90) return '#22c55e'
+    if (pct >= 75) return '#3b82f6'
+    if (pct >= 60) return '#f59e0b'
+    return '#ef4444'
+  }
+  const pctLabel = (pct: number) => {
+    if (pct >= 90) return 'Baik Sekali'
+    if (pct >= 75) return 'Baik'
+    if (pct >= 60) return 'Cukup'
+    return 'Kurang'
+  }
+
+  // Daftar cabor unik dari data
+  const caborList = Array.from(new Set(rekapKehadiran.map(r => r.nama_cabang))).sort()
+
+  // Filter data detail
+  const filtered = rekapKehadiran.filter(r => {
+    if (filterKhdCabor  && r.nama_cabang     !== filterKhdCabor)  return false
+    if (filterKhdStatus && r.status_penilaian !== filterKhdStatus) return false
+    return true
+  })
+
+  // Filter ringkasan
+  const filteredRingkasan = ringkasanCabor.filter(r =>
+    !filterKhdCabor || r.nama_cabang === filterKhdCabor
+  )
+
+  if (loading) {
+    return (
+      <div className="flex-center" style={{ padding: 100 }}>
+        <div className="spinner spinner-lg"/>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {/* ── Filter Bar ── */}
+      <div style={{
+        background: '#fff', borderRadius: 'var(--r-lg)',
+        padding: 'var(--sp-4) var(--sp-5)', marginBottom: 'var(--sp-4)',
+        border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+        display: 'flex', gap: 'var(--sp-4)', flexWrap: 'wrap', alignItems: 'flex-end',
+      }}>
+        {/* Cabor */}
+        <div style={{ flex: '1 1 180px', minWidth: 160 }}>
+          <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#162b60', marginBottom: 6, letterSpacing: '0.5px' }}>
+            CABANG OLAHRAGA
+          </label>
+          <select className="form-control" style={{ width: '100%', fontSize: '0.85rem', padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, color: '#334155' }}
+            value={filterKhdCabor} onChange={e => setFilterKhdCabor(e.target.value)}>
+            <option value="">Semua Cabor</option>
+            {caborList.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        {/* Semester (readonly info) */}
+        <div style={{ flex: '1 1 220px', minWidth: 200 }}>
+          <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#162b60', marginBottom: 6, letterSpacing: '0.5px' }}>
+            SEMESTER
+          </label>
+          <div style={{ width: '100%', fontSize: '0.85rem', padding: '8px 12px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 8, color: '#334155', fontWeight: 600 }}>
+            {semesterLabel || 'Semester Aktif'}
+          </div>
+        </div>
+        {/* Status */}
+        <div style={{ flex: '1 1 150px', minWidth: 130 }}>
+          <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#162b60', marginBottom: 6, letterSpacing: '0.5px' }}>
+            STATUS PENILAIAN
+          </label>
+          <select className="form-control" style={{ width: '100%', fontSize: '0.85rem', padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, color: '#334155' }}
+            value={filterKhdStatus} onChange={e => setFilterKhdStatus(e.target.value)}>
+            <option value="">Semua Status</option>
+            <option value="final">Final</option>
+            <option value="draft">Draft</option>
+          </select>
+        </div>
+        {/* View toggle */}
+        <div style={{ display: 'flex', gap: 6, alignSelf: 'flex-end' }}>
+          <button className={`btn btn-sm ${viewMode === 'ringkasan' ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => setViewMode('ringkasan')}>
+            Ringkasan Cabor
+          </button>
+          <button className={`btn btn-sm ${viewMode === 'detail' ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => setViewMode('detail')}>
+            Detail Siswa
+          </button>
+        </div>
+      </div>
+
+      {/* ── Ringkasan per Cabor ── */}
+      {viewMode === 'ringkasan' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 'var(--sp-4)', marginBottom: 'var(--sp-5)' }}>
+          {filteredRingkasan.length === 0 ? (
+            <div className="card" style={{ padding: 40, textAlign: 'center', color: 'var(--clr-text-4)', gridColumn: '1/-1' }}>
+              Belum ada data kehadiran yang diinput.
+            </div>
+          ) : filteredRingkasan.map(c => {
+            const avg = Number(c.avg_kehadiran) || 0
+            const col = pctColor(avg)
+            return (
+              <div key={c.cabang_olahraga_id} className="card" style={{ padding: 0, overflow: 'hidden', border: `1.5px solid ${col}30` }}>
+                {/* Header */}
+                <div style={{
+                  padding: 'var(--sp-3) var(--sp-4)',
+                  background: `linear-gradient(90deg, ${col}18, transparent)`,
+                  borderBottom: `1px solid ${col}25`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                }}>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--clr-text)' }}>{c.nama_cabang}</div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--clr-text-3)', marginTop: 2 }}>
+                      <span className="badge badge-info" style={{ fontSize: '0.65rem', marginRight: 6 }}>{c.kode_cabang}</span>
+                      {c.total_siswa_dinilai} siswa dinilai
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: col, lineHeight: 1 }}>{avg.toFixed(1)}%</div>
+                    <div style={{ fontSize: '0.68rem', fontWeight: 700, color: col }}>{pctLabel(avg)}</div>
+                  </div>
+                </div>
+                {/* Progress bar */}
+                <div style={{ height: 6, background: 'var(--clr-bg-3)' }}>
+                  <div style={{ height: '100%', width: `${avg}%`, background: col, transition: 'width 0.8s ease', borderRadius: '0 4px 4px 0' }} />
+                </div>
+                {/* Stats */}
+                <div style={{ padding: 'var(--sp-3) var(--sp-4)', display: 'flex', gap: 'var(--sp-4)' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--clr-text-3)' }}>Total Sesi</div>
+                    <div style={{ fontWeight: 700 }}>{c.total_sesi_all || '–'}</div>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--clr-text-3)' }}>Total Hadir</div>
+                    <div style={{ fontWeight: 700, color: '#22c55e' }}>{c.total_hadir_all || '–'}</div>
+                  </div>
+                </div>
+                {/* Pendamping */}
+                <div style={{
+                  padding: 'var(--sp-2) var(--sp-4)',
+                  borderTop: '1px solid var(--clr-border)',
+                  background: 'var(--clr-bg-2)',
+                  fontSize: '0.78rem',
+                }}>
+                  <span style={{ color: 'var(--clr-text-3)' }}>Pendamping: </span>
+                  {c.pendamping_nama ? (
+                    <span style={{ fontWeight: 700, color: 'var(--clr-text)' }}>
+                      {c.pendamping_nama}
+                      {c.pendamping_nip && <span style={{ color: 'var(--clr-text-3)', fontWeight: 400, marginLeft: 4 }}>NIP. {c.pendamping_nip}</span>}
+                    </span>
+                  ) : (
+                    <span style={{ color: 'var(--clr-warning)', fontStyle: 'italic' }}>Belum diisi</span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── Detail Per Siswa ── */}
+      {viewMode === 'detail' && (
+        <div className="card" style={{ padding: 0 }}>
+          <div style={{
+            padding: 'var(--sp-4) var(--sp-5)',
+            borderBottom: '1px solid var(--clr-border)',
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <FileText size={18} style={{ color: 'var(--clr-primary-2)' }} />
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 700 }}>Detail Kehadiran Per Siswa</h3>
+            <span className="badge badge-neutral" style={{ marginLeft: 'auto' }}>{filtered.length} data</span>
+          </div>
+          <div className="table-wrapper">
+            <table style={{ minWidth: 960 }}>
+              <thead>
+                <tr>
+                  <th style={{ width: 40 }}>No</th>
+                  <th>Nama Siswa</th>
+                  <th>Kelas</th>
+                  <th>Cabang Olahraga</th>
+                  <th>Pendamping Cabor</th>
+                  <th style={{ textAlign: 'center' }}>Semester</th>
+                  <th style={{ textAlign: 'center' }}>Hadir / Sesi</th>
+                  <th style={{ textAlign: 'center' }}>% Hadir</th>
+                  <th style={{ textAlign: 'center' }}>Kategori</th>
+                  <th>Penilai (Guru)</th>
+                  <th style={{ textAlign: 'center' }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr><td colSpan={11} className="table-empty">
+                    Tidak ada data kehadiran sesuai filter.
+                  </td></tr>
+                ) : filtered.map((r, i) => {
+                  const pct = Number(r.persentase_hadir) || 0
+                  const col = pctColor(pct)
+                  return (
+                    <tr key={`${r.siswa_id}-${i}`}>
+                      <td style={{ color: 'var(--clr-text-3)' }}>{i + 1}</td>
+                      <td>
+                        <div style={{ fontWeight: 700 }}>{r.nama_siswa}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--clr-text-3)', fontFamily: 'monospace' }}>{r.nis}</div>
+                      </td>
+                      <td><span className="badge badge-info" style={{ fontSize: '0.7rem' }}>{r.kelas}</span></td>
+                      <td>
+                        <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{r.nama_cabang}</div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--clr-text-3)' }}>{r.kode_cabang}</div>
+                      </td>
+                      <td>
+                        {r.pendamping_nama ? (
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '0.82rem' }}>{r.pendamping_nama}</div>
+                            {r.pendamping_nip && (
+                              <div style={{ fontSize: '0.7rem', color: 'var(--clr-text-3)', fontFamily: 'monospace' }}>NIP. {r.pendamping_nip}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--clr-warning)', fontSize: '0.75rem', fontStyle: 'italic' }}>Belum diisi</span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: 'center', fontWeight: 600 }}>
+                        Semester {r.semester}
+                        <div style={{ fontSize: '0.68rem', color: 'var(--clr-text-3)', marginTop: 2 }}>{r.nama_tahun_ajaran}</div>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span style={{ fontWeight: 700 }}>{r.total_hadir ?? '–'}</span>
+                        <span style={{ color: 'var(--clr-text-3)' }}> / {r.total_sesi ?? '–'}</span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                          <span style={{ fontWeight: 800, fontSize: '1rem', color: col }}>{pct.toFixed(1)}%</span>
+                          <div style={{ width: 60, height: 5, background: 'var(--clr-bg-3)', borderRadius: 4 }}>
+                            <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: col, borderRadius: 4 }} />
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span style={{
+                          fontSize: '0.72rem', fontWeight: 700,
+                          color: col, background: `${col}18`,
+                          padding: '2px 8px', borderRadius: 6,
+                          border: `1px solid ${col}30`,
+                        }}>{pctLabel(pct)}</span>
+                      </td>
+                      <td style={{ fontSize: '0.82rem' }}>{r.nama_penilai}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={`badge ${r.status_penilaian === 'final' ? 'badge-success' : 'badge-warning'}`}>
+                          {r.status_penilaian === 'final' ? '✓ Final' : '📝 Draft'}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

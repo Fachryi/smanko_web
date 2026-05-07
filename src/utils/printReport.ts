@@ -4,6 +4,7 @@
 // Menggunakan browser print window dengan CSS print layout
 // ============================================================
 
+
 export interface StudentReportData {
   siswa: {
     nama: string; nisn: string; nis: string; kelas: string
@@ -41,7 +42,46 @@ function predikatBg(predikat: string): string {
   return map[predikat] || '#f3f4f6'
 }
 
-export function printStudentReport(d: StudentReportData): void {
+export async function printStudentReport(d: StudentReportData): Promise<void> {
+  // Fetch data dinamis: kepala sekolah + pendamping cabor (paralel)
+  let ksNama    = 'A. Syamsualam, S.Pd., M.Si.'
+  let ksNip     = '198012202009041001'
+  let pdNama    = ''
+  let pdNip     = ''
+
+  try {
+    const token   = localStorage.getItem('smanko_token')
+    const headers: Record<string, string> = {}
+    if (token) headers['Authorization'] = `Bearer ${token}`
+
+    // Cari cabang_olahraga_id dari kode cabang (via siswa.kode_cabang)
+    // API pendamping menggunakan cabang_id, kita perlu id dari data siswa
+    // Karena StudentReportData tidak expose cabang_id, kita fetch by kode via siswa
+    const [resKS, resPD] = await Promise.allSettled([
+      fetch('/api/settings/sekolah.php', { headers }).then(r => r.json()),
+      // Fetch semua, lalu filter by kode_cabang di frontend
+      fetch('/api/master/pendamping_cabor.php', { headers }).then(r => r.json()),
+    ])
+
+    if (resKS.status === 'fulfilled') {
+      const j = resKS.value
+      if (j?.data?.kepala_sekolah_nama) ksNama = j.data.kepala_sekolah_nama
+      if (j?.data?.kepala_sekolah_nip)  ksNip  = j.data.kepala_sekolah_nip
+    }
+
+    if (resPD.status === 'fulfilled') {
+      const j = resPD.value
+      const list: Array<{nama: string; nip: string; nama_cabang?: string; is_utama: number}> = j?.data ?? []
+      // 1. Filter pendamping yang cabornya sama
+      const forCabor = list.filter(p =>
+        (p.nama_cabang ?? '').toLowerCase() === d.siswa.nama_cabang.toLowerCase()
+      )
+      // 2. Ambil yang is_utama === 1, jika tidak ada, ambil yang pertama
+      const match = forCabor.find(p => p.is_utama === 1) || forCabor[0]
+      if (match) { pdNama = match.nama; pdNip = match.nip }
+    }
+  } catch { /* gunakan fallback default */ }
+
   const today = new Date().toLocaleDateString('id-ID', {
     day: 'numeric', month: 'long', year: 'numeric',
   })
@@ -452,8 +492,8 @@ export function printStudentReport(d: StudentReportData): void {
     <div class="sig-box">
       <div class="sig-label">Mengetahui,<br>Kepala Sekolah</div>
       <div class="sig-line">
-        <div class="sig-name">...................................</div>
-        <div class="sig-nip">NIP. ................................</div>
+        <div class="sig-name">${ksNama}</div>
+        <div class="sig-nip">NIP. ${ksNip}</div>
       </div>
     </div>
     <div class="sig-box">
@@ -470,8 +510,8 @@ export function printStudentReport(d: StudentReportData): void {
     <div class="sig-box">
       <div class="sig-label">Mengetahui,<br>Pendamping Cabor</div>
       <div class="sig-line">
-        <div class="sig-name">...................................</div>
-        <div class="sig-nip">NIP. ................................</div>
+        <div class="sig-name">${pdNama || '...................................'}</div>
+        <div class="sig-nip">${pdNip ? 'NIP. ' + pdNip : 'NIP. ................................'}</div>
       </div>
     </div>
     <div class="sig-box">

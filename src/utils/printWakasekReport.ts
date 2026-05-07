@@ -1,7 +1,8 @@
 // ============================================================
 // src/utils/printWakasekReport.ts
-// Cetak laporan rekapitulasi lengkap untuk Pendamping Cabor (semua siswa)
+// Cetak laporan rekapitulasi lengkap untuk Wakasek Kesiswaan (semua siswa)
 // ============================================================
+
 
 export interface WakasekReportData {
   tahunAjaran: string
@@ -29,7 +30,20 @@ function prColor(p: string): string {
   }[p] || '#374151'
 }
 
-export function printWakasekReport(d: WakasekReportData): void {
+export async function printWakasekReport(d: WakasekReportData): Promise<void> {
+  // Ambil data kepala sekolah dari API
+  let ksNama = 'A. Syamsualam, S.Pd., M.Si.'
+  let ksNip  = '198012202009041001'
+  try {
+    const token = localStorage.getItem('smanko_token')
+    const headers: Record<string, string> = {}
+    if (token) headers['Authorization'] = `Bearer ${token}`
+    const res = await fetch('/api/settings/sekolah.php', { headers })
+    const json = await res.json()
+    if (json?.data?.kepala_sekolah_nama) ksNama = json.data.kepala_sekolah_nama
+    if (json?.data?.kepala_sekolah_nip)  ksNip  = json.data.kepala_sekolah_nip
+  } catch { /* gunakan fallback default */ }
+
   const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
   const pct   = d.overview.total_siswa > 0
     ? ((d.overview.total_dinilai / d.overview.total_siswa) * 100).toFixed(1) : '0'
@@ -162,10 +176,10 @@ ${kelasBlocks}
 <div class="signature-row">
   <div class="sig-box">
     <div class="sig-label">Mengetahui,<br>Kepala Sekolah</div>
-    <div class="sig-line"><div class="sig-name">........................................</div><div class="sig-nip">NIP. ...............................</div></div>
+    <div class="sig-line"><div class="sig-name">${ksNama}</div><div class="sig-nip">NIP. ${ksNip}</div></div>
   </div>
   <div class="sig-box">
-    <div class="sig-label">Makassar, ${today}<br>Pendamping Cabor</div>
+    <div class="sig-label">Makassar, ${today}<br>Wakasek Kesiswaan</div>
     <div class="sig-line"><div class="sig-name">${d.wakasekNama}</div><div class="sig-nip">NIP. ...............................</div></div>
   </div>
 </div>
@@ -196,7 +210,20 @@ export interface WakasekPrestasiData {
   wakasekNama: string
 }
 
-export function printWakasekPrestasiReport(d: WakasekPrestasiData): void {
+export async function printWakasekPrestasiReport(d: WakasekPrestasiData): Promise<void> {
+  // Ambil data kepala sekolah dari API
+  let ksNama = 'A. Syamsualam, S.Pd., M.Si.'
+  let ksNip  = '198012202009041001'
+  try {
+    const token = localStorage.getItem('smanko_token')
+    const headers: Record<string, string> = {}
+    if (token) headers['Authorization'] = `Bearer ${token}`
+    const res = await fetch('/api/settings/sekolah.php', { headers })
+    const json = await res.json()
+    if (json?.data?.kepala_sekolah_nama) ksNama = json.data.kepala_sekolah_nama
+    if (json?.data?.kepala_sekolah_nip)  ksNip  = json.data.kepala_sekolah_nip
+  } catch { /* gunakan fallback default */ }
+
   const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
   const BULAN_NAMES = ['', 'Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
 
@@ -320,10 +347,10 @@ export function printWakasekPrestasiReport(d: WakasekPrestasiData): void {
 <div class="signature-row">
   <div class="sig-box">
     <div class="sig-label">Mengetahui,<br>Kepala Sekolah</div>
-    <div class="sig-line"><div class="sig-name">........................................</div><div class="sig-nip">NIP. ...............................</div></div>
+    <div class="sig-line"><div class="sig-name">${ksNama}</div><div class="sig-nip">NIP. ${ksNip}</div></div>
   </div>
   <div class="sig-box">
-    <div class="sig-label">Makassar, ${today}<br>Pendamping Cabor</div>
+    <div class="sig-label">Makassar, ${today}<br>Wakasek Kesiswaan</div>
     <div class="sig-line"><div class="sig-name">${d.wakasekNama}</div><div class="sig-nip">NIP. ...............................</div></div>
   </div>
 </div>

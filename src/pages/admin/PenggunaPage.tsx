@@ -9,7 +9,7 @@ import { Search, Plus, Pencil, UserX, UserCheck, Shield, BookOpen, Eye, CheckCir
 type FormData = { nama:string; username:string; password:string; role:string; status:string }
 
 const ROLE_LABELS: Record<string,string> = {
-  admin: 'Administrator', guru_olahraga: 'Guru / Staff', wakasek: 'Pendamping Cabor'
+  admin: 'Administrator', guru_olahraga: 'Guru / Staff', wakasek: 'Wakasek Kesiswaan'
 }
 const ROLE_BADGE: Record<string,string> = {
   admin:'badge-danger', guru_olahraga:'badge-info', wakasek:'badge-accent'
@@ -93,7 +93,7 @@ export default function PenggunaPage() {
       <div className="page-header">
         <div className="page-header-left">
           <h1>Manajemen Pengguna</h1>
-          <p>Kelola akun Admin, Guru / Staff, dan Pendamping Cabor.</p>
+          <p>Kelola akun Admin, Guru / Staff, dan Wakasek Kesiswaan.</p>
         </div>
         <button className="btn btn-primary" onClick={openAdd}><Plus size={16}/> Tambah Pengguna</button>
       </div>
@@ -109,7 +109,7 @@ export default function PenggunaPage() {
           <option value="">Semua Role</option>
           <option value="admin">Administrator</option>
           <option value="guru_olahraga">Guru / Staff</option>
-          <option value="wakasek">Pendamping Cabor</option>
+          <option value="wakasek">Wakasek Kesiswaan</option>
         </select>
         <select className="filter-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="">Semua Status</option>
@@ -222,7 +222,7 @@ export default function PenggunaPage() {
             <select className="form-control" value={form.role}
               onChange={e => setForm(f=>({...f,role:e.target.value}))}>
               <option value="guru_olahraga">Guru / Staff</option>
-              <option value="wakasek">Pendamping Cabor</option>
+              <option value="wakasek">Wakasek Kesiswaan</option>
               <option value="admin">Administrator</option>
             </select>
           </div>
