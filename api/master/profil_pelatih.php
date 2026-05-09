@@ -53,12 +53,12 @@ case 'POST':
         }
         
         $filename = uniqid('pelatih_') . '.' . $ext;
-        $uploadDir = __DIR__ . '/../../public/uploads/pelatih/';
+        $uploadDir = dirname(__DIR__) . '/uploads/pelatih/';
         
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
         
         if (move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $filename)) {
-            $fotoPath = '/uploads/pelatih/' . $filename;
+            $fotoPath = '/api/uploads/pelatih/' . $filename;
         } else {
             errorResponse('Gagal mengunggah foto.', 500);
         }
@@ -74,8 +74,13 @@ case 'POST':
             $oldStmt = $pdo->prepare("SELECT foto FROM profil_pelatih WHERE id = ?");
             $oldStmt->execute([$id]);
             $oldFoto = $oldStmt->fetchColumn();
-            if ($oldFoto && file_exists(__DIR__ . '/../../public' . $oldFoto)) {
-                @unlink(__DIR__ . '/../../public' . $oldFoto);
+            if ($oldFoto) {
+                // Remove '/api' prefix to get the relative path inside the api directory
+                $relPath = str_replace('/api/', '/', $oldFoto);
+                $fullPath = dirname(__DIR__) . $relPath;
+                if (file_exists($fullPath)) {
+                    @unlink($fullPath);
+                }
             }
             
             $sql .= ", foto = ?";
@@ -114,8 +119,12 @@ case 'DELETE':
     $oldStmt = $pdo->prepare("SELECT foto FROM profil_pelatih WHERE id = ?");
     $oldStmt->execute([$id]);
     $oldFoto = $oldStmt->fetchColumn();
-    if ($oldFoto && file_exists(__DIR__ . '/../../public' . $oldFoto)) {
-        @unlink(__DIR__ . '/../../public' . $oldFoto);
+    if ($oldFoto) {
+        $relPath = str_replace('/api/', '/', $oldFoto);
+        $fullPath = dirname(__DIR__) . $relPath;
+        if (file_exists($fullPath)) {
+            @unlink($fullPath);
+        }
     }
     
     $pdo->prepare("DELETE FROM profil_pelatih WHERE id = ?")->execute([$id]);

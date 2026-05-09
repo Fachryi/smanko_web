@@ -284,13 +284,24 @@ export async function printStudentReport(d: StudentReportData): Promise<void> {
   .b-hadir { background:#dcfce7; color:#15803d; }
 
   /* ── Nilai akhir box ── */
+  .final-row {
+    display: flex; gap: 14px; align-items: stretch; margin: 12px 0 10px;
+  }
+  .formula-box {
+    border: 2px solid ${clr}; background: ${bg}; border-radius: 8px;
+    padding: 10px 14px; display: flex; flex-direction: column; justify-content: center;
+    align-items: center; min-width: 230px;
+  }
+  .formula-box .f-title { font-size: 8pt; font-weight: 700; color: ${clr}; margin-bottom: 5px; }
+  .formula-box .f-text { font-size: 7.5pt; color: ${clr}; line-height: 1.4; text-align: center; }
+
   .final-box {
+    flex: 1;
     border: 2px solid ${clr};
     background: ${bg};
     border-radius: 8px;
     padding: 10px 14px;
     display: flex; align-items: center; justify-content: space-between;
-    margin: 12px 0 10px;
   }
   .final-score .lbl  { font-size: 8pt; color: ${clr}; font-weight: 600; font-family: Arial, sans-serif; }
   .final-score .num  { font-size: 24pt; font-weight: 900; color: ${clr}; line-height: 1.1; font-family: Arial, sans-serif; }
@@ -467,16 +478,25 @@ export async function printStudentReport(d: StudentReportData): Promise<void> {
   </tbody>
 </table>
 
-<!-- ── NILAI AKHIR ── -->
-<div class="final-box">
-  <div class="final-score">
-    <div class="lbl">NILAI AKHIR</div>
-    <div class="num">${nilaiAkhir}</div>
+<!-- ── FORMULA & NILAI AKHIR ── -->
+<div class="final-row">
+  <div class="final-box">
+    <div class="final-score">
+      <div class="lbl">NILAI AKHIR</div>
+      <div class="num">${nilaiAkhir}</div>
+    </div>
+    <div style="flex:1;margin:0 20px;border-top:1px dashed ${clr};opacity:0.6"></div>
+    <div class="final-predikat">
+      <div class="ptxt">${d.penilaian.predikat}</div>
+      <div class="pstatus">${statusLabel}</div>
+    </div>
   </div>
-  <div style="flex:1;margin:0 20px;border-top:1px dashed ${clr};opacity:0.6"></div>
-  <div class="final-predikat">
-    <div class="ptxt">${d.penilaian.predikat}</div>
-    <div class="pstatus">${statusLabel}</div>
+  <div class="formula-box">
+    <div class="f-title">Formula Nilai Akhir</div>
+    <div class="f-text">
+      Ket*${bw.keterampilan}% + Prs*${bw.prestasi}% + Khd*${bw.kehadiran}%<br/>
+      ${nilaiKet.toFixed(1)}*${Number(bw.keterampilan/100)} + ${nilaiPrest.toFixed(1)}*${Number(bw.prestasi/100)} + ${nilaiHadir.toFixed(1)}*${Number(bw.kehadiran/100)}
+    </div>
   </div>
 </div>
 

@@ -424,7 +424,7 @@ export default function LandingPage() {
         setPelatihSlide(prev => (prev + 1) % allPelatih.length)
         setPelatihFade(true)
       }, 400)
-    }, 3 * 60 * 1000)
+    }, 2 * 60 * 1000)
     return () => clearInterval(timer)
   }, [allPelatih.length])
 
@@ -861,16 +861,6 @@ export default function LandingPage() {
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      {allPelatih[pelatihSlide]?.no_telepon && (
-                        <div style={{
-                          background: 'rgba(17,85,168,0.06)', borderRadius: 10,
-                          padding: '6px 13px', fontSize: '0.72rem', color: '#3a4f80',
-                          border: '1px solid rgba(17,85,168,0.12)', fontWeight: 600,
-                          display: 'flex', alignItems: 'center', gap: 5,
-                        }}>
-                          📱 {allPelatih[pelatihSlide]?.no_telepon}
-                        </div>
-                      )}
                       {allPelatih[pelatihSlide]?.keterangan && (
                         <div style={{
                           background: 'rgba(17,85,168,0.06)', borderRadius: 10,
@@ -1604,7 +1594,7 @@ export default function LandingPage() {
                     </div>
                   ) : (
                     <div style={{ padding: 24, textAlign: 'center', background: '#f8faff', borderRadius: 12, color: '#a0b0cc', border: '1px dashed #dce6f7' }}>
-                      Belum ada data kejuaraan/prestasi yang diinputkan.
+                      Belum ada data kejuaraan/prestasi yang diikuti siswa.
                     </div>
                   )}
                 </div>

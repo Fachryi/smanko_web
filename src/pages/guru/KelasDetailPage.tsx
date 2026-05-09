@@ -76,8 +76,8 @@ export default function KelasDetailPage() {
 
   const filtered = (data?.siswa ?? []).filter(s => {
     const matchSearch = !search ||
-      s.nama.toLowerCase().includes(search.toLowerCase()) ||
-      s.nis.toLowerCase().includes(search.toLowerCase())
+      (s.nama || '').toLowerCase().includes(search.toLowerCase()) ||
+      (s.nis || '').toLowerCase().includes(search.toLowerCase())
     const matchFilter =
       filter === 'semua' ? true :
       filter === 'belum' ? s.penilaian_id === null :
@@ -231,7 +231,7 @@ export default function KelasDetailPage() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontWeight: 700, fontSize: '0.75rem', color: '#fff', flexShrink: 0
                         }}>
-                          {s.nama.charAt(0).toUpperCase()}
+                          { (s.nama || '?').charAt(0).toUpperCase() }
                         </div>
                         <strong>{s.nama}</strong>
                       </div>
@@ -289,19 +289,21 @@ export default function KelasDetailPage() {
                         {/* Tombol Cetak PDF */}
                         {s.penilaian_id && (
                           <button
-                            className="btn btn-sm"
+                            className="btn btn-sm btn-info"
                             disabled={printingId === s.id}
                             title="Cetak/Unduh PDF"
                             onClick={() => handlePrint(s)}
                             style={{
-                              background: 'var(--clr-info-bg)',
-                              color: 'var(--clr-info)',
-                              border: '1px solid rgba(59,130,246,0.3)',
-                              padding: '0 8px'
+                              padding: 0,
+                              width: 32,
+                              height: 32,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0
                             }}
                           >
-                            {printingId === s.id ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Printer size={14} />}
-                            <span className="hide-mobile">Cetak PDF</span>
+                            {printingId === s.id ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <Printer size={18} />}
                           </button>
                         )}
                       </div>
