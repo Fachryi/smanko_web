@@ -229,12 +229,13 @@ export async function printStudentReport(d: StudentReportData): Promise<void> {
   /* ── Info siswa ── */
   .info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3px 16px;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    gap: 5px 0;
     background: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 6px;
-    padding: 8px 12px;
+    padding: 12px 85px;
     margin-bottom: 12px;
   }
   .info-row { display: flex; gap: 6px; font-size: 8.5pt; align-items: baseline; }

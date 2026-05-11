@@ -204,6 +204,33 @@ function Skeleton({ w = '100%', h = 16, radius = 6 }: { w?: string | number; h?:
 }
 
 /* ════════════════════════════════════════════════════════════
+   CUSTOM HOOKS
+   ════════════════════════════════════════════════════════════ */
+function useScrollAnimation(dependencies: any[] = []) {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('lp-animate-show');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    const hiddenElements = document.querySelectorAll('.lp-animate-hidden');
+    hiddenElements.forEach(el => observer.observe(el));
+
+    return () => {
+      hiddenElements.forEach(el => observer.unobserve(el));
+      observer.disconnect();
+    };
+  }, dependencies);
+}
+
+/* ════════════════════════════════════════════════════════════
    MAIN COMPONENT
    ════════════════════════════════════════════════════════════ */
 export default function LandingPage() {
@@ -305,6 +332,8 @@ export default function LandingPage() {
   const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null)
   const [galeriPage, setGaleriPage]     = useState(1)
   const PAGE_GALERI = 6
+
+  useScrollAnimation([data, page, galeriPage, search, caborFilter, galeriFilter])
 
   const GALERI_ITEMS = [
     // ── Sepak Bola ─────────────────────────────────────────────────────────
@@ -642,7 +671,7 @@ export default function LandingPage() {
         </div>
 
         {/* Stats Bar */}
-        <div style={{
+        <div className="lp-animate-hidden" style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 4,
           background: 'rgba(11,45,107,0.88)', backdropFilter: 'blur(8px)',
           borderTop: '1px solid rgba(255,255,255,0.12)', padding: '14px 24px',
@@ -666,7 +695,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
 
           {/* Section header */}
-          <div style={{ textAlign: 'center', marginBottom: 52 }}>
+          <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 52 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               background: 'rgba(17,85,168,0.08)', border: '1px solid rgba(17,85,168,0.15)',
@@ -692,7 +721,7 @@ export default function LandingPage() {
             display: 'grid',
             gridTemplateColumns: allPelatih.length > 0 ? 'minmax(0, 1fr) 280px' : '1fr',
             gap: 40, alignItems: 'stretch',
-          }} className="lp-cabor-grid">
+          }} className="lp-cabor-grid lp-animate-hidden">
 
             {/* LEFT — Daftar Cabang Olahraga */}
             <div>
@@ -1072,7 +1101,7 @@ export default function LandingPage() {
       {/* ══════════════════════ KLASEMEN ══════════════════════ */}
       <section id="klasemen" style={{ padding: '80px 24px', background: '#f0f4ff' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 48 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               background: 'rgba(193,39,45,0.08)', border: '1px solid rgba(193,39,45,0.18)',
@@ -1119,7 +1148,7 @@ export default function LandingPage() {
           ) : error ? null : (
             <>
               {/* Filter Bar */}
-              <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="lp-animate-hidden" style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
                 <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
                   <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#a0b0cc', pointerEvents: 'none' }} />
                   <input
@@ -1153,7 +1182,7 @@ export default function LandingPage() {
               </div>
 
               {/* Table */}
-              <div style={{ background: '#fff', borderRadius: 16, border: '1.5px solid #dce6f7', boxShadow: '0 4px 24px rgba(17,85,168,0.07)', overflow: 'hidden' }}>
+              <div className="lp-animate-hidden" style={{ background: '#fff', borderRadius: 16, border: '1.5px solid #dce6f7', boxShadow: '0 4px 24px rgba(17,85,168,0.07)', overflow: 'hidden' }}>
                 {data?.klasemen.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '64px 24px' }}>
                     <Trophy size={40} style={{ margin: '0 auto 12px', color: '#dce6f7' }} />
@@ -1610,7 +1639,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
 
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 48 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               background: 'rgba(193,39,45,0.08)', border: '1px solid rgba(193,39,45,0.18)',
@@ -1654,7 +1683,7 @@ export default function LandingPage() {
           </div>
 
           {/* Grid */}
-          <div style={{
+          <div className="lp-animate-hidden" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
             gap: 20,
@@ -1919,7 +1948,7 @@ export default function LandingPage() {
       {/* ══════════════════════ LOKASI ══════════════════════ */}
       <section id="lokasi" style={{ padding: '80px 24px', background: '#fff' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 52 }}>
+          <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 52 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               background: 'rgba(17,85,168,0.08)', border: '1px solid rgba(17,85,168,0.15)',
@@ -1937,7 +1966,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gap: 36, gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%,360px),1fr))', alignItems: 'start' }}>
+          <div className="lp-animate-hidden" style={{ display: 'grid', gap: 36, gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%,360px),1fr))', alignItems: 'start' }}>
             {/* Info */}
             <div>
               <div style={{ background: '#f0f4ff', borderRadius: 16, border: '1.5px solid #dce6f7', padding: 28 }}>
@@ -1989,7 +2018,7 @@ export default function LandingPage() {
       {/* ══════════════════════ FOOTER ══════════════════════ */}
       <footer style={{ background: 'linear-gradient(180deg, #0b2d6b 0%, #071a47 100%)', color: '#fff', padding: '60px 24px 0' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          <div style={{
+          <div className="lp-animate-hidden" style={{
             display: 'grid', gap: 40,
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
             paddingBottom: 48, borderBottom: '1px solid rgba(255,255,255,0.1)',

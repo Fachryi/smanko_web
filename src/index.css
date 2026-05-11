@@ -1237,3 +1237,12 @@ tbody td {
 }
 .spinner-lg { width: 36px; height: 36px; border-width: 3px; }
 .flex-center { display: flex; align-items: center; justify-content: center; }
+
+/* SCROLL ANIMATIONS */
+.lp-animate-hidden { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.lp-animate-show { opacity: 1; transform: translateY(0); }
+.lp-animate-hidden.lp-animate-left { transform: translateX(-40px); }
+.lp-animate-hidden.lp-animate-right { transform: translateX(40px); }
+.lp-animate-show.lp-animate-left, .lp-animate-show.lp-animate-right { transform: translateX(0); }
+.lp-animate-hidden.lp-animate-zoom { transform: scale(0.9); }
+.lp-animate-show.lp-animate-zoom { transform: scale(1); }
