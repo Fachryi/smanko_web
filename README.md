@@ -26,10 +26,10 @@
 ### 👨‍🎓 Manajemen Data Siswa
 ![Data Siswa](docs/screenshots/data-siswa.png)
 
-### 🥋 Input Nilai
+### 📑 Input Nilai
 ![Rekap Kehadiran](docs/screenshots/input-nilai.png)
 
-### 📤 Cetak Raport
+### 🖨 Cetak Raport
 ![Cetak Raport](docs/screenshots/cetak-raport.png)
 
 
