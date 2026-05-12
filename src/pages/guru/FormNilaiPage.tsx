@@ -1294,44 +1294,44 @@ export default function FormNilaiPage() {
         </div>
       </div>
 
-      {/* ── Sticky Bottom Bar (Mobile Only) ── */}
-      <div className="sticky-estimasi-bar">
-        {/* Score section */}
-        <div className="sticky-estimasi-score">
-          <div
-            className="sticky-estimasi-number"
-            style={{ color: PREDIKAT_COLOR[estimasiPredikat] || '#93c5fd' }}
-          >
-            {estimasi.toFixed(1)}
-          </div>
-        </div>
+    </Layout>
 
-        {/* Breakdown mini */}
-        <div className="sticky-estimasi-breakdown">
-          <div className="sticky-estimasi-item">
-            <span className="sticky-estimasi-item-label">Keterampilan</span>
-            <span className="sticky-estimasi-item-value" style={{ color: '#60a5fa' }}>
-              {nilaiKetTotal.toFixed(1)}
-            </span>
-          </div>
-          <div className="sticky-estimasi-divider" />
-          <div className="sticky-estimasi-item">
-            <span className="sticky-estimasi-item-label">Prestasi</span>
-            <span className="sticky-estimasi-item-value" style={{ color: '#f87171' }}>
-              {nilaiPrestasiVal.toFixed(1)}
-            </span>
-          </div>
-          <div className="sticky-estimasi-divider" />
-          <div className="sticky-estimasi-item">
-            <span className="sticky-estimasi-item-label">Kehadiran</span>
-            <span className="sticky-estimasi-item-value" style={{ color: '#4ade80' }}>
-              {nilaiKehadiranEstimasi.toFixed(1)}
-            </span>
-          </div>
+    {/* ── Sticky Bottom Bar (Mobile Only) — di luar Layout agar position:fixed tidak diblokir ── */}
+    <div className="sticky-estimasi-bar">
+      {/* Score section */}
+      <div className="sticky-estimasi-score">
+        <div
+          className="sticky-estimasi-number"
+          style={{ color: PREDIKAT_COLOR[estimasiPredikat] || '#93c5fd' }}
+        >
+          {estimasi.toFixed(1)}
         </div>
       </div>
 
-    </Layout>
+      {/* Breakdown mini */}
+      <div className="sticky-estimasi-breakdown">
+        <div className="sticky-estimasi-item">
+          <span className="sticky-estimasi-item-label">Keterampilan</span>
+          <span className="sticky-estimasi-item-value" style={{ color: '#60a5fa' }}>
+            {nilaiKetTotal.toFixed(1)}
+          </span>
+        </div>
+        <div className="sticky-estimasi-divider" />
+        <div className="sticky-estimasi-item">
+          <span className="sticky-estimasi-item-label">Prestasi</span>
+          <span className="sticky-estimasi-item-value" style={{ color: '#f87171' }}>
+            {nilaiPrestasiVal.toFixed(1)}
+          </span>
+        </div>
+        <div className="sticky-estimasi-divider" />
+        <div className="sticky-estimasi-item">
+          <span className="sticky-estimasi-item-label">Kehadiran</span>
+          <span className="sticky-estimasi-item-value" style={{ color: '#4ade80' }}>
+            {nilaiKehadiranEstimasi.toFixed(1)}
+          </span>
+        </div>
+      </div>
+    </div>
 
     {/* ── Success Popup Modal (overlay seluruh halaman) ── */}
     {successResult && (
