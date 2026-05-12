@@ -1246,3 +1246,133 @@ tbody td {
 .lp-animate-show.lp-animate-left, .lp-animate-show.lp-animate-right { transform: translateX(0); }
 .lp-animate-hidden.lp-animate-zoom { transform: scale(0.9); }
 .lp-animate-show.lp-animate-zoom { transform: scale(1); }
+
+/* ============================================================
+   FORM NILAI PAGE – Responsive Layout
+   ============================================================ */
+
+/* Desktop: 2 kolom (form + panel estimasi) */
+.form-nilai-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+/* ── Sticky Bottom Bar (Mobile estimasi) ── */
+/* Sembunyikan di desktop, tampil di mobile */
+.sticky-estimasi-bar {
+  display: none;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  /* Grid jadi 1 kolom penuh */
+  .form-nilai-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sembunyikan panel kanan di mobile */
+  .form-nilai-right {
+    display: none;
+  }
+
+  /* Padding bawah form agar tidak tertutup sticky bar */
+  .form-nilai-left {
+    padding-bottom: 90px;
+  }
+
+  /* Tampilkan sticky bar di mobile */
+  .sticky-estimasi-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+
+    background: linear-gradient(160deg, rgba(11,45,107,0.97) 0%, rgba(9,36,88,0.99) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1.5px solid rgba(255,255,255,0.12);
+    box-shadow: 0 -4px 24px rgba(11,45,107,0.35);
+
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+
+  /* Skor besar di kiri */
+  .sticky-estimasi-score {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .sticky-estimasi-number {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+    text-shadow: 0 0 16px currentColor;
+  }
+
+  .sticky-estimasi-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .sticky-estimasi-label {
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  .sticky-estimasi-predikat {
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  /* Breakdown kecil di kanan */
+  .sticky-estimasi-breakdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .sticky-estimasi-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .sticky-estimasi-item-label {
+    font-size: 0.58rem;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .sticky-estimasi-item-value {
+    font-size: 0.88rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+  }
+
+  .sticky-estimasi-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.12);
+    flex-shrink: 0;
+  }
+}
