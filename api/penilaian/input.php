@@ -375,6 +375,7 @@ case 'POST':
             $pdo->prepare("
                 UPDATE penilaian_header SET
                     guru_id            = ?,
+                    kelas              = ?,
                     nilai_keterampilan = ?,
                     nilai_prestasi     = ?,
                     nilai_kehadiran    = ?,
@@ -385,6 +386,7 @@ case 'POST':
                 WHERE id = ?
             ")->execute([
                 $user['id'],
+                $existingRow['kelas'] ?: $siswa['kelas'], // Pertahankan kelas riwayat
                 $nilaiKeterampilan, $nilaiPrestasi, $nilaiKehadiran,
                 $akhir['nilai_akhir'], $akhir['predikat'],
                 $status, $catatan,
@@ -400,12 +402,12 @@ case 'POST':
             // INSERT header
             $pdo->prepare("
                 INSERT INTO penilaian_header
-                    (siswa_id, guru_id, tahun_ajaran_id,
+                    (siswa_id, guru_id, tahun_ajaran_id, kelas,
                      nilai_keterampilan, nilai_prestasi, nilai_kehadiran,
                      nilai_akhir, predikat, status, catatan)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ")->execute([
-                $siswaId, $user['id'], $taId,
+                $siswaId, $user['id'], $taId, $siswa['kelas'],
                 $nilaiKeterampilan, $nilaiPrestasi, $nilaiKehadiran,
                 $akhir['nilai_akhir'], $akhir['predikat'],
                 $status, $catatan

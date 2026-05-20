@@ -310,6 +310,11 @@ export default function WakasekRekapPage() {
   const [loadingPrestasi, setLoadingPrestasi] = useState(false)
   const [previewUrl,      setPreviewUrl]      = useState<string | null>(null)
 
+  // Riwayat modal state
+  const [riwayatOpen, setRiwayatOpen] = useState(false)
+  const [riwayatData, setRiwayatData] = useState<any>(null)
+  const [loadingRiwayat, setLoadingRiwayat] = useState(false)
+
   // State rekap kehadiran
   const [rekapKehadiran,     setRekapKehadiran]     = useState<RekapKehadiranRow[]>([])
   const [ringkasanCabor,     setRingkasanCabor]     = useState<RingkasanCabor[]>([])
@@ -370,6 +375,17 @@ export default function WakasekRekapPage() {
     loadPrestasi()
     loadKehadiran()
   }, [loadPrestasi, loadKehadiran])
+
+  // Fetch riwayat
+  const openRiwayat = async (siswaId: number) => {
+    setRiwayatOpen(true)
+    setLoadingRiwayat(true)
+    setRiwayatData(null)
+    try {
+      const r = await api.get<ApiResponse<any>>(`/penilaian/riwayat.php?siswa_id=${siswaId}`)
+      setRiwayatData(r.data)
+    } catch { } finally { setLoadingRiwayat(false) }
+  }
 
   useEffect(() => {
     setLeaderboardPage(1)
@@ -1176,7 +1192,7 @@ export default function WakasekRekapPage() {
                     <th>Kelas</th><th>Cabang</th>
                     <th>Keterampilan</th><th>Prestasi</th><th>Kehadiran</th>
                     <th>Nilai Akhir</th><th>Predikat</th><th>Status</th>
-                    <th style={{ textAlign: 'center' }}>PDF</th>
+                    <th style={{ textAlign: 'center' }}>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1216,7 +1232,15 @@ export default function WakasekRekapPage() {
                           {s.status === 'final' ? '✓ Final' : '📝 Draft'}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'center' }}>
+                      <td style={{ textAlign: 'center', display: 'flex', gap: 4, justifyContent: 'center' }}>
+                        <button
+                          className="btn btn-sm btn-ghost"
+                          title="Lihat Riwayat Nilai"
+                          onClick={() => openRiwayat(s.siswa_id)}
+                          style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                        >
+                          🕒 Riwayat
+                        </button>
                         <button
                           className="btn btn-sm"
                           title="Cetak Raport PDF"
@@ -1289,6 +1313,79 @@ export default function WakasekRekapPage() {
       {previewUrl && (
         <BuktiLightbox url={previewUrl} onClose={() => setPreviewUrl(null)} />
       )}
+
+      {/* MODAL RIWAYAT NILAI */}
+      {riwayatOpen && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+        }} onClick={() => setRiwayatOpen(false)}>
+          <div style={{
+            background: '#ffffff', border: '1px solid var(--clr-border)',
+            borderRadius: 16, maxWidth: 760, width: '100%', maxHeight: '80vh',
+            overflow: 'hidden', display: 'flex', flexDirection: 'column',
+            boxShadow: '0 24px 64px rgba(11,45,107,0.22)',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{
+              padding: '16px 20px', borderBottom: '1px solid var(--clr-border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent)',
+            }}>
+              <div>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>🕒 Riwayat Nilai Siswa</h3>
+                {riwayatData && (
+                  <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-3)', marginTop: 2 }}>
+                    {riwayatData.siswa.nama} ({riwayatData.siswa.nis}) - {riwayatData.siswa.nama_cabang}
+                  </p>
+                )}
+              </div>
+              <button onClick={() => setRiwayatOpen(false)} style={{
+                background: 'none', border: 'none', color: 'var(--clr-text-3)',
+                cursor: 'pointer', padding: 4, borderRadius: 6,
+              }}>✕</button>
+            </div>
+            
+            <div style={{ overflow: 'auto', flex: 1, padding: 'var(--sp-4)' }}>
+              {loadingRiwayat ? (
+                <div className="flex-center" style={{ padding: 40 }}><div className="spinner" /></div>
+              ) : !riwayatData || riwayatData.riwayat.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, color: 'var(--clr-text-4)' }}>
+                  Belum ada riwayat nilai untuk siswa ini.
+                </div>
+              ) : (
+                <table className="table" style={{ width: '100%', minWidth: 600 }}>
+                  <thead>
+                    <tr>
+                      <th>Tahun Ajaran</th>
+                      <th>Kelas</th>
+                      <th>Keterampilan</th>
+                      <th>Prestasi</th>
+                      <th>Kehadiran</th>
+                      <th>Nilai Akhir</th>
+                      <th>Predikat</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {riwayatData.riwayat.map((rw: any) => (
+                      <tr key={rw.penilaian_id}>
+                        <td style={{ fontWeight: 600 }}>{rw.tahun_ajaran} - Sem {rw.semester}</td>
+                        <td><span className="badge badge-info">{rw.kelas_saat_dinilai}</span></td>
+                        <td>{Number(rw.nilai_keterampilan).toFixed(2)}</td>
+                        <td>{Number(rw.nilai_prestasi).toFixed(2)}</td>
+                        <td>{Number(rw.nilai_kehadiran).toFixed(2)}</td>
+                        <td style={{ fontWeight: 700, color: 'var(--clr-primary)' }}>{Number(rw.nilai_akhir).toFixed(2)}</td>
+                        <td><span className="badge badge-neutral">{rw.predikat}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </Layout>
   )
 }

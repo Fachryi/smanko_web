@@ -4,7 +4,7 @@ import {
   Menu, X, ChevronLeft, ChevronRight, Search, MapPin,
   Phone, Mail, Facebook, Instagram, Youtube, ExternalLink,
   Trophy, Users, Target, Star, Flame, Zap, Shield, Wind,
-  Dumbbell, AlertCircle, RefreshCw, ChevronDown, Medal, Images
+  Dumbbell, AlertCircle, RefreshCw, ChevronDown, Medal, Images, Eye
 } from 'lucide-react'
 
 /* ────────────────────────── TYPES ────────────────────────── */
@@ -183,6 +183,34 @@ const AVATAR_COLORS = ['#c1272d','#1155a8','#d97706','#16a34a','#7c3aed','#0891b
 const avatarColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length]
 const avatarInit  = (name: string) => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
+const getPredikatBadgeStyle = (predikat: string | null | undefined) => {
+  const p = predikat ? predikat.trim().toUpperCase() : '';
+  let bg = '#fee2e2'; 
+  let text = '#991b1b'; 
+  let border = '#fecaca';
+  let label = predikat || '-';
+
+  if (p.startsWith('A')) {
+    bg = '#dcfce7'; 
+    text = '#166534'; 
+    border = '#bbf7d0';
+  } else if (p.startsWith('B')) {
+    bg = '#dbeafe'; 
+    text = '#1e40af'; 
+    border = '#bfdbfe';
+  } else if (p.startsWith('C')) {
+    bg = '#fef3c7'; 
+    text = '#92400e'; 
+    border = '#fde68a';
+  } else if (p.startsWith('D')) {
+    bg = '#ffedd5'; 
+    text = '#9a3412'; 
+    border = '#fed7aa';
+  }
+
+  return { bg, text, border, label };
+}
+
 /* ────────────────────────── HELPERS ─────────────────────── */
 
 function scrollTo(id: string) {
@@ -326,6 +354,24 @@ export default function LandingPage() {
   const [caborFilter, setCaborFilter] = useState('Semua')
   const [page, setPage]               = useState(1)
   const [selectedSiswaDetail, setSelectedSiswaDetail] = useState<KlasemenItem | null>(null)
+
+  /* ── Riwayat Modal state ── */
+  const [riwayatOpen, setRiwayatOpen] = useState(false)
+  const [riwayatData, setRiwayatData] = useState<any>(null)
+  const [loadingRiwayat, setLoadingRiwayat] = useState(false)
+
+  const openRiwayat = async (siswaId: number) => {
+    setRiwayatOpen(true)
+    setLoadingRiwayat(true)
+    setRiwayatData(null)
+    try {
+      const res = await fetch(`/api/public/riwayat.php?siswa_id=${siswaId}`)
+      const json = await res.json()
+      if (json.status === 'success') {
+        setRiwayatData(json.data)
+      }
+    } catch { } finally { setLoadingRiwayat(false) }
+  }
 
   /* ── Galeri state ── */
   const [galeriFilter, setGaleriFilter] = useState('Semua')
@@ -1281,8 +1327,20 @@ export default function LandingPage() {
                                   </td>
 
                                   {/* Kelas */}
-                                  <td style={{ padding: '12px 14px', textAlign: 'center', whiteSpace: 'nowrap', color: '#3a4f80', fontWeight: 600, fontSize: '0.82rem' }}>
-                                    {s.kelas}
+                                  <td style={{ padding: '12px 14px', textAlign: 'center' }}>
+                                    <span style={{
+                                      background: '#edf1fb',
+                                      color: '#1155a8',
+                                      border: '1px solid #cbdffe',
+                                      padding: '3px 9px',
+                                      borderRadius: '8px',
+                                      fontWeight: 700,
+                                      fontSize: '0.72rem',
+                                      display: 'inline-block',
+                                      whiteSpace: 'nowrap'
+                                    }}>
+                                      {s.kelas}
+                                    </span>
                                   </td>
 
                                   {/* Cabor */}
@@ -1380,15 +1438,38 @@ export default function LandingPage() {
                                   <td style={{ padding: '12px 14px', textAlign: 'center' }}>
                                     <div style={{
                                       fontWeight: 800, fontSize: '1.05rem',
-                                      color: s.total_skor >= 85 ? '#c1272d' : '#0b2d6b',
+                                      color: '#0b2d6b',
+                                      marginBottom: 4
                                     }}>
                                       {s.total_skor}
                                     </div>
-                                    {s.predikat && (
-                                      <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#6b7faa', whiteSpace: 'nowrap' }}>
-                                        {s.predikat}
-                                      </div>
-                                    )}
+                                    {s.predikat && (() => {
+                                      const badge = getPredikatBadgeStyle(s.predikat);
+                                      return (
+                                        <span style={{
+                                          background: badge.bg,
+                                          color: badge.text,
+                                          border: `1px solid ${badge.border}`,
+                                          padding: '2px 8px',
+                                          borderRadius: '10px',
+                                          fontWeight: 700,
+                                          fontSize: '0.65rem',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: 4,
+                                          whiteSpace: 'nowrap'
+                                        }}>
+                                          <span style={{
+                                            width: 4,
+                                            height: 4,
+                                            borderRadius: '50%',
+                                            backgroundColor: badge.text,
+                                            display: 'inline-block'
+                                          }} />
+                                          {badge.label}
+                                        </span>
+                                      );
+                                    })()}
                                   </td>
                                 </tr>
 
@@ -1505,13 +1586,22 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-                <button onClick={() => setSelectedSiswaDetail(null)} style={{
-                  background: 'rgba(17,85,168,0.06)', border: 'none', width: 36, height: 36,
-                  borderRadius: '50%', color: '#3a4f80', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', transition: 'background 0.2s'
-                }}>
-                  <X size={18} />
-                </button>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <button onClick={() => openRiwayat(s.siswa_id)} style={{
+                    background: '#1155a8', color: '#fff', border: 'none', borderRadius: 8,
+                    padding: '8px 16px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(17,85,168,0.2)', transition: 'all 0.2s'
+                  }}>
+                    🕒 Riwayat Nilai
+                  </button>
+                  <button onClick={() => setSelectedSiswaDetail(null)} style={{
+                    background: 'rgba(17,85,168,0.06)', border: 'none', width: 36, height: 36,
+                    borderRadius: '50%', color: '#3a4f80', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', transition: 'background 0.2s'
+                  }}>
+                    <X size={18} />
+                  </button>
+                </div>
               </div>
 
               {/* Content Modal */}
@@ -1552,9 +1642,34 @@ export default function LandingPage() {
                     <div style={{ fontSize: '2.4rem', fontWeight: 900, color: '#0b2d6b', lineHeight: 1 }}>
                       {s.total_skor}
                     </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#c1272d', marginTop: 4 }}>
-                      {s.predikat}
-                    </div>
+                    {s.predikat && (() => {
+                      const badge = getPredikatBadgeStyle(s.predikat);
+                      return (
+                        <span style={{
+                          background: badge.bg,
+                          color: badge.text,
+                          border: `1px solid ${badge.border}`,
+                          padding: '4px 14px',
+                          borderRadius: '12px',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          marginTop: 8,
+                          whiteSpace: 'nowrap'
+                        }}>
+                          <span style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: '50%',
+                            backgroundColor: badge.text,
+                            display: 'inline-block'
+                          }} />
+                          {badge.label}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -1587,13 +1702,13 @@ export default function LandingPage() {
                         return (
                           <div key={pi} style={{
                             background: '#fff', border: `1px solid ${tc}30`, borderLeft: `4px solid ${tc}`,
-                            borderRadius: 12, padding: 16, display: 'flex', alignItems: 'flex-start', gap: 12,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                            borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.03)', position: 'relative'
                           }}>
                             <div style={{
-                              width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                              width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
                               background: tc + '15', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: '1rem',
+                              fontSize: '1.1rem',
                             }}>
                               {p.tingkatan === 'Internasional' ? '🌐' : p.tingkatan === 'Nasional' ? '🏆' : p.tingkatan === 'Provinsi' ? '🥈' : p.tingkatan === 'Kabupaten/Kota' ? '🥉' : '🎖️'}
                             </div>
@@ -1601,7 +1716,7 @@ export default function LandingPage() {
                               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1a2744', lineHeight: 1.3, marginBottom: 6 }}>
                                 {p.nama_kejuaraan || '(Tanpa Nama Kejuaraan)'}
                               </div>
-                              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                                 <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 12, background: tc + '18', color: tc, border: `1px solid ${tc}30` }}>
                                   {p.tingkatan}
                                 </span>
@@ -1611,12 +1726,43 @@ export default function LandingPage() {
                                   </span>
                                 )}
                                 {p.bulan && (
-                                  <span style={{ fontSize: '0.7rem', color: '#6b7faa', fontWeight: 600, padding: '2px 0' }}>
+                                  <span style={{ fontSize: '0.7rem', color: '#6b7faa', fontWeight: 600, padding: '2px 8px', borderRadius: 12, background: '#f1f5f9', border: '1px solid #cbd5e1' }}>
                                     {BULAN[p.bulan] || ''}
                                   </span>
                                 )}
                               </div>
                             </div>
+                            {p.bukti_foto && (
+                              <a
+                                href={`/api/${p.bukti_foto}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Lihat Bukti Sertifikat"
+                                style={{
+                                  width: 34, height: 34, borderRadius: '50%',
+                                  background: 'rgba(17,85,168,0.06)',
+                                  color: '#1155a8',
+                                  border: '1px solid rgba(17,85,168,0.15)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  textDecoration: 'none',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s',
+                                  flexShrink: 0,
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = '#1155a8';
+                                  e.currentTarget.style.color = '#fff';
+                                  e.currentTarget.style.transform = 'scale(1.08)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(17,85,168,0.06)';
+                                  e.currentTarget.style.color = '#1155a8';
+                                  e.currentTarget.style.transform = 'scale(1)';
+                                }}
+                              >
+                                <Eye size={16} />
+                              </a>
+                            )}
                           </div>
                         )
                       })}
@@ -1633,6 +1779,134 @@ export default function LandingPage() {
           </div>
         )
       })()}
+
+      {/* MODAL RIWAYAT NILAI (PUBLIC) */}
+      {riwayatOpen && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 3000,
+          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+        }} onClick={() => setRiwayatOpen(false)}>
+          <div style={{
+            background: '#ffffff', border: '1px solid #dce6f7',
+            borderRadius: 20, maxWidth: 800, width: '100%', maxHeight: '85vh',
+            overflow: 'hidden', display: 'flex', flexDirection: 'column',
+            boxShadow: '0 24px 64px rgba(11,45,107,0.35)',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{
+              padding: '20px 24px', borderBottom: '1px solid #edf1fb',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'linear-gradient(90deg, #f8faff, #fff)',
+            }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0b2d6b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Trophy size={20} style={{ color: '#f9c74f' }} /> Riwayat Nilai Siswa
+                </h3>
+                {riwayatData && (
+                  <p style={{ fontSize: '0.85rem', color: '#6b7faa', marginTop: 4, marginBottom: 0 }}>
+                    {riwayatData.siswa.nama} ({riwayatData.siswa.nis}) - <span style={{ fontWeight: 600 }}>{riwayatData.siswa.nama_cabang}</span>
+                  </p>
+                )}
+              </div>
+              <button onClick={() => setRiwayatOpen(false)} style={{
+                background: 'rgba(17,85,168,0.06)', border: 'none', color: '#3a4f80',
+                cursor: 'pointer', width: 34, height: 34, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s',
+              }}>
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div style={{ overflow: 'auto', flex: 1, padding: '24px' }}>
+              {loadingRiwayat ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
+                  <div style={{ width: 40, height: 40, border: '4px solid #edf1fb', borderTopColor: '#1155a8', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                </div>
+              ) : !riwayatData || riwayatData.riwayat.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: '#a0b0cc', background: '#f8faff', borderRadius: 16, border: '1px dashed #dce6f7' }}>
+                  <AlertCircle size={36} style={{ margin: '0 auto 12px', color: '#dce6f7' }} />
+                  Belum ada riwayat nilai final untuk siswa ini.
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #edf1fb' }}>
+                  <table style={{ width: '100%', minWidth: 700, borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr>
+                        {['Tahun Ajaran', 'Kelas', 'Keterampilan', 'Prestasi', 'Kehadiran', 'Nilai Akhir', 'Predikat'].map(h => (
+                          <th key={h} style={{
+                            background: '#f8faff', color: '#3a4f80', fontWeight: 700,
+                            padding: '12px 16px', textAlign: h === 'Tahun Ajaran' ? 'left' : 'center',
+                            borderBottom: '2px solid #edf1fb', whiteSpace: 'nowrap'
+                          }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {riwayatData.riwayat.map((rw: any, i: number) => (
+                        <tr key={rw.penilaian_id} style={{ background: i % 2 === 0 ? '#fff' : '#fafcff', borderBottom: '1px solid #edf1fb' }}>
+                          <td style={{ padding: '14px 16px', fontWeight: 700, color: '#1a2744', whiteSpace: 'nowrap' }}>
+                            {rw.tahun_ajaran} <span style={{ color: '#a0b0cc', fontWeight: 500 }}>- Smt {rw.semester}</span>
+                          </td>
+                          <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                            <span style={{
+                              background: '#edf1fb',
+                              color: '#1155a8',
+                              border: '1px solid #cbdffe',
+                              padding: '4px 10px',
+                              borderRadius: '8px',
+                              fontWeight: 700,
+                              fontSize: '0.72rem',
+                              display: 'inline-block',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {rw.kelas_saat_dinilai}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 16px', textAlign: 'center', fontWeight: 600 }}>{Number(rw.nilai_keterampilan).toFixed(2)}</td>
+                          <td style={{ padding: '14px 16px', textAlign: 'center', fontWeight: 600 }}>{Number(rw.nilai_prestasi).toFixed(2)}</td>
+                          <td style={{ padding: '14px 16px', textAlign: 'center', fontWeight: 600 }}>{Number(rw.nilai_kehadiran).toFixed(2)}</td>
+                          <td style={{ padding: '14px 16px', textAlign: 'center', fontWeight: 800, color: '#c1272d', fontSize: '1rem' }}>
+                            {Number(rw.nilai_akhir).toFixed(2)}
+                          </td>
+                          <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                            {(() => {
+                              const badge = getPredikatBadgeStyle(rw.predikat);
+                              return (
+                                <span style={{
+                                  background: badge.bg,
+                                  color: badge.text,
+                                  border: `1px solid ${badge.border}`,
+                                  padding: '4px 12px',
+                                  borderRadius: '12px',
+                                  fontWeight: 700,
+                                  fontSize: '0.72rem',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 6,
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  <span style={{
+                                    width: 6,
+                                    height: 6,
+                                    borderRadius: '50%',
+                                    backgroundColor: badge.text,
+                                    display: 'inline-block'
+                                  }} />
+                                  {badge.label}
+                                </span>
+                              );
+                            })()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ══════════════════════ GALERI PRESTASI ══════════════════════ */}
       <section id="galeri" style={{ padding: '80px 24px', background: '#f0f4ff' }}>
@@ -1666,16 +1940,7 @@ export default function LandingPage() {
               <button
                 key={opt}
                 onClick={() => { setGaleriFilter(opt); setGaleriPage(1) }}
-                style={{
-                  padding: '7px 18px', borderRadius: 20,
-                  border: galeriFilter === opt ? 'none' : '1.5px solid #dce6f7',
-                  background: galeriFilter === opt ? '#1155a8' : '#fff',
-                  color: galeriFilter === opt ? '#fff' : '#6b7faa',
-                  fontWeight: galeriFilter === opt ? 700 : 500,
-                  fontSize: '0.82rem', cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: galeriFilter === opt ? '0 4px 14px rgba(17,85,168,0.25)' : 'none',
-                }}
+                className={`lp-filter-pill${galeriFilter === opt ? ' active' : ''}`}
               >
                 {opt}
               </button>
@@ -2039,12 +2304,7 @@ export default function LandingPage() {
               </p>
               <div style={{ display: 'flex', gap: 8 }}>
                 {[{ icon: <Facebook size={16}/>, label: 'Facebook' },{ icon: <Instagram size={16}/>, label: 'Instagram' },{ icon: <Youtube size={16}/>, label: 'YouTube' }].map(s => (
-                  <a key={s.label} href="#" aria-label={s.label} style={{
-                    width: 36, height: 36, borderRadius: 9,
-                    background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'rgba(255,255,255,0.7)',
-                  }}>
+                  <a key={s.label} href="#" aria-label={s.label} className="lp-social-btn">
                     {s.icon}
                   </a>
                 ))}
@@ -2055,8 +2315,8 @@ export default function LandingPage() {
             <div>
               <div style={{ fontWeight: 800, fontSize: '0.92rem', marginBottom: 18, letterSpacing: '0.04em' }}>Tautan Cepat</div>
               {['Beranda','Cabang Olahraga','Papan Klasemen','Galeri Prestasi','Lokasi Sekolah','Login Portal'].map(l => (
-                <div key={l} style={{ marginBottom: 10 }}>
-                  <a href="#" onClick={e => {
+                <div key={l}>
+                  <a href="#" className="lp-footer-link" onClick={e => {
                     e.preventDefault()
                     if (l === 'Login Portal') navigate('/login')
                     else if (l === 'Papan Klasemen') scrollTo('klasemen')
@@ -2064,8 +2324,8 @@ export default function LandingPage() {
                     else if (l === 'Galeri Prestasi') scrollTo('galeri')
                     else if (l === 'Lokasi Sekolah') scrollTo('lokasi')
                     else scrollTo('beranda')
-                  }} style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <ChevronRight size={12} style={{ color: '#c1272d' }} />
+                  }}>
+                    <ChevronRight size={12} />
                     {l}
                   </a>
                 </div>
@@ -2103,57 +2363,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Global animations + responsive */}
-      <style>{`
-        @keyframes lpSkeletonShimmer {
-          0%   { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-        /* Grid 2 kolom untuk card cabor olahraga */
-        .lp-cabor-items-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
-        }
-        @media (max-width: 640px) {
-          .lp-cabor-items-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-        @media (max-width: 768px) {
-          .lp-nav-links { display: none !important; }
-          .lp-hamburger { display: flex !important; }
-          .lp-cabor-grid { grid-template-columns: 1fr !important; }
-          .lp-hero-nav { display: none !important; }
-        }
-        @media (min-width: 769px) {
-          .lp-hamburger { display: none !important; }
-        }
-        .lp-cabor-row:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 24px rgba(17,85,168,0.12) !important;
-          border-color: #b8cef0 !important;
-        }
-        #lp-search-siswa:focus {
-          border-color: #1155a8 !important;
-          box-shadow: 0 0 0 3px rgba(17,85,168,0.12);
-        }
-        .lp-galeri-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 16px 40px rgba(17,85,168,0.14) !important;
-          border-color: #b8cef0 !important;
-        }
-        .lp-galeri-card:hover .lp-galeri-img {
-          transform: scale(1.06);
-        }
-        .lp-galeri-card:hover .lp-galeri-overlay {
-          opacity: 1 !important;
-        }
-        @keyframes lbFadeIn {
-          from { opacity: 0; transform: scale(0.94); }
-          to   { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
+      {/* Semua styling dipindah ke index.css — PREMIUM DESIGN UPGRADE */}
     </div>
   )
 }
