@@ -258,6 +258,132 @@ function useScrollAnimation(dependencies: any[] = []) {
   }, dependencies);
 }
 
+
+/* ════════════════════════════════════════════════════════════
+   CABOR COVERFLOW
+   ════════════════════════════════════════════════════════════ */
+function CaborCoverflow({ caborList, onSelect }: { caborList: any[], onSelect: (c: any) => void }) {
+  const [active, setActive] = useState(0);
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!caborList || caborList.length <= 1) return;
+    const interval = setInterval(() => {
+      setActive(prev => (prev + 1) % caborList.length);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [caborList]);
+
+  const prev = () => setActive(p => (p - 1 + caborList.length) % caborList.length);
+  const next = () => setActive(p => (p + 1) % caborList.length);
+
+  if (!caborList || caborList.length === 0) return null;
+
+  return (
+    <div className="lp-coverflow-container">
+      <button onClick={prev} className="lp-coverflow-btn lp-coverflow-btn-prev" aria-label="Previous">
+        <ChevronLeft size={22} />
+      </button>
+      <button onClick={next} className="lp-coverflow-btn lp-coverflow-btn-next" aria-label="Next">
+        <ChevronRight size={22} />
+      </button>
+      {caborList.map((item, i) => {
+        let diff = i - active;
+        const half = Math.floor(caborList.length / 2);
+        if (diff > half) diff -= caborList.length;
+        if (diff < -half) diff += caborList.length;
+
+        let positionClass = 'hidden';
+        if (diff === 0) positionClass = 'active';
+        else if (diff === -1) positionClass = 'prev-1';
+        else if (diff === 1) positionClass = 'next-1';
+        else if (diff === -2) positionClass = 'prev-2';
+        else if (diff === 2) positionClass = 'next-2';
+
+        const imagePath = `/gambar-cabor/${item.nama.toLowerCase().replace(/\s+/g, '-')}.jpg`;
+        const hasImgError = imgErrors[item.nama];
+
+        return (
+          <div 
+            key={i} 
+            className={`lp-coverflow-card ${positionClass}`}
+            onClick={() => {
+              if (diff === 0) onSelect(item);
+              else setActive(i);
+            }}
+          >
+            <div className="lp-coverflow-img-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {!hasImgError ? (
+                <img 
+                  src={imagePath} 
+                  alt={item.nama} 
+                  className="lp-coverflow-img"
+                  onError={() => {
+                    setImgErrors(prev => ({ ...prev, [item.nama]: true }));
+                  }}
+                />
+              ) : (
+                <div style={{ width: 64, height: 64, color: '#1155a8', opacity: 0.5 }}>
+                  <CaborIcon cabor={item} />
+                </div>
+              )}
+            </div>
+            <div className="lp-coverflow-info">
+              <div className="lp-coverflow-name">{item.nama}</div>
+              <div className="lp-coverflow-pelatih">
+                {item.profil_pelatih && item.profil_pelatih.length > 0 
+                  ? `Pelatih: ${item.profil_pelatih[0].nama}` 
+                  : 'Belum ada data pelatih'}
+              </div>
+              <div className="lp-coverflow-stats">
+                <span className="lp-coverflow-badge">
+                  <Users size={14} /> {item.jumlah_siswa || 0} Siswa
+                </span>
+                <span className="lp-coverflow-badge" style={{ background: '#fef3c7', color: '#b45309' }}>
+                  <Star size={14} /> {item.profil_pelatih?.length || 0} Pelatih
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   COUNTUP ANIMATION
+   ════════════════════════════════════════════════════════════ */
+function CountUp({ value, suffix = '', duration = 2000 }: { value: number; suffix?: string; duration?: number }) {
+  const [display, setDisplay] = useState(0)
+  const prevRef = useRef(0)
+  const rafRef = useRef<number>()
+
+  useEffect(() => {
+    const startVal = prevRef.current
+    const diff = value - startVal
+    if (diff === 0) return
+    const startTime = performance.now()
+
+    const step = (now: number) => {
+      const elapsed = now - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setDisplay(Math.round(startVal + diff * eased))
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(step)
+      } else {
+        prevRef.current = value
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(step)
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+  }, [value, duration])
+
+  return <>{display}{suffix}</>
+}
+
 /* ════════════════════════════════════════════════════════════
    MAIN COMPONENT
    ════════════════════════════════════════════════════════════ */
@@ -518,10 +644,10 @@ export default function LandingPage() {
   /* ─── Stat numbers ─── */
   const stats = data?.stats
   const statCards = [
-    { icon: <Users size={18}/>,   val: loading ? '—' : `${stats?.total_siswa ?? 0}+`,         label: 'Siswa Aktif'         },
-    { icon: <Trophy size={18}/>,  val: loading ? '—' : String(stats?.total_cabor ?? 0),        label: 'Cabang Olahraga'     },
-    { icon: <Star size={18}/>,    val: loading ? '—' : `${stats?.total_berprestasi ?? 0}+`,    label: 'Siswa Berprestasi'   },
-    { icon: <Target size={18}/>,  val: loading ? '—' : `${stats?.total_pelatih ?? 0}`,         label: 'Pelatih Aktif'       },
+    { icon: <Users size={18}/>,   val: loading ? '—' : <CountUp value={stats?.total_siswa ?? 0} suffix="+" />,         label: 'Siswa Aktif'         },
+    { icon: <Trophy size={18}/>,  val: loading ? '—' : <CountUp value={stats?.total_cabor ?? 0} />,                    label: 'Cabang Olahraga'     },
+    { icon: <Star size={18}/>,    val: loading ? '—' : <CountUp value={stats?.total_berprestasi ?? 0} suffix="+" />,   label: 'Siswa Berprestasi'   },
+    { icon: <Target size={18}/>,  val: loading ? '—' : <CountUp value={stats?.total_pelatih ?? 0} />,                  label: 'Pelatih Aktif'       },
   ]
 
   /* ─── RENDER ─── */
@@ -637,6 +763,16 @@ export default function LandingPage() {
         ))}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(11,45,107,0.55))' }} />
 
+        {/* Floating Icons Animation
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 3 }}>
+          <div style={{ position: 'absolute', top: '20%', left: '12%', fontSize: 45, opacity: 0.8, animation: 'float1 7s ease-in-out infinite' }}>⚽</div>
+          <div style={{ position: 'absolute', top: '25%', right: '15%', fontSize: 50, opacity: 0.8, animation: 'float2 9s ease-in-out infinite' }}>🏀</div>
+          <div style={{ position: 'absolute', bottom: '25%', left: '8%', fontSize: 40, opacity: 0.8, animation: 'float3 8s ease-in-out infinite' }}>🎯</div>
+          <div style={{ position: 'absolute', bottom: '30%', right: '10%', fontSize: 45, opacity: 0.8, animation: 'float4 6s ease-in-out infinite' }}>🏸</div>
+          <div style={{ position: 'absolute', top: '10%', left: '40%', fontSize: 35, opacity: 0.6, animation: 'float2 10s ease-in-out infinite' }}>🏐</div>
+        </div> */}
+
+
         <div style={{
           position: 'absolute', inset: 0, zIndex: 3,
           display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 24px',
@@ -649,7 +785,7 @@ export default function LandingPage() {
               borderRadius: 30, padding: '5px 16px', marginBottom: 24,
               color: '#fff', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em',
             }}>
-              <Trophy size={13} />
+              <Trophy size={13} className="lp-badge-icon" />
               SMANKO — Sulawesi Selatan
             </div>
             <h1 style={{
@@ -693,20 +829,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Controls */}
-        {[{ dir: 'left', fn: prevSlide, icon: <ChevronLeft size={20} /> }, { dir: 'right', fn: nextSlide, icon: <ChevronRight size={20} /> }].map(b => (
-          <button key={b.dir} className="lp-hero-nav" onClick={b.fn} style={{
-            position: 'absolute', [b.dir]: 20, top: '50%', transform: 'translateY(-50%)', zIndex: 4,
-            background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)',
-            border: '1px solid rgba(255,255,255,0.25)', borderRadius: '50%',
-            width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#fff',
-          }}>
-            {b.icon}
-          </button>
-        ))}
-
-        <div style={{ position: 'absolute', bottom: 88, left: '50%', transform: 'translateX(-50%)', zIndex: 4, display: 'flex', gap: 8 }}>
+        <div style={{ position: 'absolute', bottom: 70, left: '50%', transform: 'translateX(-50%)', zIndex: 4, display: 'flex', gap: 8 }}>
           {HERO_SLIDES.map((_, i) => (
             <button key={i} onClick={() => goSlide(i)} style={{
               width: i === slide ? 28 : 10, height: 10, borderRadius: 5, border: 'none',
@@ -717,18 +840,30 @@ export default function LandingPage() {
         </div>
 
         {/* Stats Bar */}
-        <div className="lp-animate-hidden" style={{
+        <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 4,
-          background: 'rgba(11,45,107,0.88)', backdropFilter: 'blur(8px)',
-          borderTop: '1px solid rgba(255,255,255,0.12)', padding: '14px 24px',
+          background: 'rgba(11,45,107,0.92)', backdropFilter: 'blur(8px)',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          padding: '12px 24px',
         }}>
           <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 12 }}>
             {statCards.map(item => (
-              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#fff' }}>
-                <span style={{ color: '#f9c74f' }}>{item.icon}</span>
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 8,
+                  background: 'rgba(255,255,255,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#f9c74f',
+                }}>
+                  {item.icon}
+                </div>
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: '1.2rem', lineHeight: 1 }}>{item.val}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.3 }}>{item.label}</div>
+                  <div style={{ fontWeight: 800, fontSize: '1rem', lineHeight: 1, color: '#fff' }}>
+                    {item.val}
+                  </div>
+                  <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.3, marginTop: 2 }}>
+                    {item.label}
+                  </div>
                 </div>
               </div>
             ))}
@@ -748,7 +883,7 @@ export default function LandingPage() {
               borderRadius: 30, padding: '5px 16px', marginBottom: 16,
               color: '#1155a8', fontSize: '0.78rem', fontWeight: 700,
             }}>
-              <Target size={13} />
+              <Target size={13} className="lp-badge-icon" />
               PROGRAM UNGGULAN
             </div>
             <h2 style={{
@@ -762,244 +897,9 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* ── 2-column layout ── */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: allPelatih.length > 0 ? 'minmax(0, 1fr) 280px' : '1fr',
-            gap: 40, alignItems: 'stretch',
-          }} className="lp-cabor-grid lp-animate-hidden">
-
-            {/* LEFT — Daftar Cabang Olahraga */}
-            <div>
-              {loading ? (
-                <div className="lp-cabor-items-grid">
-                  {[1,2,3,4,5,6].map(i => (
-                    <div key={i} style={{ background: '#fff', border: '1.5px solid #dce6f7', borderRadius: 14, padding: '16px 18px' }}>
-                      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                        <Skeleton h={40} w={40} radius={10} />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <Skeleton h={14} w="55%" />
-                          <div style={{ marginTop: 7 }}><Skeleton h={11} w="75%" /></div>
-                        </div>
-                        <Skeleton h={20} w={52} radius={20} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : error ? (
-                <div style={{ textAlign: 'center', padding: '48px 24px', color: '#6b7faa' }}>
-                  <AlertCircle size={40} style={{ margin: '0 auto 12px', color: '#c1272d' }} />
-                  <p style={{ marginBottom: 16 }}>{error}</p>
-                  <button onClick={fetchData} style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    background: '#1155a8', color: '#fff', border: 'none', borderRadius: 9,
-                    padding: '10px 20px', fontWeight: 700, cursor: 'pointer',
-                  }}>
-                    <RefreshCw size={14} /> Coba Lagi
-                  </button>
-                </div>
-              ) : data?.cabor.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '48px', color: '#a0b0cc' }}>
-                  Belum ada data cabang olahraga.
-                </div>
-              ) : (
-                <div className="lp-cabor-items-grid">
-                  {data!.cabor.map((c, idx) => {
-                    const color = getCaborColor(c)
-                    return (
-                      <div key={c.id} className="lp-cabor-row" style={{
-                        background: '#fff',
-                        border: '1.5px solid #dce6f7',
-                        borderLeft: `4px solid ${color}`,
-                        borderRadius: 14,
-                        padding: '16px 18px',
-                        display: 'flex', alignItems: 'center', gap: 16,
-                        boxShadow: '0 2px 12px rgba(17,85,168,0.06)',
-                        transition: 'all 0.22s',
-                        cursor: 'pointer',
-                        animationDelay: `${idx * 0.06}s`,
-                        minWidth: 0,
-                      }}
-                      onClick={() => setSelectedCaborDetail(c)}
-                      >
-                        {/* Icon */}
-                        <div style={{
-                          width: 80, height: 80, borderRadius: 12, flexShrink: 0,
-                          background: color + '16',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color,
-                          overflow: 'hidden'
-                        }}>
-                          <CaborIcon cabor={c} />
-                        </div>
-
-                        {/* Info */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{
-                            fontWeight: 800, fontSize: '0.95rem', color: '#0b2d6b',
-                            fontFamily: "'Plus Jakarta Sans','Inter',sans-serif",
-                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                          }}>
-                            {c.nama}
-                          </div>
-                          <div style={{ fontSize: '0.72rem', color: '#6b7faa', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            Pelatih: <span style={{ fontWeight: 600, color: '#3a4f80' }}>{c.nama_pelatih}</span>
-                          </div>
-                          {/* Badge siswa – ditaruh di bawah info agar lebih rapi di grid kecil */}
-                          <div style={{
-                            display: 'inline-block', marginTop: 6,
-                            background: color + '14', color,
-                            border: `1px solid ${color}30`,
-                            borderRadius: 20, padding: '2px 10px',
-                            fontSize: '0.65rem', fontWeight: 700, whiteSpace: 'nowrap',
-                          }}>
-                            {c.jumlah_siswa} Siswa
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT — Spotlight Pelatih */}
-            {allPelatih.length > 0 && (
-              <div style={{ position: 'sticky', top: 24, height: 'max-content' }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, #ffffff 0%, #f4f7fc 100%)',
-                  borderRadius: 24, padding: '24px 20px',
-                  boxShadow: '0 8px 24px rgba(17,85,168,0.06), inset 0 2px 0 rgba(255,255,255,1)',
-                  border: '1px solid #dce6f7',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  textAlign: 'center', position: 'relative', overflow: 'hidden'
-                }}>
-                  <div style={{
-                    position: 'absolute', top: -40, right: -40, width: 120, height: 120,
-                    background: 'radial-gradient(circle, rgba(17,85,168,0.08) 0%, transparent 70%)',
-                    borderRadius: '50%',
-                  }} />
-
-                  <div style={{
-                    fontSize: '0.7rem', fontWeight: 800, color: '#1155a8',
-                    textTransform: 'uppercase', letterSpacing: 1.5,
-                    marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6,
-                    background: '#edf1fb', padding: '6px 12px', borderRadius: 20,
-                  }}>
-                    <Users size={11} /> Tim Pelatih
-                  </div>
-
-                  {/* Image container */}
-                  <div style={{
-                    width: 140, height: 140, marginBottom: 12, position: 'relative',
-                    opacity: pelatihFade ? 1 : 0,
-                    transform: pelatihFade ? 'scale(1)' : 'scale(0.95)',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                  }}>
-                    <img
-                      src={allPelatih[pelatihSlide]?.foto || '/coach-male.png'}
-                      alt={allPelatih[pelatihSlide]?.nama}
-                      style={{
-                        width: '100%', height: '100%',
-                        objectFit: 'contain',
-                        objectPosition: 'center bottom',
-                        filter: 'drop-shadow(0 6px 18px rgba(17,85,168,0.18))',
-                      }}
-                    />
-                  </div>
-
-                  {/* Divider */}
-                  <div style={{ width: '100%', height: 1, background: '#edf1fb', margin: '16px 0 18px' }} />
-
-                  {/* Coach Info */}
-                  <div style={{
-                    opacity: pelatihFade ? 1 : 0,
-                    transform: pelatihFade ? 'translateY(0)' : 'translateY(8px)',
-                    transition: 'opacity 0.4s ease 0.05s, transform 0.4s ease 0.05s',
-                    width: '100%',
-                  }}>
-                    <div style={{
-                      fontWeight: 900, fontSize: '1.15rem', color: '#0b2d6b',
-                      fontFamily: "'Plus Jakarta Sans','Inter',sans-serif",
-                      marginBottom: 8, lineHeight: 1.25,
-                    }}>
-                      {allPelatih[pelatihSlide]?.nama}
-                    </div>
-                    <div style={{
-                      display: 'inline-block',
-                      background: '#c1272d',
-                      borderRadius: 20, padding: '4px 16px',
-                      fontSize: '0.78rem', fontWeight: 700, color: '#fff',
-                      marginBottom: 16,
-                    }}>
-                      {allPelatih[pelatihSlide]?.cabang}
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      {allPelatih[pelatihSlide]?.keterangan && (
-                        <div style={{
-                          background: 'rgba(17,85,168,0.06)', borderRadius: 10,
-                          padding: '6px 13px', fontSize: '0.72rem', color: '#3a4f80',
-                          border: '1px solid rgba(17,85,168,0.12)', fontWeight: 600,
-                          maxWidth: '100%',
-                        }}>
-                          {allPelatih[pelatihSlide]?.keterangan}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Navigation: prev/next arrows + counter */}
-                  {allPelatih.length > 1 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 20 }}>
-                      <button
-                        onClick={() => {
-                          setPelatihFade(false)
-                          setTimeout(() => {
-                            setPelatihSlide(i => (i - 1 + allPelatih.length) % allPelatih.length)
-                            setPelatihFade(true)
-                          }, 300)
-                        }}
-                        style={{
-                          width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #dce6f7',
-                          background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center',
-                          justifyContent: 'center', color: '#1155a8', transition: 'all 0.2s',
-                          flexShrink: 0,
-                        }}
-                      >
-                        <ChevronLeft size={16} />
-                      </button>
-
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6b7faa', minWidth: 48, textAlign: 'center' }}>
-                        {pelatihSlide + 1} / {allPelatih.length}
-                      </span>
-
-                      <button
-                        onClick={() => {
-                          setPelatihFade(false)
-                          setTimeout(() => {
-                            setPelatihSlide(i => (i + 1) % allPelatih.length)
-                            setPelatihFade(true)
-                          }, 300)
-                        }}
-                        style={{
-                          width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #dce6f7',
-                          background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center',
-                          justifyContent: 'center', color: '#1155a8', transition: 'all 0.2s',
-                          flexShrink: 0,
-                        }}
-                      >
-                        <ChevronRight size={16} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-          </div>
+        <CaborCoverflow caborList={data?.cabor || []} onSelect={setSelectedCaborDetail} />
         </div>
-        
+
         {/* MODAL DETAIL CABOR */}
         {selectedCaborDetail && (
           <div style={{
@@ -1154,7 +1054,7 @@ export default function LandingPage() {
               borderRadius: 30, padding: '5px 16px', marginBottom: 16,
               color: '#c1272d', fontSize: '0.78rem', fontWeight: 700,
             }}>
-              <Trophy size={13} />
+              <Trophy size={13} className="lp-badge-icon" />
               PRESTASI SISWA
             </div>
             <h2 style={{
@@ -1920,7 +1820,7 @@ export default function LandingPage() {
               borderRadius: 30, padding: '5px 16px', marginBottom: 16,
               color: '#c1272d', fontSize: '0.78rem', fontWeight: 700,
             }}>
-              <Images size={13} />
+              <Images size={13} className="lp-badge-icon" />
               GALERI PRESTASI
             </div>
             <h2 style={{
@@ -2220,7 +2120,7 @@ export default function LandingPage() {
               borderRadius: 30, padding: '5px 16px', marginBottom: 16,
               color: '#1155a8', fontSize: '0.78rem', fontWeight: 700,
             }}>
-              <MapPin size={13} />
+              <MapPin size={13} className="lp-badge-icon" />
               TEMUKAN KAMI
             </div>
             <h2 style={{
