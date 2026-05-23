@@ -22,14 +22,16 @@ if (!$taId) errorResponse('tahun_ajaran_id diperlukan.', 422);
 $where = ['ph.tahun_ajaran_id = ?'];
 $params = [$taId];
 
-// Filter kelas (hanya kelas yg ditugaskan ke guru)
+// Filter kelas (hanya kelas yg ditugaskan ke guru),
+// atau data yang pernah diinput oleh guru tersebut
 if ($user['role'] === 'guru_olahraga') {
-    $where[] = "s.kelas IN (
+    $where[] = "(COALESCE(ph.kelas, s.kelas) IN (
         SELECT kelas FROM guru_kelas
         WHERE user_id = ? AND tahun_ajaran_id = ?
-    )";
+    ) OR ph.guru_id = ?)";
     $params[] = $user['id'];
     $params[] = $taId;
+    $params[] = $user['id'];
 }
 
 if ($caborId) {
@@ -63,7 +65,7 @@ $sql = "
         s.id             AS siswa_id,
         s.nis,
         s.nama           AS nama_siswa,
-        s.kelas,
+        COALESCE(ph.kelas, s.kelas) AS kelas,
         s.jenis_kelamin,
 
         c.nama           AS nama_cabang,

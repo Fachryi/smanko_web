@@ -132,6 +132,13 @@ export default function RekapGuruPage() {
 
   useEffect(() => { loadRekap() }, [loadRekap])
 
+  // Reset filters when semester changes
+  useEffect(() => {
+    setKelasFilter('')
+    setCaborFilter('')
+    setStatusFilter('')
+  }, [selectedTA])
+
   // Load prestasi data
   const loadPrestasi = useCallback(async () => {
     if (!selectedTA) return

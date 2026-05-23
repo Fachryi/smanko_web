@@ -905,12 +905,12 @@ export default function LandingPage() {
 
         {/* MODAL DETAIL CABOR */}
         {selectedCaborDetail && (
-          <div style={{
+          <div className="dc-modal-overlay" style={{
             position: 'fixed', inset: 0, zIndex: 2000,
             background: 'rgba(11,45,107,0.85)', backdropFilter: 'blur(8px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
           }} onClick={() => setSelectedCaborDetail(null)}>
-            <div style={{
+            <div className="dc-modal" style={{
               background: '#fff', borderRadius: 24, width: '100%', maxWidth: 800,
               maxHeight: '90vh', display: 'flex', flexDirection: 'column',
               boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden'
@@ -1450,12 +1450,12 @@ export default function LandingPage() {
         const caborColor = getCaborColor({ nama: s.nama_cabang, kode: s.kode_cabang } as CaborItem);
 
         return (
-          <div style={{
+          <div className="ds-modal-overlay" style={{
             position: 'fixed', inset: 0, zIndex: 2000,
             background: 'rgba(11,45,107,0.85)', backdropFilter: 'blur(8px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
           }} onClick={() => setSelectedSiswaDetail(null)}>
-            <div style={{
+            <div className="ds-modal" style={{
               background: '#fff', borderRadius: 24, width: '100%', maxWidth: 800,
               maxHeight: '90vh', display: 'flex', flexDirection: 'column',
               boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden'
@@ -1725,7 +1725,7 @@ export default function LandingPage() {
               ) : !riwayatData || riwayatData.riwayat.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 20px', color: '#a0b0cc', background: '#f8faff', borderRadius: 16, border: '1px dashed #dce6f7' }}>
                   <AlertCircle size={36} style={{ margin: '0 auto 12px', color: '#dce6f7' }} />
-                  Belum ada riwayat nilai final untuk siswa ini.
+                  Belum ada riwayat nilai untuk siswa ini.
                 </div>
               ) : (
                 <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #edf1fb' }}>

@@ -30,7 +30,7 @@ if (!empty($_GET['cabang_olahraga_id'])) {
 }
 // Filter kelas
 if (!empty($_GET['kelas'])) {
-    $where[]  = 's.kelas = ?';
+    $where[]  = 'COALESCE(ph.kelas, s.kelas) = ?';
     $params[] = $_GET['kelas'];
 }
 // Filter status

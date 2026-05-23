@@ -80,7 +80,7 @@ $prestasiDist = $stmt->fetchAll();
 $stmt = $pdo->prepare("
     SELECT
         pp.tingkatan,
-        s.id AS siswa_id, s.nama, s.nis, s.kelas, s.jenis_kelamin,
+        s.id AS siswa_id, s.nama, s.nis, COALESCE(ph.kelas, s.kelas) AS kelas, s.jenis_kelamin,
         co.nama AS nama_cabang,
         pp.nama_kejuaraan, pp.peringkat, pp.bukti_foto,
         ROUND(ph.nilai_akhir, 2) AS nilai_akhir, ph.predikat
@@ -125,7 +125,7 @@ $kehadiranKelas = $stmt->fetchAll();
 // ── 5. Top Performers – Leaderboard ──────────────────────
 $stmt = $pdo->prepare("
     SELECT
-        s.id AS siswa_id, s.nisn, s.nama, s.nis, s.kelas, s.jenis_kelamin,
+        s.id AS siswa_id, s.nisn, s.nama, s.nis, COALESCE(ph.kelas, s.kelas) AS kelas, s.jenis_kelamin,
         co.nama  AS nama_cabang, co.kode AS kode_cabang,
         ROUND(ph.nilai_akhir, 2)          AS nilai_akhir,
         ph.predikat, ph.status,
@@ -159,7 +159,7 @@ $predikatDist = $stmt->fetchAll();
 // ── 7. Semua siswa (untuk export PDF rekap penuh) ────────
 $stmt = $pdo->prepare("
     SELECT
-        s.id AS siswa_id, s.nisn, s.nama, s.nis, s.kelas, s.jenis_kelamin,
+        s.id AS siswa_id, s.nisn, s.nama, s.nis, COALESCE(ph.kelas, s.kelas) AS kelas, s.jenis_kelamin,
         co.nama  AS nama_cabang, co.kode AS kode_cabang,
         ROUND(ph.nilai_keterampilan, 2)  AS nilai_keterampilan,
         ROUND(ph.nilai_prestasi, 2)      AS nilai_prestasi,
@@ -175,7 +175,7 @@ $stmt = $pdo->prepare("
     JOIN users u            ON u.id   = ph.guru_id
     LEFT JOIN penilaian_kehadiran pk ON pk.penilaian_id = ph.id
     WHERE ph.tahun_ajaran_id = ?
-    ORDER BY s.kelas, ph.nilai_akhir DESC
+    ORDER BY COALESCE(ph.kelas, s.kelas), ph.nilai_akhir DESC
 ");
 $stmt->execute([$taId]);
 $allSiswa = $stmt->fetchAll();

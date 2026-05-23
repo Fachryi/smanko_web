@@ -44,7 +44,7 @@ $stmtRiwayat = $pdo->prepare("
     JOIN siswa s ON s.id = ph.siswa_id
     JOIN tahun_ajaran ta ON ta.id = ph.tahun_ajaran_id
     LEFT JOIN users u ON u.id = ph.guru_id
-    WHERE ph.siswa_id = ? AND ph.status = 'final'
+    WHERE ph.siswa_id = ?
     ORDER BY ta.nama DESC, ta.semester DESC
 ");
 $stmtRiwayat->execute([$siswaId]);
