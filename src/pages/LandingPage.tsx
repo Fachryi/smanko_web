@@ -97,7 +97,7 @@ const NAV_LINKS = [
 const HERO_SLIDES = [
   {
     bg: '/login-bg.jpg',
-    headline: 'Cetak Juara Dunia,',
+    headline: 'Cetak Juara Dunia',
     headline2: 'Tanpa Lupakan Akademik',
     sub: 'SMA Negeri Khusus Keberbakatan Olahraga Sulawesi Selatan — tempat di mana prestasi atletik dan keunggulan akademik berjalan beriringan.',
     cta: 'Lihat Cabang Olahraga',
@@ -499,6 +499,9 @@ export default function LandingPage() {
     } catch { } finally { setLoadingRiwayat(false) }
   }
 
+  /* ── Certificate preview ── */
+  const [certificateUrl, setCertificateUrl] = useState<string | null>(null)
+
   /* ── Galeri state ── */
   const [galeriFilter, setGaleriFilter] = useState('Semua')
   const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null)
@@ -652,7 +655,7 @@ export default function LandingPage() {
 
   /* ─── RENDER ─── */
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", minHeight: '100vh', background: '#f8faff', overflowX: 'clip', width: '100%' }}>
+    <div style={{ fontFamily: "'Poppins', sans-serif", minHeight: '100vh', background: '#f8faff', overflowX: 'clip', width: '100%' }}>
 
       {/* ══════════════════════ NAVBAR ══════════════════════ */}
       <nav style={{
@@ -790,7 +793,7 @@ export default function LandingPage() {
             </div>
             <h1 style={{
               fontSize: 'clamp(1.7rem, 6vw, 3.8rem)', fontWeight: 900, color: '#fff',
-              lineHeight: 1.15, fontFamily: "'Plus Jakarta Sans','Inter',sans-serif",
+              lineHeight: 1.15, fontFamily: "'Bebas Neue',sans-serif",
               marginBottom: 10, textShadow: '0 2px 20px rgba(0,0,0,0.4)',
               wordWrap: 'break-word'
             }}>
@@ -888,7 +891,7 @@ export default function LandingPage() {
             </div>
             <h2 style={{
               fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, color: '#0b2d6b',
-              fontFamily: "'Plus Jakarta Sans','Inter',sans-serif", lineHeight: 1.2, marginBottom: 12,
+              fontFamily: "'Bebas Neue',sans-serif", lineHeight: 1.2, marginBottom: 12,
             }}>
               Cabang Olahraga &amp; Tim Pelatih
             </h2>
@@ -1059,7 +1062,7 @@ export default function LandingPage() {
             </div>
             <h2 style={{
               fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, color: '#0b2d6b',
-              fontFamily: "'Plus Jakarta Sans','Inter',sans-serif", lineHeight: 1.2, marginBottom: 12,
+              fontFamily: "'Bebas Neue',sans-serif", lineHeight: 1.2, marginBottom: 12,
             }}>
               Papan Peringkat Prestasi Siswa
             </h2>
@@ -1633,10 +1636,8 @@ export default function LandingPage() {
                               </div>
                             </div>
                             {p.bukti_foto && (
-                              <a
-                                href={`/api/${p.bukti_foto}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                              <button
+                                onClick={() => setCertificateUrl(`/api/${p.bukti_foto}`)}
                                 title="Lihat Bukti Sertifikat"
                                 style={{
                                   width: 34, height: 34, borderRadius: '50%',
@@ -1644,7 +1645,6 @@ export default function LandingPage() {
                                   color: '#1155a8',
                                   border: '1px solid rgba(17,85,168,0.15)',
                                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  textDecoration: 'none',
                                   cursor: 'pointer',
                                   transition: 'all 0.2s',
                                   flexShrink: 0,
@@ -1661,7 +1661,7 @@ export default function LandingPage() {
                                 }}
                               >
                                 <Eye size={16} />
-                              </a>
+                              </button>
                             )}
                           </div>
                         )
@@ -1808,6 +1808,41 @@ export default function LandingPage() {
         </div>
       )}
 
+      {/* MODAL SERTIFIKAT */}
+      {certificateUrl && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(11,45,107,0.85)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+        }} onClick={() => setCertificateUrl(null)}>
+          <div style={{
+            background: '#fff', borderRadius: 24, width: '100%', maxWidth: 700,
+            maxHeight: '90vh', display: 'flex', flexDirection: 'column',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{
+              padding: '20px 24px', borderBottom: '1px solid #edf1fb',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              background: 'linear-gradient(90deg, #f8faff, #fff)'
+            }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0b2d6b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Eye size={18} style={{ color: '#1155a8' }} /> Bukti Sertifikat
+              </h4>
+              <button onClick={() => setCertificateUrl(null)} style={{
+                background: 'rgba(17,85,168,0.06)', border: 'none', width: 36, height: 36,
+                borderRadius: '50%', color: '#3a4f80', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'background 0.2s'
+              }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ padding: 24, overflow: 'auto', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={certificateUrl} alt="Sertifikat" style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain', borderRadius: 12 }} />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ══════════════════════ GALERI PRESTASI ══════════════════════ */}
       <section id="galeri" style={{ padding: '80px 24px', background: '#f0f4ff' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
@@ -1825,7 +1860,7 @@ export default function LandingPage() {
             </div>
             <h2 style={{
               fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, color: '#0b2d6b',
-              fontFamily: "'Plus Jakarta Sans','Inter',sans-serif", lineHeight: 1.2, marginBottom: 12,
+              fontFamily: "'Bebas Neue',sans-serif", lineHeight: 1.2, marginBottom: 12,
             }}>
               Momen Kejuaraan &amp; Prestasi
             </h2>
@@ -1907,7 +1942,7 @@ export default function LandingPage() {
                 <div style={{ padding: '14px 16px 16px' }}>
                   <div style={{
                     fontWeight: 700, fontSize: '0.82rem', color: '#0b2d6b',
-                    fontFamily: "'Plus Jakarta Sans','Inter',sans-serif",
+                    fontFamily: "'Poppins',sans-serif",
                     marginBottom: 4, lineHeight: 1.3,
                   }}>
                     {item.kejuaraan}
@@ -2042,7 +2077,7 @@ export default function LandingPage() {
                   {/* Nama kejuaraan */}
                   <div style={{
                     fontWeight: 800, fontSize: '1.05rem', color: '#0b2d6b',
-                    fontFamily: "'Plus Jakarta Sans','Inter',sans-serif", marginBottom: 8,
+                    fontFamily: "'Poppins',sans-serif", marginBottom: 8,
                     lineHeight: 1.3,
                   }}>
                     {GALERI_ITEMS[lightboxIdx].kejuaraan}
@@ -2125,7 +2160,7 @@ export default function LandingPage() {
             </div>
             <h2 style={{
               fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, color: '#0b2d6b',
-              fontFamily: "'Plus Jakarta Sans','Inter',sans-serif", lineHeight: 1.2,
+              fontFamily: "'Bebas Neue',sans-serif", lineHeight: 1.2,
             }}>
               Lokasi Sekolah
             </h2>
