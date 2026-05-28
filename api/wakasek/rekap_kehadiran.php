@@ -65,7 +65,7 @@ $stmt = $pdo->prepare("
         COALESCE(pd.nip,  '')       AS pendamping_nip,
         COALESCE(pd.kode_guru, '')  AS pendamping_kode_guru
     FROM penilaian_header ph
-    JOIN siswa s              ON s.id  = ph.siswa_id
+    JOIN siswa s              ON s.id  = ph.siswa_id AND s.status = 'aktif'
     JOIN cabang_olahraga co   ON co.id = s.cabang_olahraga_id
     JOIN tahun_ajaran ta      ON ta.id = ph.tahun_ajaran_id
     JOIN users u              ON u.id  = ph.guru_id
@@ -90,7 +90,7 @@ $stmt2 = $pdo->prepare("
         COALESCE(pd.nama, '')        AS pendamping_nama,
         COALESCE(pd.nip, '')         AS pendamping_nip
     FROM penilaian_header ph
-    JOIN siswa s              ON s.id  = ph.siswa_id
+    JOIN siswa s              ON s.id  = ph.siswa_id AND s.status = 'aktif'
     JOIN cabang_olahraga co   ON co.id = s.cabang_olahraga_id
     LEFT JOIN penilaian_kehadiran pk ON pk.penilaian_id = ph.id
     LEFT JOIN pendamping_cabor pd    ON pd.cabang_olahraga_id = co.id AND pd.is_utama = 1

@@ -36,6 +36,11 @@ case 'GET':
     $where  = ['1=1'];
     $params = [];
 
+    // Default: sembunyikan alumni, kecuali filter status explicitly dikirim
+    if (empty($_GET['status'])) {
+        $where[] = "s.status != 'alumni'";
+    }
+
     if (!empty($_GET['kelas'])) {
         $where[]  = 's.kelas = ?';
         $params[] = $_GET['kelas'];
@@ -92,7 +97,7 @@ case 'GET':
     $rows = $stmt->fetchAll();
 
     // Ambil daftar kelas yang tersedia
-    $kelasStmt = $pdo->query("SELECT DISTINCT kelas FROM siswa ORDER BY kelas");
+    $kelasStmt = $pdo->query("SELECT DISTINCT kelas FROM siswa WHERE status != 'alumni' ORDER BY kelas");
     $kelasList = array_column($kelasStmt->fetchAll(), 'kelas');
 
     successResponse([

@@ -20,6 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   // Admin
   { label: 'Tahun Ajaran',      icon: <CalendarDays size={18}/>,      to: '/admin/tahun-ajaran',    roles: ['admin'] },
   { label: 'Kenaikan Kelas',    icon: <TrendingUp size={18}/>,        to: '/admin/kenaikan-kelas',  roles: ['admin'] },
+  { label: 'Kelulusan',         icon: <GraduationCap size={18}/>,     to: '/admin/kelulusan',       roles: ['admin'] },
   { label: 'Pengguna',          icon: <Users size={18}/>,             to: '/admin/pengguna',        roles: ['admin'] },
   { label: 'Data Siswa',        icon: <GraduationCap size={18}/>,     to: '/admin/siswa',           roles: ['admin'] },
   { label: 'Cabang Olahraga',   icon: <Dumbbell size={18}/>,          to: '/admin/cabang',          roles: ['admin'] },
@@ -33,6 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Rekap Nilai',       icon: <Trophy size={18}/>,            to: '/guru/rekap',            roles: ['guru_olahraga'] },
   // Wakasek Kesiswaan
   { label: 'Rekap Nilai',       icon: <Trophy size={18}/>,            to: '/wakasek/rekap',         roles: ['wakasek'] },
+  { label: 'Data Alumni',       icon: <GraduationCap size={18}/>,     to: '/wakasek/alumni',        roles: ['wakasek'] },
 ]
 
 const ROLE_LABELS: Record<Role, string> = {

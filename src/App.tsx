@@ -15,6 +15,7 @@ import PenggunaPage       from './pages/admin/PenggunaPage'
 import SiswaPage          from './pages/admin/SiswaPage'
 import KenaikanKelasPage from './pages/admin/KenaikanKelasPage'
 import CabangPage         from './pages/admin/CabangPage'
+import GraduationPage     from './pages/admin/GraduationPage'
 import KriteriaPage       from './pages/admin/KriteriaPage'
 import GuruKelasPage      from './pages/admin/GuruKelasPage'
 import ProfilPelatihPage  from './pages/admin/ProfilPelatihPage'
@@ -27,8 +28,10 @@ import KelasDetailPage    from './pages/guru/KelasDetailPage'
 import FormNilaiPage      from './pages/guru/FormNilaiPage'
 import RekapGuruPage      from './pages/guru/RekapGuruPage'
 
-// Wakasek (coming soon placeholder)
+// Wakasek
 import WakasekRekapPage   from './pages/wakasek/WakasekRekapPage'
+import WakasekAlumniPage  from './pages/wakasek/WakasekAlumniPage'
+import WakasekAlumniDetailPage from './pages/wakasek/WakasekAlumniDetailPage'
 
 export default function App() {
   return (
@@ -50,6 +53,9 @@ export default function App() {
           } />
           <Route path="/admin/kenaikan-kelas" element={
             <ProtectedRoute roles={['admin']}><KenaikanKelasPage /></ProtectedRoute>
+          } />
+          <Route path="/admin/kelulusan" element={
+            <ProtectedRoute roles={['admin']}><GraduationPage /></ProtectedRoute>
           } />
           <Route path="/admin/pengguna" element={
             <ProtectedRoute roles={['admin']}><PenggunaPage /></ProtectedRoute>
@@ -97,6 +103,12 @@ export default function App() {
           {/* ── WAKASEK ── */}
           <Route path="/wakasek/rekap" element={
             <ProtectedRoute roles={['wakasek']}><WakasekRekapPage /></ProtectedRoute>
+          } />
+          <Route path="/wakasek/alumni" element={
+            <ProtectedRoute roles={['wakasek']}><WakasekAlumniPage /></ProtectedRoute>
+          } />
+          <Route path="/wakasek/alumni/:siswaId" element={
+            <ProtectedRoute roles={['wakasek']}><WakasekAlumniDetailPage /></ProtectedRoute>
           } />
 
           {/* Fallback */}

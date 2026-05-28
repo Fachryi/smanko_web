@@ -70,7 +70,7 @@ export interface Siswa {
   nama_cabang?: string
   kode_cabang?: string
   nama_pelatih?: string
-  status: 'aktif' | 'nonaktif'
+  status: 'aktif' | 'nonaktif' | 'alumni'
   created_at?: string
 }
 

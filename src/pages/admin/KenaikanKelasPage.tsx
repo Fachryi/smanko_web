@@ -238,7 +238,7 @@ export default function KenaikanKelasPage() {
             <select className="form-control" value={sourceKelas}
               onChange={e => setSourceKelas(e.target.value)}>
               <option value="">Pilih Kelas...</option>
-              {availableClasses.map(c => <option key={c} value={c}>{c}</option>)}
+              {availableClasses.filter(c => !c.startsWith('XII-')).map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 

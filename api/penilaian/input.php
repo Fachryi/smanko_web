@@ -63,7 +63,7 @@ case 'GET':
                    'Belum Ditugaskan'
                ) AS nama_pelatih
         FROM penilaian_header ph
-        JOIN siswa s ON s.id = ph.siswa_id
+        JOIN siswa s ON s.id = ph.siswa_id AND s.status = 'aktif'
         JOIN cabang_olahraga c ON c.id = s.cabang_olahraga_id
         JOIN tahun_ajaran ta ON ta.id = ph.tahun_ajaran_id
         WHERE ph.siswa_id = ? AND ph.tahun_ajaran_id = ?
@@ -156,6 +156,7 @@ case 'POST':
     $siswaStmt->execute([$siswaId]);
     $siswa = $siswaStmt->fetch();
     if (!$siswa) errorResponse('Siswa tidak ditemukan.', 404);
+    if ($siswa['status'] === 'alumni') errorResponse('Tidak dapat menilai siswa yang sudah menjadi alumni.', 403);
 
     // Verifikasi akses guru
     if ($user['role'] === 'guru_olahraga') {
@@ -297,6 +298,7 @@ case 'POST':
                 $uploadDir = dirname(__DIR__) . '/uploads/prestasi/';
                 if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
+                if ($ext === 'jpeg') $ext = 'jpg';
                 $fileName  = 'siswa_' . $siswaId . '_' . time() . '_' . $i . '.' . $ext;
                 if (!move_uploaded_file($file['tmp_name'], $uploadDir . $fileName)) {
                     errorResponse('Gagal menyimpan file upload ke-' . ($i + 1) . '.', 500);

@@ -788,8 +788,8 @@ export default function LandingPage() {
               borderRadius: 30, padding: '5px 16px', marginBottom: 24,
               color: '#fff', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em',
             }}>
-              <Trophy size={13} className="lp-badge-icon" />
-              SMANKO — Sulawesi Selatan
+  <MapPin size={13} className="lp-badge-icon" />
+  SMANKO — Sulawesi Selatan
             </div>
             <h1 style={{
               fontSize: 'clamp(1.7rem, 6vw, 3.8rem)', fontWeight: 900, color: '#fff',

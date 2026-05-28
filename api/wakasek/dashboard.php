@@ -67,6 +67,7 @@ $stmt = $pdo->prepare("
     SELECT pp.tingkatan, COUNT(*) AS jumlah
     FROM penilaian_prestasi pp
     JOIN penilaian_header ph ON ph.id = pp.penilaian_id AND ph.tahun_ajaran_id = ?
+    JOIN siswa s ON s.id = ph.siswa_id AND s.status = 'aktif'
     WHERE pp.tingkatan NOT IN ('Tidak Ada Prestasi', '')
     GROUP BY pp.tingkatan
     ORDER BY FIELD(pp.tingkatan,
@@ -86,7 +87,7 @@ $stmt = $pdo->prepare("
         ROUND(ph.nilai_akhir, 2) AS nilai_akhir, ph.predikat
     FROM penilaian_prestasi pp
     JOIN penilaian_header ph ON ph.id = pp.penilaian_id AND ph.tahun_ajaran_id = ?
-    JOIN siswa s  ON s.id  = ph.siswa_id
+    JOIN siswa s  ON s.id  = ph.siswa_id AND s.status = 'aktif'
     JOIN cabang_olahraga co ON co.id = s.cabang_olahraga_id
     WHERE pp.tingkatan NOT IN ('Tidak Ada Prestasi', '')
     ORDER BY pp.tingkatan, ph.nilai_akhir DESC
@@ -115,7 +116,7 @@ $stmt = $pdo->prepare("
         ROUND(AVG(pk.persentase), 1)                                                   AS avg_persen
     FROM penilaian_kehadiran pk
     JOIN penilaian_header ph ON ph.id = pk.penilaian_id AND ph.tahun_ajaran_id = ?
-    JOIN siswa s ON s.id = ph.siswa_id
+    JOIN siswa s ON s.id = ph.siswa_id AND s.status = 'aktif'
     GROUP BY s.kelas
     ORDER BY s.kelas
 ");
@@ -134,7 +135,7 @@ $stmt = $pdo->prepare("
         ROUND(ph.nilai_kehadiran, 2)      AS nilai_kehadiran,
         COALESCE((SELECT tingkatan FROM penilaian_prestasi pp WHERE pp.penilaian_id = ph.id ORDER BY nilai DESC LIMIT 1), '-') AS prestasi_tingkatan
     FROM penilaian_header ph
-    JOIN siswa s            ON s.id   = ph.siswa_id
+    JOIN siswa s            ON s.id   = ph.siswa_id AND s.status = 'aktif'
     JOIN cabang_olahraga co ON co.id  = s.cabang_olahraga_id
     WHERE ph.tahun_ajaran_id = ?
     ORDER BY ph.nilai_akhir DESC
@@ -170,13 +171,12 @@ $stmt = $pdo->prepare("
         COALESCE(ROUND(pk.persentase,1), 0) AS persen_hadir,
         u.nama AS nama_guru
     FROM penilaian_header ph
-    JOIN siswa s            ON s.id   = ph.siswa_id
+    JOIN siswa s            ON s.id   = ph.siswa_id AND s.status = 'aktif'
     JOIN cabang_olahraga co ON co.id  = s.cabang_olahraga_id
     JOIN users u            ON u.id   = ph.guru_id
     LEFT JOIN penilaian_kehadiran pk ON pk.penilaian_id = ph.id
     WHERE ph.tahun_ajaran_id = ?
-    ORDER BY COALESCE(ph.kelas, s.kelas), ph.nilai_akhir DESC
-");
+    ORDER BY COALESCE(ph.kelas, s.kelas), ph.nilai_akhir DESC");
 $stmt->execute([$taId]);
 $allSiswa = $stmt->fetchAll();
 

@@ -70,7 +70,7 @@ $sql = "
         pkh.total_sesi,
         pkh.persentase AS persentase_hadir
     FROM penilaian_header ph
-    JOIN siswa s         ON s.id   = ph.siswa_id
+    JOIN siswa s         ON s.id   = ph.siswa_id AND s.status = 'aktif'
     JOIN cabang_olahraga c ON c.id = s.cabang_olahraga_id
     JOIN tahun_ajaran ta ON ta.id  = ph.tahun_ajaran_id
     JOIN users u         ON u.id   = ph.guru_id
