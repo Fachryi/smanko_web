@@ -273,7 +273,8 @@ export default function FormNilaiPage() {
         const eRes = await api.get<ApiResponse<ExistingPenilaian>>(
           `/penilaian/input.php?siswa_id=${siswaId}&tahun_ajaran_id=${taId}`
         )
-        if (eRes.data) {
+        // Hanya populate form jika benar ada data penilaian (bukan response "Belum ada penilaian")
+        if (eRes.data?.id) {
           const e = eRes.data
           setExisting(e)
           setStatusPenilaian(e.status as 'draft' | 'final')

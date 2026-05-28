@@ -14,6 +14,8 @@ export default function TahunAjaranPage() {
   const [modal,   setModal]   = useState<'add'|'edit'|null>(null)
   const [confirm, setConfirm] = useState<{ open:boolean; id:number; action:'delete'|'activate'|'close' }>({ open:false, id:0, action:'delete' })
   const [saving,  setSaving]  = useState(false)
+  const [autoLoading, setAutoLoading] = useState(false)
+  const [showAutoConfirm, setShowAutoConfirm] = useState(false)
   const [error,   setError]   = useState('')
   const [selected, setSelected] = useState<TahunAjaran|null>(null)
   const [form,    setForm]    = useState<FormData>({ nama:'', semester:'1' })
@@ -27,12 +29,12 @@ export default function TahunAjaranPage() {
   }, [])
   useEffect(() => { load() }, [load])
 
-  const openAdd = () => {
-    setSelected(null)
-    setForm({ nama:'', semester:'1' })
-    setError('')
-    setModal('add')
-  }
+  const sortedData = [...data].sort((a, b) => {
+    if (a.nama !== b.nama) return a.nama.localeCompare(b.nama);
+    return a.semester - b.semester;
+  })
+  const activeIdx = sortedData.findIndex(d => d.status === 'aktif')
+
   const openEdit = (row: TahunAjaran) => {
     setSelected(row)
     setForm({ nama: row.nama, semester: String(row.semester) })
@@ -41,15 +43,13 @@ export default function TahunAjaranPage() {
   }
 
   const handleSave = async () => {
-    if (!form.nama.trim()) { setError('Nama tahun ajaran wajib diisi.'); return }
+    if (!form.nama.trim() || !selected) { setError('Data tidak valid.'); return }
     setSaving(true); setError('')
     try {
-      const payload = { nama: form.nama.trim(), semester: Number(form.semester) }
-      if (modal === 'add') {
-        await api.post('/master/tahun_ajaran.php', payload)
-      } else if (selected) {
-        await api.put(`/master/tahun_ajaran.php?id=${selected.id}`, payload)
-      }
+      await api.put(`/master/tahun_ajaran.php?id=${selected.id}`, {
+        nama: form.nama.trim(),
+        semester: Number(form.semester),
+      })
       setModal(null); load()
     } catch (e: unknown) { setError(e instanceof Error ? e.message : 'Terjadi kesalahan.') }
     finally { setSaving(false) }
@@ -72,6 +72,16 @@ export default function TahunAjaranPage() {
     finally { setSaving(false) }
   }
 
+  const handleAutoCreate = async () => {
+    setAutoLoading(true)
+    try {
+      await api.post('/master/tahun_ajaran.php?auto=1', {})
+      setShowAutoConfirm(false)
+      load()
+    } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Gagal membuka tahun ajaran baru.') }
+    finally { setAutoLoading(false) }
+  }
+
   const confirmAction = confirm.action === 'delete' ? handleDelete : handleActivate
 
   return (
@@ -81,8 +91,8 @@ export default function TahunAjaranPage() {
           <h1>Tahun Ajaran & Semester</h1>
           <p>Kelola periode penilaian. Hanya 1 tahun ajaran yang boleh berstatus <strong>Aktif</strong>.</p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd}>
-          <Plus size={16}/> Tambah Tahun Ajaran
+        <button className="btn btn-primary" onClick={() => setShowAutoConfirm(true)} disabled={autoLoading}>
+          <Plus size={16}/> {autoLoading ? <span className="spinner"/> : 'Tambah Tahun Ajaran'}
         </button>
       </div>
 
@@ -104,7 +114,9 @@ export default function TahunAjaranPage() {
               <tbody>
                 {data.length === 0 ? (
                   <tr><td colSpan={5} className="table-empty">Belum ada tahun ajaran.</td></tr>
-                ) : data.map((row, i) => (
+                ) : sortedData.map((row, i) => {
+                  const canActivate = activeIdx === -1 || Math.abs(i - activeIdx) <= 1;
+                  return (
                   <tr key={row.id}>
                     <td style={{color:'var(--clr-text-3)',width:48}}>{i+1}</td>
                     <td>
@@ -122,8 +134,11 @@ export default function TahunAjaranPage() {
                     <td>
                       <div className="td-actions">
                         {row.status === 'tutup' && (
-                          <button className="btn btn-sm btn-success" title="Aktifkan"
-                            onClick={() => setConfirm({ open:true, id:row.id, action:'activate' })}>
+                          <button className="btn btn-sm btn-success"
+                            title={canActivate ? 'Aktifkan' : 'Terlalu jauh dari tahun aktif (hanya 1 langkah maju/mundur)'}
+                            onClick={() => setConfirm({ open:true, id:row.id, action:'activate' })}
+                            disabled={!canActivate}
+                            style={!canActivate ? {opacity:0.4,cursor:'not-allowed'} : {}}>
                             <PlayCircle size={14}/> Aktifkan
                           </button>
                         )}
@@ -142,16 +157,17 @@ export default function TahunAjaranPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
 
-      {/* Add/Edit Modal */}
-      <Modal open={!!modal} onClose={() => setModal(null)}
-        title={modal === 'add' ? 'Tambah Tahun Ajaran' : 'Edit Tahun Ajaran'}
+      {/* Edit Modal */}
+      <Modal open={modal === 'edit'} onClose={() => setModal(null)}
+        title="Edit Tahun Ajaran"
         footer={
           <>
             <button className="btn btn-secondary" onClick={() => setModal(null)}>Batal</button>
@@ -193,6 +209,17 @@ export default function TahunAjaranPage() {
             : 'Tutup tahun ajaran ini? Guru tidak bisa input nilai sampai ada yang diaktifkan.'
         }
         confirmLabel={confirm.action === 'delete' ? 'Hapus' : confirm.action === 'activate' ? 'Aktifkan' : 'Tutup'}
+      />
+
+      {/* Auto Create Confirm Dialog */}
+      <ConfirmDialog
+        open={showAutoConfirm}
+        onClose={() => setShowAutoConfirm(false)}
+        onConfirm={handleAutoCreate}
+        loading={autoLoading}
+        title="Buka Tahun Ajaran Baru"
+        message={'Akan menambahkan tahun ajaran berikutnya secara otomatis. Tahun ajaran yang sedang aktif tidak terpengaruh. Lanjutkan?'}
+        confirmLabel="Buka"
       />
     </Layout>
   )

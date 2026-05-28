@@ -133,14 +133,21 @@ export default function GuruKelasPage() {
             {/* Pilih Tahun Ajaran */}
             <div className="form-group">
               <label className="form-label">Tahun Ajaran</label>
-              <select className="form-control" value={selectedTA}
-                onChange={e=>setSelectedTA(Number(e.target.value))}>
-                {tahunAjarans.map(t=>(
-                  <option key={t.id} value={t.id}>
-                    {t.nama} – Semester {t.semester} {t.status==='aktif'?'(Aktif)':''}
-                  </option>
-                ))}
-              </select>
+                <select className="form-control" value={selectedTA}
+                  onChange={e=>setSelectedTA(Number(e.target.value))}>
+                  {(() => {
+                    const sorted = [...tahunAjarans].sort((a, b) => {
+                      if (a.nama !== b.nama) return a.nama.localeCompare(b.nama);
+                      return a.semester - b.semester;
+                    });
+                    const activeIdx = sorted.findIndex(t => t.status === 'aktif');
+                    return sorted.filter((_, i) => activeIdx === -1 || Math.abs(i - activeIdx) <= 1).map(t => (
+                      <option key={t.id} value={t.id}>
+                        {t.nama} – Semester {t.semester} {t.status==='aktif'?'(Aktif)':''}
+                      </option>
+                    ));
+                  })()}
+                </select>
             </div>
 
             {/* Pilih Guru */}

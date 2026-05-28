@@ -119,10 +119,30 @@ export default function KenaikanKelasPage() {
       setAvailableClasses(sRes.data?.kelas_list ?? [])
       const active = list.find(t => t.status === 'aktif')
       if (active) setSourceTaId(active.id)
+      // Auto-select TA tujuan: 1 langkah setelah TA aktif
+      const sorted = [...list].sort((a, b) => {
+        if (a.nama !== b.nama) return a.nama.localeCompare(b.nama);
+        return a.semester - b.semester;
+      });
+      const activeIdx = sorted.findIndex(t => t.status === 'aktif');
+      if (activeIdx !== -1 && activeIdx < sorted.length - 1) {
+        setTargetTaId(sorted[activeIdx + 1].id);
+      }
     }).catch(() => {})
   }, [])
 
   const activeTa = taList.find(t => t.status === 'aktif')
+
+  // ── Cari tahun ajaran berikutnya (1 langkah setelah TA aktif) ──
+  const nextTa = (() => {
+    const sorted = [...taList].sort((a, b) => {
+      if (a.nama !== b.nama) return a.nama.localeCompare(b.nama);
+      return a.semester - b.semester;
+    });
+    const activeIdx = sorted.findIndex(t => t.status === 'aktif');
+    if (activeIdx === -1 || activeIdx >= sorted.length - 1) return null;
+    return sorted[activeIdx + 1];
+  })();
 
   const suggestNextKelas = (k: string) => {
     if (k.startsWith('XI-')) return k.replace('XI-', 'XII-')
@@ -163,7 +183,7 @@ export default function KenaikanKelasPage() {
     setTargetMappings(prev => ({ ...prev, [id]: val }))
 
   const handleSubmitRequest = () => {
-    if (!targetTaId) { setMessage({ type:'error', text:'Pilih Tahun Ajaran tujuan terlebih dahulu.' }); return }
+    if (!nextTa) { setMessage({ type:'error', text:'Tidak ada tahun ajaran berikutnya. Buat tahun ajaran baru terlebih dahulu.' }); return }
     setShowConfirm(true)
   }
 
@@ -177,10 +197,9 @@ export default function KenaikanKelasPage() {
     }
     try {
       await api.post('/master/promotion.php', payload)
-      const targetTa = taList.find(t => t.id === targetTaId)
       setSuccessResult({
         total: payload.students.length,
-        target_ta: targetTa ? `${targetTa.nama} – Sem ${targetTa.semester}` : 'Tahun Ajaran Baru',
+        target_ta: nextTa ? `${nextTa.nama} – Sem ${nextTa.semester}` : 'Tahun Ajaran Baru',
       })
       setSelectedIds(new Set())
     } catch (e: unknown) {
@@ -280,12 +299,13 @@ export default function KenaikanKelasPage() {
                 </span>
                 <select className="form-control" style={{ width:210, padding:'6px 12px' }}
                   value={targetTaId} onChange={e => setTargetTaId(Number(e.target.value))}>
-                  <option value={0}>Pilih Tahun Ajaran Tujuan...</option>
-                  {taList.map(ta => (
-                    <option key={ta.id} value={ta.id}>
-                      {ta.nama} – Sem {ta.semester}{ta.status === 'aktif' ? ' (Aktif)' : ''}
+                  {nextTa ? (
+                    <option value={nextTa.id}>
+                      {nextTa.nama} – Sem {nextTa.semester}
                     </option>
-                  ))}
+                  ) : (
+                    <option value={0}>Tidak ada TA berikutnya</option>
+                  )}
                 </select>
               </div>
               <button className="btn btn-success"

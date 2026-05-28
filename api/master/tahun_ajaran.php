@@ -24,6 +24,41 @@ case 'GET':
 
 case 'POST':
     if ($user['role'] !== 'admin') errorResponse('Akses ditolak.', 403);
+
+    // ── Auto-generate tahun ajaran berikutnya ──
+    if (!empty($_GET['auto'])) {
+        $lastTa = $pdo->query("SELECT * FROM tahun_ajaran ORDER BY nama DESC, semester DESC LIMIT 1")->fetch();
+        if (!$lastTa) errorResponse('Belum ada tahun ajaran. Buat manual terlebih dahulu.', 404);
+
+        preg_match('/^(\d{4})\/(\d{4})$/', $lastTa['nama'], $m);
+        if (!$m) errorResponse('Format tahun ajaran tidak valid.', 500);
+
+        if ($lastTa['semester'] == 1) {
+            $namaBaru    = $lastTa['nama'];
+            $semesterBaru = 2;
+        } else {
+            $tahun2      = (int)$m[2];
+            $namaBaru    = $tahun2 . '/' . ($tahun2 + 1);
+            $semesterBaru = 1;
+        }
+
+        $chk = $pdo->prepare("SELECT id FROM tahun_ajaran WHERE nama = ? AND semester = ?");
+        $chk->execute([$namaBaru, $semesterBaru]);
+        if ($chk->fetch()) {
+            errorResponse("Tahun ajaran $namaBaru semester $semesterBaru sudah ada. Silakan aktifkan langsung.", 409);
+        }
+
+        $pdo->prepare("INSERT INTO tahun_ajaran (nama, semester, status) VALUES (?, ?, 'tutup')")
+            ->execute([$namaBaru, $semesterBaru]);
+
+        successResponse([
+            'id'        => (int)$pdo->lastInsertId(),
+            'nama'      => $namaBaru,
+            'semester'  => $semesterBaru,
+        ], "Tahun ajaran $namaBaru semester $semesterBaru berhasil ditambahkan.", 201);
+    }
+
+    // ── Manual create ──
     $body     = getBody();
     $nama     = trim($body['nama']     ?? '');
     $semester = (int)($body['semester'] ?? 0);
@@ -54,6 +89,19 @@ case 'PUT':
     // Aktivasi: set ini aktif, tutup semua yg lain
     if (isset($body['status'])) {
         if ($body['status'] === 'aktif') {
+            // ── Validasi urutan: hanya 1 langkah maju/mundur ──
+            $allTa = $pdo->query("SELECT id, nama, semester, status FROM tahun_ajaran ORDER BY nama ASC, semester ASC")->fetchAll();
+            $targetKey = null;
+            $activeKey = null;
+            foreach ($allTa as $k => $ta) {
+                if ($ta['status'] === 'aktif') $activeKey = $k;
+                if ((int)$ta['id'] === $id)    $targetKey = $k;
+            }
+            if ($activeKey !== null && $targetKey !== null) {
+                if (abs($targetKey - $activeKey) > 1) {
+                    errorResponse('Tahun ajaran yang dipilih terlalu jauh dari tahun ajaran aktif. Hanya bisa aktivasi 1 langkah maju atau 1 langkah mundur.', 422);
+                }
+            }
             $pdo->exec("UPDATE tahun_ajaran SET status = 'tutup'");
         }
         $pdo->prepare("UPDATE tahun_ajaran SET status = ? WHERE id = ?")->execute([$body['status'], $id]);
