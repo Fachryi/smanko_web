@@ -1,0 +1,33 @@
+# ============================================================
+# SMANKO Prestasi Uploads – Allow Direct Image Access
+# Sub-folder untuk bukti foto sertifikat prestasi siswa
+# ============================================================
+
+# Disable rewrite engine
+RewriteEngine Off
+
+# Add MIME types
+AddType image/jpeg .jpeg
+AddType image/jpeg .jpg
+AddType image/png .png
+AddType image/gif .gif
+AddType image/webp .webp
+
+# Explicitly allow image files
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Allow from all
+    Require all granted
+    Header set Cache-Control "public, max-age=31536000"
+</FilesMatch>
+
+# Deny everything else
+<FilesMatch "^(?!.*\.(jpg|jpeg|png|gif|webp)$)">
+    Deny from all
+    Require all denied
+</FilesMatch>
+
+# Extra: Set correct headers for images
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+</IfModule>

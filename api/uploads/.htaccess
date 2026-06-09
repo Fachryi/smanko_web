@@ -1,0 +1,35 @@
+# ============================================================
+# SMANKO Uploads Directory – Allow Direct File Access
+# Ini memberikan izin akses HTTP langsung ke file upload
+# seperti: /api/uploads/prestasi/siswa_*.jpg
+# ============================================================
+
+# Disable rewrite engine untuk folder ini
+# (jangan intercept request untuk file statis)
+RewriteEngine Off
+
+# Add MIME types untuk berbagai format file
+AddType image/jpeg .jpeg
+AddType image/jpeg .jpg
+AddType image/png .png
+AddType image/gif .gif
+AddType image/webp .webp
+AddType application/pdf .pdf
+
+# Izinkan akses langsung ke file image dan PDF
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|pdf)$">
+    Allow from all
+    Require all granted
+</FilesMatch>
+
+# Deny akses ke file PHP (security)
+<FilesMatch "\.php$">
+    Deny from all
+    Require all denied
+</FilesMatch>
+
+# Deny akses ke file system (.htaccess, .env, dll)
+<FilesMatch "^\.">
+    Deny from all
+    Require all denied
+</FilesMatch>
