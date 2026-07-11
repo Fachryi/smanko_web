@@ -6,6 +6,7 @@ import ConfirmDialog from '../../components/ConfirmDialog'
 import { api } from '../../lib/apiClient'
 import type { CabangOlahraga, ApiResponse } from '../../types'
 import { Search, Plus, Pencil, Trash2, Users, Image as ImageIcon } from 'lucide-react'
+import { toTitleCase } from '../../utils/format'
 
 type ProfilPelatih = {
   id: number
@@ -195,7 +196,7 @@ export default function ProfilPelatihPage() {
                         </div>
                       )}
                     </td>
-                    <td><strong>{p.nama}</strong></td>
+                    <td><strong>{toTitleCase(p.nama)}</strong></td>
                     <td><span className="badge badge-info">{p.nama_cabang}</span></td>
                     <td><span style={{fontSize: '0.82rem'}}>{p.no_telepon || '-'}</span></td>
                     <td><span style={{fontSize: '0.82rem'}}>{p.keterangan || '-'}</span></td>
@@ -270,7 +271,10 @@ export default function ProfilPelatihPage() {
         <div className="form-group">
           <label className="form-label">No. Telepon</label>
           <input className="form-control" placeholder="Contoh: 0812-3456-7890"
-            value={form.no_telepon} onChange={e => setForm(f=>({...f, no_telepon: e.target.value}))} />
+            value={form.no_telepon}
+            onChange={e => setForm(f => ({...f, no_telepon: e.target.value.replace(/\D/g, '').slice(0, 13)}))}
+            inputMode="numeric"
+            maxLength={13} />
         </div>
 
         <div className="form-group">

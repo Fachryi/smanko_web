@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toTitleCase } from '../utils/format'
 import {
   Menu, X, ChevronLeft, ChevronRight, Search, MapPin,
   Phone, Mail, Facebook, Instagram, Youtube, ExternalLink,
@@ -22,6 +23,7 @@ interface CaborItem {
   deskripsi: string
   jumlah_siswa: number
   jumlah_kriteria: number
+  jumlah_prestasi: number
   nama_pelatih: string
   jumlah_penilaian: number
   siswa_list?: CaborSiswa[]
@@ -347,6 +349,37 @@ function CaborCoverflow({ caborList, onSelect }: { caborList: any[], onSelect: (
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   TOP 3 PALING DIMINATI
+   ════════════════════════════════════════════════════════════ */
+function Top3Sidebar({ caborList }: { caborList: any[] }) {
+  const top3 = [...caborList].sort((a, b) => (b.jumlah_siswa || 0) - (a.jumlah_siswa || 0)).slice(0, 3);
+  const maxSiswa = top3[0]?.jumlah_siswa || 1;
+
+  return (
+    <div className="lp-top3-card">
+      <div className="lp-top3-header">
+        <Flame size={15} />
+        TOP 3 CABANG OLAHRAGA
+      </div>
+      <div className="lp-top3-body">
+        {top3.map((c, i) => (
+          <div key={c.id || c.nama} className="lp-top3-item">
+            <span className="lp-top3-medal">{['🥇','🥈','🥉'][i]}</span>
+            <div className="lp-top3-info">
+              <div className="lp-top3-name">{c.nama}</div>
+              <div className="lp-top3-bar-wrap">
+                <div className="lp-top3-bar" style={{ width: `${(c.jumlah_siswa / maxSiswa) * 100}%` }} />
+              </div>
+              <div className="lp-top3-count">{c.jumlah_siswa || 0} Siswa &middot; {c.jumlah_prestasi || 0} Prestasi</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -876,7 +909,7 @@ export default function LandingPage() {
 
       {/* ══════════════════════ CABOR & PELATIH ══════════════════════ */}
       <section id="cabor" style={{ padding: '80px 24px', background: '#fff' }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
           {/* Section header */}
           <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 52 }}>
@@ -900,7 +933,12 @@ export default function LandingPage() {
             </p>
           </div>
 
-        <CaborCoverflow caborList={data?.cabor || []} onSelect={setSelectedCaborDetail} />
+          <div className="lp-cabor-row">
+            <div className="lp-cabor-coverflow-wrap">
+              <CaborCoverflow caborList={data?.cabor || []} onSelect={setSelectedCaborDetail} />
+            </div>
+            <Top3Sidebar caborList={data?.cabor || []} />
+          </div>
         </div>
 
         {/* MODAL DETAIL CABOR */}
@@ -954,7 +992,7 @@ export default function LandingPage() {
                       }}>
                         <img src={p.foto || '/coach-male.png'} alt={p.nama} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid #fff', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} />
                         <div>
-                          <div style={{ fontWeight: 800, color: '#0b2d6b', fontSize: '1rem', marginBottom: 4 }}>{p.nama}</div>
+                          <div style={{ fontWeight: 800, color: '#0b2d6b', fontSize: '1rem', marginBottom: 4 }}>{toTitleCase(p.nama)}</div>
                           <div style={{ fontSize: '0.75rem', color: '#6b7faa', display: 'flex', flexDirection: 'column', gap: 4 }}>
                             {p.no_telepon && (
                               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>📱 {p.no_telepon}</span>
@@ -1273,7 +1311,7 @@ export default function LandingPage() {
                                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                                         maxWidth: 120,
                                       }}>
-                                        {s.nama_pelatih ?? <span style={{ color: '#a0b0cc', fontStyle: 'italic', fontWeight: 400 }}>—</span>}
+                                        {s.nama_pelatih ? toTitleCase(s.nama_pelatih) : <span style={{ color: '#a0b0cc', fontStyle: 'italic', fontWeight: 400 }}>—</span>}
                                       </div>
                                     </div>
                                   </td>
@@ -1530,7 +1568,7 @@ export default function LandingPage() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Users size={16} style={{ color: '#1155a8' }} />
-                      <span style={{ fontSize: '0.9rem', color: '#1a2744', fontWeight: 600 }}>Pelatih: {s.nama_pelatih ?? 'Belum Ditugaskan'}</span>
+                      <span style={{ fontSize: '0.9rem', color: '#1a2744', fontWeight: 600 }}>Pelatih: {s.nama_pelatih ? toTitleCase(s.nama_pelatih) : 'Belum Ditugaskan'}</span>
                     </div>
                   </div>
 
@@ -2298,7 +2336,6 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Semua styling dipindah ke index.css — PREMIUM DESIGN UPGRADE */}
     </div>
   )
 }

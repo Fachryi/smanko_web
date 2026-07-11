@@ -41,7 +41,12 @@ $cabangStmt = $pdo->query("
         c.kode,
         c.deskripsi,
         (SELECT COUNT(*) FROM siswa s WHERE s.cabang_olahraga_id = c.id AND s.status = 'aktif') AS jumlah_siswa,
-        (SELECT COUNT(*) FROM kriteria_keterampilan k WHERE k.cabang_olahraga_id = c.id) AS jumlah_kriteria
+        (SELECT COUNT(*) FROM kriteria_keterampilan k WHERE k.cabang_olahraga_id = c.id) AS jumlah_kriteria,
+        (SELECT COUNT(DISTINCT pp.id)
+         FROM penilaian_prestasi pp
+         JOIN penilaian_header ph ON ph.id = pp.penilaian_id
+         JOIN siswa s ON s.id = ph.siswa_id
+         WHERE s.cabang_olahraga_id = c.id) AS jumlah_prestasi
     FROM cabang_olahraga c
     ORDER BY c.nama ASC
 ");

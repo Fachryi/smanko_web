@@ -6,6 +6,7 @@ import ConfirmDialog from '../../components/ConfirmDialog'
 import { api } from '../../lib/apiClient'
 import type { Siswa, CabangOlahraga, ApiResponse } from '../../types'
 import { Search, Plus, Pencil, Trash2, GraduationCap, TrendingUp, CheckCircle, AlertTriangle, Users } from 'lucide-react'
+import { toTitleCase } from '../../utils/format'
 
 type FormData = {
   nisn:string; nis:string; nama:string; kelas:string; jenis_kelamin:string; cabang_olahraga_id:string; pelatih_id:string
@@ -195,7 +196,7 @@ export default function SiswaPage() {
                     </td>
                     <td>
                       {s.nama_pelatih ? (
-                        <span style={{fontSize:'0.85rem'}}>{s.nama_pelatih}</span>
+                        <span style={{fontSize:'0.85rem'}}>{toTitleCase(s.nama_pelatih)}</span>
                       ) : (
                         <span style={{fontSize:'0.85rem',color:'var(--clr-text-4)',fontStyle:'italic'}}>Belum dipilih</span>
                       )}

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import Layout from '../../components/Layout'
 import { api } from '../../lib/apiClient'
-import type { ApiResponse, SettingPrestasi, KriteriaKeterampilan } from '../../types'
+import type { ApiResponse, SettingPrestasi, SettingNomorPertandingan, KriteriaKeterampilan } from '../../types'
 import {
   ChevronLeft, Save, Eye, Upload, X, CheckCircle2, Plus,
   Dumbbell, GraduationCap, Trophy, ClipboardCheck, AlertCircle, ArrowRight
@@ -191,6 +191,7 @@ export default function FormNilaiPage() {
   const [siswa, setSiswa]               = useState<SiswaDetail | null>(null)
   const [kriteria, setKriteria]         = useState<KriteriaKeterampilan[]>([])
   const [prestasiOptions, setPrestasiOptions] = useState<SettingPrestasi[]>([])
+  const [nomorPertandinganOptions, setNomorPertandinganOptions] = useState<SettingNomorPertandingan[]>([])
   const [existing, setExisting]         = useState<ExistingPenilaian | null>(null)
   const [loading, setLoading]           = useState(true)
   const [saving, setSaving]             = useState(false)
@@ -243,6 +244,12 @@ export default function FormNilaiPage() {
       // Load setting prestasi
       const pRes = await api.get<ApiResponse<SettingPrestasi[]>>('/settings/prestasi.php')
       setPrestasiOptions(pRes.data ?? [])
+
+      // Load opsi nomor pertandingan sesuai cabor siswa
+      try {
+        const npRes = await api.get<ApiResponse<SettingNomorPertandingan[]>>(`/settings/nomor-pertandingan.php?cabang_olahraga_id=${s.cabang_olahraga_id}`)
+        setNomorPertandinganOptions(npRes.data ?? [])
+      } catch { setNomorPertandinganOptions([]) }
 
       // Load bobot komponen utama dari pengaturan global
       try {
@@ -811,15 +818,31 @@ export default function FormNilaiPage() {
                       )}
                     </div>
 
-                    {/* Nomor Pertandingan — tampil di bawah Tingkatan, jika bukan "Tidak Ada Prestasi" */}
+                    {/* Nomor Pertandingan — dropdown jika ada opsi, input manual jika tidak */}
                     {p.tingkatan && p.tingkatan !== 'Tidak Ada Prestasi' && (
                       <div className="form-group">
                         <label className="form-label">Nomor Pertandingan / Spesialisasi</label>
-                        <input className="form-control" placeholder="Contoh: Striker, Tunggal Putra, dll" disabled={isReadOnly}
-                          value={p.nomor_pertandingan}
-                          onChange={e => setPrestasiList(list => list.map((item, i) =>
-                            i === idx ? { ...item, nomor_pertandingan: e.target.value } : item
-                          ))} />
+                        {nomorPertandinganOptions.length > 0 ? (
+                          <select className="form-control" disabled={isReadOnly}
+                            value={p.nomor_pertandingan}
+                            onChange={e => setPrestasiList(list => list.map((item, i) =>
+                              i === idx ? { ...item, nomor_pertandingan: e.target.value } : item
+                            ))}>
+                            <option value="">-- Pilih --</option>
+                            {nomorPertandinganOptions.map(opt => (
+                              <option key={opt.id} value={opt.nama}>{opt.nama}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input className="form-control" placeholder="Contoh: Striker, Tunggal Putra, dll" disabled={isReadOnly}
+                            value={p.nomor_pertandingan}
+                            onChange={e => setPrestasiList(list => list.map((item, i) =>
+                              i === idx ? { ...item, nomor_pertandingan: e.target.value } : item
+                            ))} />
+                        )}
+                        {nomorPertandinganOptions.length > 0 && (
+                          <div className="form-help">Pilih nomor/spesialisasi yang tersedia untuk cabang ini</div>
+                        )}
                       </div>
                     )}
 
@@ -852,11 +875,17 @@ export default function FormNilaiPage() {
                           </div>
                           <div className="form-group" style={{ flex: 1 }}>
                             <label className="form-label">Predikat / Juara</label>
-                            <input className="form-control" placeholder="Contoh: Juara 1" disabled={isReadOnly}
+                            <select className="form-control" disabled={isReadOnly}
                               value={p.predikat_juara}
                               onChange={e => setPrestasiList(list => list.map((item, i) =>
                                 i === idx ? { ...item, predikat_juara: e.target.value } : item
-                              ))} />
+                              ))}>
+                              <option value="">Pilih Predikat</option>
+                              <option value="Juara 1">Juara 1</option>
+                              <option value="Juara 2">Juara 2</option>
+                              <option value="Juara 3">Juara 3</option>
+                              <option value="Tidak Juara">Tidak Juara</option>
+                            </select>
                           </div>
                         </div>
 

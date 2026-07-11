@@ -108,6 +108,14 @@ export interface SettingBobotUtama {
   bobot_kehadiran: number
 }
 
+export interface SettingNomorPertandingan {
+  id: number
+  cabang_olahraga_id: number
+  nama_cabang?: string
+  nama: string
+  urutan: number
+}
+
 export interface ApiResponse<T = unknown> {
   status: 'success' | 'error'
   message: string

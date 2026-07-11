@@ -3,8 +3,8 @@ import Layout from '../../components/Layout'
 import Modal from '../../components/Modal'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { api } from '../../lib/apiClient'
-import type { CabangOlahraga, ApiResponse } from '../../types'
-import { Plus, Pencil, Trash2, Dumbbell, Users, ListChecks, CheckCircle } from 'lucide-react'
+import type { CabangOlahraga, SettingNomorPertandingan, ApiResponse } from '../../types'
+import { Plus, Pencil, Trash2, Dumbbell, Users, ListChecks, CheckCircle, ListOrdered } from 'lucide-react'
 
 type FormData = { nama:string; kode:string; deskripsi:string }
 
@@ -18,6 +18,17 @@ export default function CabangPage() {
   const [selected, setSelected] = useState<CabangOlahraga|null>(null)
   const [form,    setForm]    = useState<FormData>({nama:'',kode:'',deskripsi:''})
   const [successInfo, setSuccessInfo] = useState<{open:boolean;nama:string;action:'add'|'edit'}>({open:false,nama:'',action:'add'})
+
+  // Nomor Pertandingan per Cabang
+  const [nomorModal,   setNomorModal]   = useState<{open:boolean;cabang:CabangOlahraga|null}>({open:false,cabang:null})
+  const [nomorData,    setNomorData]    = useState<SettingNomorPertandingan[]>([])
+  const [nomorLoading, setNomorLoading] = useState(false)
+  const [nomorForm,    setNomorForm]    = useState({nama:'',urutan:'1'})
+  const [nomorSelected,setNomorSelected]= useState<SettingNomorPertandingan|null>(null)
+  const [nomorSubModal,setNomorSubModal]= useState<'add'|'edit'|null>(null)
+  const [nomorSaving,  setNomorSaving]  = useState(false)
+  const [nomorError,   setNomorError]   = useState('')
+  const [nomorConfirm, setNomorConfirm] = useState<{open:boolean;id:number}>({open:false,id:0})
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -63,6 +74,54 @@ export default function CabangPage() {
     finally { setSaving(false) }
   }
 
+  const loadNomor = useCallback(async (cabangId: number) => {
+    setNomorLoading(true)
+    try {
+      const res = await api.get<ApiResponse<SettingNomorPertandingan[]>>(`/settings/nomor-pertandingan.php?cabang_olahraga_id=${cabangId}`)
+      setNomorData(res.data ?? [])
+    } catch {} finally { setNomorLoading(false) }
+  }, [])
+
+  const openNomor = (c: CabangOlahraga) => {
+    setNomorModal({open:true,cabang:c})
+    loadNomor(c.id)
+  }
+
+  const openNomorAdd = () => {
+    setNomorSelected(null)
+    setNomorForm({nama:'', urutan:String(nomorData.length+1)})
+    setNomorError(''); setNomorSubModal('add')
+  }
+
+  const openNomorEdit = (p: SettingNomorPertandingan) => {
+    setNomorSelected(p)
+    setNomorForm({nama: p.nama, urutan: String(p.urutan)})
+    setNomorError(''); setNomorSubModal('edit')
+  }
+
+  const handleNomorSave = async () => {
+    if (!nomorForm.nama) { setNomorError('Nama nomor pertandingan wajib diisi.'); return }
+    if (!nomorModal.cabang) return
+    setNomorSaving(true); setNomorError('')
+    try {
+      const payload = {cabang_olahraga_id: nomorModal.cabang.id, nama: nomorForm.nama, urutan: parseInt(nomorForm.urutan)||1}
+      if (nomorSubModal==='add') await api.post('/settings/nomor-pertandingan.php', payload)
+      else if (nomorSelected) await api.put(`/settings/nomor-pertandingan.php?id=${nomorSelected.id}`, payload)
+      setNomorSubModal(null); loadNomor(nomorModal.cabang.id)
+    } catch (e:unknown) { setNomorError(e instanceof Error?e.message:'Terjadi kesalahan.') }
+    finally { setNomorSaving(false) }
+  }
+
+  const handleNomorDelete = async () => {
+    setNomorSaving(true)
+    try {
+      await api.delete(`/settings/nomor-pertandingan.php?id=${nomorConfirm.id}`)
+      setNomorConfirm(c=>({...c,open:false}))
+      if (nomorModal.cabang) loadNomor(nomorModal.cabang.id)
+    } catch (e:unknown) { alert(e instanceof Error?e.message:'Gagal.') }
+    finally { setNomorSaving(false) }
+  }
+
   const COLORS = ['primary','success','warning','info','accent','danger']
 
   return (
@@ -101,13 +160,18 @@ export default function CabangPage() {
               {c.deskripsi && <p style={{fontSize:'0.82rem',margin:0}}>{c.deskripsi}</p>}
 
               <div style={{display:'flex',gap:'var(--sp-3)',paddingTop:'var(--sp-3)',
-                borderTop:'1px solid var(--clr-border)'}}>
+                borderTop:'1px solid var(--clr-border)',alignItems:'center'}}>
                 <div style={{display:'flex',alignItems:'center',gap:5,fontSize:'0.8rem',color:'var(--clr-text-3)'}}>
                   <Users size={14}/>{c.jumlah_siswa ?? 0} Siswa
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:5,fontSize:'0.8rem',color:'var(--clr-text-3)'}}>
                   <ListChecks size={14}/>{c.jumlah_kriteria ?? 0} Kriteria
                 </div>
+                <div style={{flex:1}}/>
+                <button className="btn btn-ghost btn-sm" onClick={()=>openNomor(c)}
+                  style={{display:'flex',alignItems:'center',gap:4,fontSize:'0.78rem'}}>
+                  <ListOrdered size={14}/> No. Pertandingan
+                </button>
               </div>
             </div>
           ))}
@@ -184,6 +248,72 @@ export default function CabangPage() {
           </p>
         </div>
       </Modal>
+
+      {/* Nomor Pertandingan Modal */}
+      <Modal open={nomorModal.open} onClose={()=>setNomorModal({open:false,cabang:null})}
+        title={`Nomor Pertandingan – ${nomorModal.cabang?.nama ?? ''}`}
+        size="lg"
+        footer={<>
+          <button className="btn btn-secondary" onClick={()=>setNomorModal({open:false,cabang:null})}>Tutup</button>
+          <button className="btn btn-primary" onClick={openNomorAdd}><Plus size={14}/> Tambah</button>
+        </>}>
+        {nomorLoading ? <div className="flex-center" style={{padding:40}}><div className="spinner"/></div> : (
+          <div className="table-wrapper" style={{maxHeight:320,overflowY:'auto'}}>
+            <table>
+              <thead><tr><th style={{width:60}}>#</th><th>Nama Nomor</th><th style={{width:80}}>Aksi</th></tr></thead>
+              <tbody>
+                {nomorData.map(p=>(
+                  <tr key={p.id}>
+                    <td style={{color:'var(--clr-text-3)'}}>{p.urutan}</td>
+                    <td><strong>{p.nama}</strong></td>
+                    <td><div className="td-actions" style={{justifyContent:'flex-start'}}>
+                      <button className="btn btn-ghost btn-sm btn-icon" onClick={()=>openNomorEdit(p)}><Pencil size={14}/></button>
+                      <button className="btn btn-danger btn-sm btn-icon" onClick={()=>setNomorConfirm({open:true,id:p.id})}><Trash2 size={14}/></button>
+                    </div></td>
+                  </tr>
+                ))}
+                {nomorData.length===0&&<tr><td colSpan={3} className="table-empty">
+                  Belum ada nomor pertandingan. Klik "Tambah" untuk menambahkan.
+                </td></tr>}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p style={{margin:'var(--sp-3) 0 0',fontSize:'0.75rem',color:'var(--clr-text-3)'}}>
+          Jika tidak ada opsi, guru dapat memasukkan nomor pertandingan secara manual.
+        </p>
+      </Modal>
+
+      {/* Nomor Pertandingan Sub-Modal (Add/Edit) */}
+      <Modal open={!!nomorSubModal} onClose={()=>setNomorSubModal(null)}
+        title={nomorSubModal==='add'?'Tambah Nomor Pertandingan':'Edit Nomor Pertandingan'}
+        footer={<>
+          <button className="btn btn-secondary" onClick={()=>setNomorSubModal(null)}>Batal</button>
+          <button className="btn btn-primary" onClick={handleNomorSave} disabled={nomorSaving}>
+            {nomorSaving?<span className="spinner"/>:'Simpan'}
+          </button>
+        </>}>
+        {nomorError&&<div className="login-error" style={{marginBottom:'var(--sp-4)'}}>{nomorError}</div>}
+        <div className="form-group">
+          <label className="form-label">Nama Nomor / Spesialisasi <span className="required">*</span></label>
+          <input className="form-control" placeholder="Contoh: Keeper, Striker, Tunggal Putra"
+            value={nomorForm.nama} onChange={e=>setNomorForm(f=>({...f,nama:e.target.value}))}/>
+          <div className="form-help">Nama posisi/nomor/spesialisasi dalam cabang ini.</div>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Urutan</label>
+          <input className="form-control" type="number" min="1" value={nomorForm.urutan}
+            onChange={e=>setNomorForm(f=>({...f,urutan:e.target.value}))}/>
+        </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={nomorConfirm.open}
+        onClose={()=>setNomorConfirm(c=>({...c,open:false}))}
+        onConfirm={handleNomorDelete}
+        loading={nomorSaving}
+        message="Yakin ingin menghapus nomor pertandingan ini?"
+      />
     </Layout>
   )
 }

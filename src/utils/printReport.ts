@@ -4,6 +4,7 @@
 // Menggunakan browser print window dengan CSS print layout
 // ============================================================
 
+import { toTitleCase } from './format'
 
 export interface StudentReportData {
   siswa: {
@@ -520,7 +521,7 @@ export async function printStudentReport(d: StudentReportData): Promise<void> {
     <div class="sig-box">
       <div class="sig-label">Makassar, ${today}<br>Pelatih Cabor</div>
       <div class="sig-line">
-        <div class="sig-name">${d.guruNama}</div>
+        <div class="sig-name">${toTitleCase(d.guruNama)}</div>
         <div class="sig-nip">&nbsp;</div>
       </div>
     </div>
