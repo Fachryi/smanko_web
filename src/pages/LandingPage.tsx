@@ -283,12 +283,6 @@ function CaborCoverflow({ caborList, onSelect }: { caborList: any[], onSelect: (
 
   return (
     <div className="lp-coverflow-container">
-      <button onClick={prev} className="lp-coverflow-btn lp-coverflow-btn-prev" aria-label="Previous">
-        <ChevronLeft size={22} />
-      </button>
-      <button onClick={next} className="lp-coverflow-btn lp-coverflow-btn-next" aria-label="Next">
-        <ChevronRight size={22} />
-      </button>
       {caborList.map((item, i) => {
         let diff = i - active;
         const half = Math.floor(caborList.length / 2);
