@@ -98,7 +98,7 @@ const NAV_LINKS = [
 
 const HERO_SLIDES = [
   {
-    bg: '/login-bg.jpg',
+    bg: '/video/video1.mp4',
     headline: 'Cetak Juara Dunia',
     headline2: 'Tanpa Lupakan Akademik',
     sub: 'SMA Negeri Khusus Keberbakatan Olahraga Sulawesi Selatan — tempat di mana prestasi atletik dan keunggulan akademik berjalan beriringan.',
@@ -106,7 +106,7 @@ const HERO_SLIDES = [
     ctaTarget: 'cabor',
   },
   {
-    bg: '/score-analytics-bg.jpg',
+    bg: '/video/video2.mp4',
     headline: 'Sistem Penilaian',
     headline2: 'Terukur & Transparan',
     sub: 'Setiap perkembangan siswa dicatat secara digital — dari keterampilan teknis hingga prestasi kompetisi nasional dan internasional.',
@@ -114,7 +114,7 @@ const HERO_SLIDES = [
     ctaTarget: 'login',
   },
   {
-    bg: '/dashboard-hero.jpg',
+    bg: '/video/video3.mp4',
     headline: 'Bergabunglah',
     headline2: 'Bersama Juara Kami',
     sub: 'Siswa berbakat dari seluruh Sulawesi Selatan telah membuktikan diri di pentas nasional dan internasional.',
@@ -682,16 +682,16 @@ export default function LandingPage() {
 
   /* ─── RENDER ─── */
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif", minHeight: '100vh', background: '#f8faff', overflowX: 'clip', width: '100%' }}>
+    <div style={{ fontFamily: "'Poppins', sans-serif", minHeight: '100vh', background: '#f0f4ff', overflowX: 'clip', width: '100%' }}>
 
       {/* ══════════════════════ NAVBAR ══════════════════════ */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-        background: scrolled ? 'rgba(11,45,107,0.97)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.1)' : 'none',
+        background: scrolled ? 'rgba(5,25,45,0.97)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(14px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(232,74,79,0.15)' : 'none',
         transition: 'all 0.3s ease',
-        boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.25)' : 'none',
+        boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.3)' : 'none',
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', height: 68 }}>
           {/* Logo */}
@@ -726,18 +726,10 @@ export default function LandingPage() {
             <button
               onClick={() => navigate('/login')}
               id="lp-btn-login-nav"
-              className="lp-nav-links"
-              style={{
-                background: 'linear-gradient(135deg, #c1272d 0%, #e84a4f 100%)',
-                color: '#fff', border: 'none', borderRadius: 9,
-                padding: '9px 20px', fontWeight: 700, fontSize: '0.85rem',
-                cursor: 'pointer', boxShadow: '0 4px 16px rgba(193,39,45,0.45)',
-                transition: 'all 0.2s', whiteSpace: 'nowrap',
-                display: 'flex', alignItems: 'center', gap: 6,
-              }}
+              className="lp-nav-links lp-nav-login-btn"
             >
               <ExternalLink size={14} />
-              Login Portal Sistem
+              Login Portal
             </button>
 
             <button
@@ -754,8 +746,8 @@ export default function LandingPage() {
         {/* Mobile Menu */}
         {mobileOpen && (
           <div style={{
-            background: 'rgba(11,45,107,0.98)', backdropFilter: 'blur(12px)',
-            borderTop: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(5,25,45,0.98)', backdropFilter: 'blur(14px)',
+            borderTop: '1px solid rgba(232,74,79,0.15)',
             padding: '16px 24px 20px',
           }}>
             {NAV_LINKS.map(link => (
@@ -763,17 +755,12 @@ export default function LandingPage() {
                 display: 'block', width: '100%', textAlign: 'left',
                 background: 'none', border: 'none', color: 'rgba(255,255,255,0.85)',
                 fontWeight: 600, fontSize: '0.92rem', padding: '12px 4px',
-                cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.08)',
+                cursor: 'pointer', borderBottom: '1px solid rgba(232,74,79,0.1)',
               }}>
                 {link.label}
               </button>
             ))}
-            <button onClick={() => navigate('/login')} style={{
-              marginTop: 12, width: '100%',
-              background: 'linear-gradient(135deg,#c1272d,#e84a4f)',
-              color: '#fff', border: 'none', borderRadius: 9,
-              padding: '11px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
-            }}>
+            <button onClick={() => navigate('/login')} className="lp-nav-login-btn" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }}>
               Login Portal Sistem
             </button>
           </div>
@@ -781,17 +768,35 @@ export default function LandingPage() {
       </nav>
 
       {/* ══════════════════════ HERO CAROUSEL ══════════════════════ */}
-      <section id="beranda" style={{ position: 'relative', height: '100vh', minHeight: 560, overflow: 'hidden' }}>
-        {HERO_SLIDES.map((s, i) => (
-          <div key={i} style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: `url(${s.bg})`,
-            backgroundSize: 'cover', backgroundPosition: 'center',
-            opacity: i === slide ? (animating ? 0 : 1) : 0,
-            transition: 'opacity 0.5s ease', zIndex: i === slide ? 1 : 0,
-          }} />
-        ))}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 2, background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(11,45,107,0.55))' }} />
+      <section id="beranda" style={{ position: 'relative', height: '100vh', minHeight: 580, overflow: 'hidden' }}>
+        {/* Video background */}
+        <video
+          key={slide}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'cover', zIndex: 1,
+          }}
+        >
+          <source src={HERO_SLIDES[slide].bg} type="video/mp4" />
+        </video>
+        {/* Primary overlay — neutral dark gradient */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 2,
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(10,15,25,0.6) 50%, rgba(0,0,0,0.4) 100%)'
+        }} />
+        {/* Athlete images flanking */}
+        <img src="/hero-athlete-left.png" className="lp-athlete-left" alt="" onError={e => (e.currentTarget.style.display='none')} />
+        <img src="/hero-athlete-right.png" className="lp-athlete-right" alt="" onError={e => (e.currentTarget.style.display='none')} />
+        {/* Glow orbs */}
+        <div style={{
+          position: 'absolute', top: '15%', left: '30%', width: 500, height: 500,
+          background: 'radial-gradient(circle, rgba(232,74,79,0.12) 0%, transparent 70%)',
+          borderRadius: '50%', zIndex: 2, pointerEvents: 'none',
+        }} />
 
         {/* Floating Icons Animation
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 3 }}>
@@ -803,95 +808,77 @@ export default function LandingPage() {
         </div> */}
 
 
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 3,
+          <div className="lp-hero-content" style={{
+            position: 'absolute', inset: 0, zIndex: 4,
           display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 24px',
         }}>
-          <div style={{ maxWidth: 780 }}>
+          <div style={{ maxWidth: 760 }}>
+            {/* Badge pill */}
             <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: 'rgba(193,39,45,0.85)', backdropFilter: 'blur(6px)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: 30, padding: '5px 16px', marginBottom: 24,
-              color: '#fff', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em',
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              background: 'rgba(17,85,168,0.15)', backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(232,74,79,0.45)',
+              borderRadius: 30, padding: '6px 18px', marginBottom: 28,
+              color: '#fff', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em',
             }}>
-  <MapPin size={13} className="lp-badge-icon" />
-  SMANKO — Sulawesi Selatan
+              <MapPin size={13} className="lp-badge-icon" />
+              SMANKO — Sulawesi Selatan
             </div>
+            {/* Headline */}
             <h1 style={{
-              fontSize: 'clamp(1.7rem, 6vw, 3.8rem)', fontWeight: 900, color: '#fff',
-              lineHeight: 1.15, fontFamily: "'Bebas Neue',sans-serif",
-              marginBottom: 10, textShadow: '0 2px 20px rgba(0,0,0,0.4)',
-              wordWrap: 'break-word'
+              fontSize: 'clamp(1.8rem, 6vw, 4rem)', fontWeight: 900, color: '#fff',
+              lineHeight: 1.12, fontFamily: "'Bebas Neue',sans-serif",
+              marginBottom: 14,
+              textShadow: '0 0 40px rgba(232,74,79,0.25), 0 2px 20px rgba(0,0,0,0.5)',
+              wordWrap: 'break-word', letterSpacing: '0.02em'
             }}>
               {HERO_SLIDES[slide].headline}<br />
-              <span style={{ color: '#f9c74f' }}>{HERO_SLIDES[slide].headline2}</span>
+              <span style={{
+                color: '#e84a4f',
+                textShadow: '0 0 30px rgba(232,74,79,0.6), 0 0 60px rgba(232,74,79,0.3)',
+              }}>{HERO_SLIDES[slide].headline2}</span>
             </h1>
+            {/* Sub */}
             <p style={{
-              fontSize: 'clamp(0.9rem, 2vw, 1.1rem)', color: 'rgba(255,255,255,0.82)',
-              lineHeight: 1.7, maxWidth: 600, margin: '0 auto 36px',
+              fontSize: 'clamp(0.9rem, 2vw, 1.05rem)', color: 'rgba(255,255,255,0.78)',
+              lineHeight: 1.75, maxWidth: 580, margin: '0 auto 38px',
             }}>
               {HERO_SLIDES[slide].sub}
             </p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            {/* CTA Buttons */}
+            <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
+                className="lp-btn-primary-new"
                 onClick={() => {
                   if (HERO_SLIDES[slide].ctaTarget === 'login') navigate('/login')
                   else scrollTo(HERO_SLIDES[slide].ctaTarget)
                 }}
-                style={{
-                  background: 'linear-gradient(135deg,#c1272d,#e84a4f)', color: '#fff',
-                  border: 'none', borderRadius: 12, padding: '14px 32px',
-                  fontWeight: 700, fontSize: '1rem', cursor: 'pointer',
-                  boxShadow: '0 6px 24px rgba(193,39,45,0.5)',
-                }}
               >
                 {HERO_SLIDES[slide].cta}
               </button>
-              <button onClick={() => navigate('/login')} style={{
-                background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(6px)',
-                color: '#fff', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 12,
-                padding: '14px 32px', fontWeight: 600, fontSize: '1rem', cursor: 'pointer',
-              }}>
+              <button onClick={() => navigate('/login')} className="lp-btn-ghost-new">
                 Login Portal →
               </button>
             </div>
           </div>
         </div>
 
-        <div style={{ position: 'absolute', bottom: 70, left: '50%', transform: 'translateX(-50%)', zIndex: 4, display: 'flex', gap: 8 }}>
-          {HERO_SLIDES.map((_, i) => (
-            <button key={i} onClick={() => goSlide(i)} style={{
-              width: i === slide ? 28 : 10, height: 10, borderRadius: 5, border: 'none',
-              background: i === slide ? '#c1272d' : 'rgba(255,255,255,0.45)',
-              cursor: 'pointer', transition: 'all 0.35s',
-            }} />
-          ))}
-        </div>
-
-        {/* Stats Bar */}
+        {/* Stats Bar — floating cards */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 4,
-          background: 'rgba(11,45,107,0.92)', backdropFilter: 'blur(8px)',
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-          padding: '12px 24px',
+          position: 'absolute', bottom: 20, left: 0, right: 0, zIndex: 5,
+          padding: '16px 24px',
         }}>
-          <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 12 }}>
+          <div className="lp-hero-stats-row" style={{ maxWidth: 960, margin: '0 auto', display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 14 }}>
             {statCards.map(item => (
-              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: 8,
-                  background: 'rgba(255,255,255,0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#f9c74f',
-                }}>
+              <div key={item.label} className="lp-stat-card-new">
+                <div className="lp-stat-icon-new">
                   {item.icon}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: '1rem', lineHeight: 1, color: '#fff' }}>
+                  <div className="lp-stat-val-new">
                     {item.val}
                   </div>
-                  <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.3, marginTop: 2 }}>
+                  <div className="lp-stat-label-new">
                     {item.label}
                   </div>
                 </div>
@@ -902,17 +889,12 @@ export default function LandingPage() {
       </section>
 
       {/* ══════════════════════ CABOR & PELATIH ══════════════════════ */}
-      <section id="cabor" style={{ padding: '80px 24px', background: '#fff' }}>
+      <section id="cabor" style={{ padding: '80px 24px', background: 'url(/bg1.jpg) center/cover no-repeat' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
           {/* Section header */}
           <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 52 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: 'rgba(17,85,168,0.08)', border: '1px solid rgba(17,85,168,0.15)',
-              borderRadius: 30, padding: '5px 16px', marginBottom: 16,
-              color: '#1155a8', fontSize: '0.78rem', fontWeight: 700,
-            }}>
+            <div className="lp-section-pill-teal">
               <Target size={13} className="lp-badge-icon" />
               PROGRAM UNGGULAN
             </div>
@@ -922,7 +904,7 @@ export default function LandingPage() {
             }}>
               Cabang Olahraga &amp; Tim Pelatih
             </h2>
-            <p style={{ color: '#6b7faa', fontSize: '1rem', maxWidth: 520, margin: '0 auto' }}>
+            <p style={{ color: '#5a70a0', fontSize: '1rem', maxWidth: 520, margin: '0 auto' }}>
               Dipandu oleh pelatih bersertifikat yang berdedikasi mencetak atlet berprestasi tinggi.
             </p>
           </div>
@@ -939,7 +921,7 @@ export default function LandingPage() {
         {selectedCaborDetail && (
           <div className="dc-modal-overlay" style={{
             position: 'fixed', inset: 0, zIndex: 2000,
-            background: 'rgba(11,45,107,0.85)', backdropFilter: 'blur(8px)',
+            background: 'rgba(11,45,107,0.88)', backdropFilter: 'blur(10px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
           }} onClick={() => setSelectedCaborDetail(null)}>
             <div className="dc-modal" style={{
@@ -1080,17 +1062,12 @@ export default function LandingPage() {
       </section>
 
       {/* ══════════════════════ KLASEMEN ══════════════════════ */}
-      <section id="klasemen" style={{ padding: '80px 24px', background: '#f0f4ff' }}>
+      <section id="klasemen" style={{ padding: '80px 24px', background: '#fff' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: 'rgba(193,39,45,0.08)', border: '1px solid rgba(193,39,45,0.18)',
-              borderRadius: 30, padding: '5px 16px', marginBottom: 16,
-              color: '#c1272d', fontSize: '0.78rem', fontWeight: 700,
-            }}>
+            <div className="lp-section-pill-teal">
               <Trophy size={13} className="lp-badge-icon" />
-              PRESTASI SISWA
+              PAPAN PERINGKAT
             </div>
             <h2 style={{
               fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, color: '#0b2d6b',
@@ -1098,7 +1075,7 @@ export default function LandingPage() {
             }}>
               Papan Peringkat Prestasi Siswa
             </h2>
-            <p style={{ color: '#6b7faa', fontSize: '1rem', maxWidth: 560, margin: '0 auto' }}>
+            <p style={{ color: '#5a70a0', fontSize: '1rem', maxWidth: 560, margin: '0 auto' }}>
               Peringkat dihitung dari data real sistem: Keterampilan (30%) + Prestasi (40%) + Kehadiran (30%).
               {data?.tahun_ajaran && (
                 <span style={{ display: 'block', marginTop: 4, fontSize: '0.85rem', color: '#1155a8', fontWeight: 600 }}>
@@ -1131,7 +1108,7 @@ export default function LandingPage() {
               {/* Filter Bar */}
               <div className="lp-animate-hidden" style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
                 <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-                  <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#a0b0cc', pointerEvents: 'none' }} />
+                  <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#c1272d', pointerEvents: 'none' }} />
                   <input
                     id="lp-search-siswa"
                     type="text"
@@ -1140,8 +1117,9 @@ export default function LandingPage() {
                     onChange={e => setSearch(e.target.value)}
                     style={{
                       width: '100%', padding: '10px 14px 10px 38px',
-                      background: '#fff', border: '1.5px solid #dce6f7',
-                      borderRadius: 10, fontSize: '0.88rem', color: '#1a2744', outline: 'none',
+                      background: '#fff', border: '1.5px solid rgba(193,39,45,0.25)',
+                      borderRadius: 10, fontSize: '0.88rem', color: '#0b2d6b', outline: 'none',
+                      boxShadow: '0 2px 8px rgba(193,39,45,0.06)',
                     }}
                   />
                 </div>
@@ -1151,11 +1129,12 @@ export default function LandingPage() {
                   onChange={e => setCaborFilter(e.target.value)}
                   style={{
                     padding: '10px 36px 10px 14px', background: '#fff',
-                    border: '1.5px solid #dce6f7', borderRadius: 10,
-                    fontSize: '0.88rem', color: '#1a2744', outline: 'none',
+                    border: '1.5px solid rgba(193,39,45,0.25)', borderRadius: 10,
+                    fontSize: '0.88rem', color: '#0b2d6b', outline: 'none',
                     cursor: 'pointer', minWidth: 170, appearance: 'none',
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%231155a8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%2300b4c8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,
                     backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
+                    boxShadow: '0 2px 8px rgba(193,39,45,0.06)',
                   }}
                 >
                   {(data?.klasemen.length ? caborOptions : CABOR_OPTIONS_STATIC).map(o => <option key={o} value={o}>{o}</option>)}
@@ -1163,15 +1142,15 @@ export default function LandingPage() {
               </div>
 
               {/* Table */}
-              <div className="lp-animate-hidden" style={{ background: '#fff', borderRadius: 16, border: '1.5px solid #dce6f7', boxShadow: '0 4px 24px rgba(17,85,168,0.07)', overflow: 'hidden' }}>
+              <div className="lp-animate-hidden" style={{ background: '#fff', borderRadius: 16, border: '1.5px solid rgba(193,39,45,0.2)', boxShadow: '0 4px 24px rgba(193,39,45,0.08)', overflow: 'hidden' }}>
                 {data?.klasemen.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '64px 24px' }}>
-                    <Trophy size={40} style={{ margin: '0 auto 12px', color: '#dce6f7' }} />
-                    <p style={{ color: '#a0b0cc', fontSize: '0.9rem' }}>
+                    <Trophy size={40} style={{ margin: '0 auto 12px', color: 'rgba(193,39,45,0.2)' }} />
+                    <p style={{ color: '#6b7faa', fontSize: '0.9rem' }}>
                       Belum ada data penilaian untuk tahun ajaran aktif.
                     </p>
                     <button onClick={() => navigate('/login')} style={{
-                      marginTop: 12, background: '#1155a8', color: '#fff', border: 'none',
+                      marginTop: 12, background: 'linear-gradient(135deg,#c1272d,#e84a4f)', color: '#fff', border: 'none',
                       borderRadius: 9, padding: '10px 20px', fontWeight: 700, cursor: 'pointer',
                     }}>
                       Login untuk Input Nilai
@@ -1876,17 +1855,12 @@ export default function LandingPage() {
       )}
 
       {/* ══════════════════════ GALERI PRESTASI ══════════════════════ */}
-      <section id="galeri" style={{ padding: '80px 24px', background: '#f0f4ff' }}>
+      <section id="galeri" style={{ padding: '80px 24px', background: 'linear-gradient(180deg, #e6eeff 0%, #f0f4ff 100%)' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
 
           {/* Header */}
           <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: 'rgba(193,39,45,0.08)', border: '1px solid rgba(193,39,45,0.18)',
-              borderRadius: 30, padding: '5px 16px', marginBottom: 16,
-              color: '#c1272d', fontSize: '0.78rem', fontWeight: 700,
-            }}>
+            <div className="lp-section-pill-teal">
               <Images size={13} className="lp-badge-icon" />
               GALERI PRESTASI
             </div>
@@ -1896,7 +1870,7 @@ export default function LandingPage() {
             }}>
               Momen Kejuaraan &amp; Prestasi
             </h2>
-            <p style={{ color: '#6b7faa', fontSize: '1rem', maxWidth: 520, margin: '0 auto' }}>
+            <p style={{ color: '#5a70a0', fontSize: '1rem', maxWidth: 520, margin: '0 auto' }}>
               Rekam jejak gemilang SMANKO di pentas nasional dan internasional.
             </p>
           </div>
@@ -1929,8 +1903,8 @@ export default function LandingPage() {
                 style={{
                   borderRadius: 16, overflow: 'hidden',
                   background: '#fff',
-                  border: '1.5px solid #dce6f7',
-                  boxShadow: '0 4px 16px rgba(17,85,168,0.07)',
+                  border: '1.5px solid rgba(193,39,45,0.18)',
+                  boxShadow: '0 4px 16px rgba(193,39,45,0.07)',
                   cursor: 'pointer',
                   transition: 'all 0.25s',
                   position: 'relative',
@@ -2178,77 +2152,87 @@ export default function LandingPage() {
       )}
 
       {/* ══════════════════════ LOKASI ══════════════════════ */}
-      <section id="lokasi" style={{ padding: '80px 24px', background: '#fff' }}>
+      <section id="lokasi" style={{ padding: '80px 24px', background: '#f0f4ff' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-          <div className="lp-animate-hidden" style={{ textAlign: 'center', marginBottom: 52 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: 'rgba(17,85,168,0.08)', border: '1px solid rgba(17,85,168,0.15)',
-              borderRadius: 30, padding: '5px 16px', marginBottom: 16,
-              color: '#1155a8', fontSize: '0.78rem', fontWeight: 700,
-            }}>
+
+          {/* Header */}
+          <div className="lp-animate-hidden" style={{ marginBottom: 32, textAlign: 'center' }}>
+            <div className="lp-section-pill-teal" style={{ marginBottom: 10 }}>
               <MapPin size={13} className="lp-badge-icon" />
               TEMUKAN KAMI
             </div>
             <h2 style={{
               fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 900, color: '#0b2d6b',
-              fontFamily: "'Bebas Neue',sans-serif", lineHeight: 1.2,
+              fontFamily: "'Bebas Neue',sans-serif", lineHeight: 1.1, margin: 0,
             }}>
               Lokasi Sekolah
             </h2>
           </div>
 
-          <div className="lp-animate-hidden" style={{ display: 'grid', gap: 36, gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%,360px),1fr))', alignItems: 'start' }}>
-            {/* Info */}
-            <div>
-              <div style={{ background: '#f0f4ff', borderRadius: 16, border: '1.5px solid #dce6f7', padding: 28 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 20 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1155a8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
-                    <MapPin size={20} />
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 800, color: '#0b2d6b', fontSize: '0.95rem', marginBottom: 4 }}>Alamat Lengkap</div>
-                    <p style={{ fontSize: '0.88rem', color: '#3a4f80', lineHeight: 1.7, margin: 0 }}>
-                      Jl. Pajjaiang, Sudiang Raya,<br />
-                      Kec. Biringkanaya, Kota Makassar,<br />
-                      Sulawesi Selatan 90552
-                    </p>
-                  </div>
+          {/* Map Container — full width with overlay card */}
+          <div className="lp-animate-hidden" style={{
+            position: 'relative',
+            borderRadius: 20,
+            overflow: 'hidden',
+            boxShadow: '0 12px 48px rgba(193,39,45,0.15), 0 2px 8px rgba(0,0,0,0.08)',
+            border: '1.5px solid rgba(232,74,79,0.25)',
+            height: 320,
+          }}>
+            {/* Google Maps iframe — teal-style */}
+            <iframe
+              title="Lokasi SMANKO Sulawesi Selatan"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2921.289002692275!2d119.52710500416966!3d-5.103660458796101!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dbefb7422f2ddeb%3A0x70964948f504e0ba!2sSMP%2FSMA%20Negeri%20Khusus%20Keberbakatan%20Olahraga%20Sulawesi%20Selatan!5e0!3m2!1sid!2sid!4v1777043818116!5m2!1sid!2sid"
+              width="100%" height="100%"
+              style={{ border: 0, display: 'block' }}
+              allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+            />
+
+            {/* INFO SEKOLAH Glass Card — overlaid top right */}
+            <div style={{
+              position: 'absolute', top: 20, right: 20, zIndex: 3,
+              background: 'rgba(255,255,255,0.82)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(232,74,79,0.3)',
+              borderRadius: 16,
+              padding: '20px 24px',
+              minWidth: 240,
+              boxShadow: '0 8px 32px rgba(193,39,45,0.18), 0 2px 8px rgba(0,0,0,0.06)',
+            }}>
+              <div style={{
+                fontWeight: 800, fontSize: '0.85rem', color: '#0b2d6b',
+                letterSpacing: '0.06em', marginBottom: 16,
+                textTransform: 'uppercase',
+              }}>
+                Info Sekolah
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Address */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <MapPin size={15} style={{ color: '#c1272d', flexShrink: 0, marginTop: 2 }} />
+                  <span style={{ fontSize: '0.82rem', color: '#3a4f80', lineHeight: 1.5 }}>
+                    Jl. Pajjaiang, Sudiang Raya,<br />
+                    Biringkanaya, Makassar 90552
+                  </span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {[
-                    { icon: <Phone size={16}/>, label: 'TELEPON', val: '(0411) 555-1234' },
-                    { icon: <Mail size={16}/>,  label: 'EMAIL',   val: 'info@smanko.sch.id' },
-                  ].map(c => (
-                    <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 10, background: '#1155a820', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1155a8' }}>
-                        {c.icon}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '0.72rem', color: '#6b7faa', fontWeight: 600 }}>{c.label}</div>
-                        <div style={{ fontSize: '0.88rem', color: '#1a2744', fontWeight: 600 }}>{c.val}</div>
-                      </div>
-                    </div>
-                  ))}
+                {/* Phone */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Phone size={14} style={{ color: '#c1272d', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.82rem', color: '#3a4f80' }}>(0411) 555-1234</span>
+                </div>
+                {/* Email */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Mail size={14} style={{ color: '#c1272d', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.82rem', color: '#3a4f80' }}>info@smanko.sch.id</span>
                 </div>
               </div>
-            </div>
-
-            {/* Map */}
-            <div style={{ borderRadius: 16, overflow: 'hidden', border: '1.5px solid #dce6f7', boxShadow: '0 8px 32px rgba(17,85,168,0.10)', height: 420 }}>
-              <iframe
-                title="Lokasi SMANKO Sulawesi Selatan"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2921.289002692275!2d119.52710500416966!3d-5.103660458796101!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dbefb7422f2ddeb%3A0x70964948f504e0ba!2sSMP%2FSMA%20Negeri%20Khusus%20Keberbakatan%20Olahraga%20Sulawesi%20Selatan!5e0!3m2!1sid!2sid!4v1777043818116!5m2!1sid!2sid"
-                width="100%" height="100%" style={{ border: 0, display: 'block' }}
-                allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-              />
             </div>
           </div>
         </div>
       </section>
 
       {/* ══════════════════════ FOOTER ══════════════════════ */}
-      <footer style={{ background: 'linear-gradient(180deg, #0b2d6b 0%, #071a47 100%)', color: '#fff', padding: '60px 24px 0' }}>
+      <footer className="lp-footer" style={{ background: 'linear-gradient(180deg, #071a47 0%, #051336 100%)', color: '#fff', padding: '60px 24px 0', borderTop: '1px solid rgba(232,74,79,0.15)' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div className="lp-animate-hidden" style={{
             display: 'grid', gap: 40,
@@ -2312,12 +2296,8 @@ export default function LandingPage() {
                   <span style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{c.text}</span>
                 </div>
               ))}
-              <button onClick={() => navigate('/login')} style={{
-                marginTop: 8, width: '100%',
-                background: 'linear-gradient(135deg,#c1272d,#e84a4f)',
-                color: '#fff', border: 'none', borderRadius: 10,
-                padding: '11px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              <button onClick={() => navigate('/login')} className="lp-nav-login-btn" style={{
+                marginTop: 8, width: '100%', justifyContent: 'center',
               }}>
                 <ExternalLink size={14} />
                 Login Portal Sistem
