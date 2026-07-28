@@ -89,11 +89,11 @@ interface LandingData {
 /* ────────────────────────── CONSTANTS ──────────────────────── */
 
 const NAV_LINKS = [
-  { id: 'beranda',  label: 'Beranda'  },
-  { id: 'cabor',    label: 'Cabor'    },
+  { id: 'beranda', label: 'Beranda' },
+  { id: 'cabor', label: 'Cabor' },
   { id: 'klasemen', label: 'Klasemen' },
-  { id: 'galeri',   label: 'Galeri'   },
-  { id: 'lokasi',   label: 'Lokasi'   },
+  { id: 'galeri', label: 'Galeri' },
+  { id: 'lokasi', label: 'Lokasi' },
 ]
 
 const HERO_SLIDES = [
@@ -127,14 +127,14 @@ const CABOR_OPTIONS_STATIC = ['Semua']
 
 // Warna & ikon berdasarkan kode/nama cabor
 const CABOR_COLOR_MAP: Record<string, string> = {
-  'sb':  '#c1272d', 'FUT': '#c1272d', 'sepak': '#c1272d',
+  'sb': '#c1272d', 'FUT': '#c1272d', 'sepak': '#c1272d',
   'ren': '#0369a1', 'REN': '#0369a1', 'renang': '#0369a1',
   'atl': '#d97706', 'ATL': '#d97706', 'atletik': '#d97706',
-  'bu':  '#16a34a', 'BT':  '#16a34a', 'bulu': '#16a34a', 'bulutangkis': '#16a34a',
+  'bu': '#16a34a', 'BT': '#16a34a', 'bulu': '#16a34a', 'bulutangkis': '#16a34a',
   'pan': '#7c3aed', 'PAN': '#7c3aed', 'panahan': '#7c3aed',
   'vol': '#0891b2', 'VOL': '#0891b2', 'voli': '#0891b2',
   'tae': '#be185d', 'TAE': '#be185d', 'taekwondo': '#be185d',
-  'gu':  '#0b2d6b', 'GUL': '#0b2d6b', 'gulat': '#0b2d6b',
+  'gu': '#0b2d6b', 'GUL': '#0b2d6b', 'gulat': '#0b2d6b',
   'tir': '#b45309', 'MEN': '#b45309', 'tinju': '#b45309',
 }
 
@@ -147,7 +147,7 @@ function getCaborColor(cabor: CaborItem): string {
   // Hash dari nama untuk warna konsisten
   let hash = 0
   for (const ch of cabor.nama) hash = ch.charCodeAt(0) + ((hash << 5) - hash)
-  const PALETTE = ['#c1272d','#0369a1','#d97706','#16a34a','#7c3aed','#0891b2','#be185d','#0b2d6b']
+  const PALETTE = ['#c1272d', '#0369a1', '#d97706', '#16a34a', '#7c3aed', '#0891b2', '#be185d', '#0b2d6b']
   return PALETTE[Math.abs(hash) % PALETTE.length]
 }
 
@@ -161,11 +161,11 @@ function CaborIcon({ cabor }: { cabor: CaborItem }) {
     const filename = n.replace(/\s+/g, '-');
     const imgPath = `/logo-cabor/${filename}.png`;
     return (
-      <img 
-        src={imgPath} 
-        alt={cabor.nama} 
-        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} 
-        onError={() => setImgError(true)} 
+      <img
+        src={imgPath}
+        alt={cabor.nama}
+        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }}
+        onError={() => setImgError(true)}
       />
     )
   }
@@ -181,32 +181,32 @@ function CaborIcon({ cabor }: { cabor: CaborItem }) {
 
 const PAGE_SIZE = 10
 
-const AVATAR_COLORS = ['#c1272d','#1155a8','#d97706','#16a34a','#7c3aed','#0891b2','#be185d','#0b2d6b']
+const AVATAR_COLORS = ['#c1272d', '#1155a8', '#d97706', '#16a34a', '#7c3aed', '#0891b2', '#be185d', '#0b2d6b']
 const avatarColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length]
-const avatarInit  = (name: string) => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+const avatarInit = (name: string) => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
 const getPredikatBadgeStyle = (predikat: string | null | undefined) => {
   const p = predikat ? predikat.trim().toUpperCase() : '';
-  let bg = '#fee2e2'; 
-  let text = '#991b1b'; 
+  let bg = '#fee2e2';
+  let text = '#991b1b';
   let border = '#fecaca';
   let label = predikat || '-';
 
   if (p.startsWith('A')) {
-    bg = '#dcfce7'; 
-    text = '#166534'; 
+    bg = '#dcfce7';
+    text = '#166534';
     border = '#bbf7d0';
   } else if (p.startsWith('B')) {
-    bg = '#dbeafe'; 
-    text = '#1e40af'; 
+    bg = '#dbeafe';
+    text = '#1e40af';
     border = '#bfdbfe';
   } else if (p.startsWith('C')) {
-    bg = '#fef3c7'; 
-    text = '#92400e'; 
+    bg = '#fef3c7';
+    text = '#92400e';
     border = '#fde68a';
   } else if (p.startsWith('D')) {
-    bg = '#ffedd5'; 
-    text = '#9a3412'; 
+    bg = '#ffedd5';
+    text = '#9a3412';
     border = '#fed7aa';
   }
 
@@ -300,8 +300,8 @@ function CaborCoverflow({ caborList, onSelect }: { caborList: any[], onSelect: (
         const hasImgError = imgErrors[item.nama];
 
         return (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className={`lp-coverflow-card ${positionClass}`}
             onClick={() => {
               if (diff === 0) onSelect(item);
@@ -310,9 +310,9 @@ function CaborCoverflow({ caborList, onSelect }: { caborList: any[], onSelect: (
           >
             <div className="lp-coverflow-img-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {!hasImgError ? (
-                <img 
-                  src={imagePath} 
-                  alt={item.nama} 
+                <img
+                  src={imagePath}
+                  alt={item.nama}
                   className="lp-coverflow-img"
                   onError={() => {
                     setImgErrors(prev => ({ ...prev, [item.nama]: true }));
@@ -327,8 +327,8 @@ function CaborCoverflow({ caborList, onSelect }: { caborList: any[], onSelect: (
             <div className="lp-coverflow-info">
               <div className="lp-coverflow-name">{item.nama}</div>
               <div className="lp-coverflow-pelatih">
-                {item.profil_pelatih && item.profil_pelatih.length > 0 
-                  ? `Pelatih: ${item.profil_pelatih[0].nama}` 
+                {item.profil_pelatih && item.profil_pelatih.length > 0
+                  ? `Pelatih: ${item.profil_pelatih[0].nama}`
                   : 'Belum ada data pelatih'}
               </div>
               <div className="lp-coverflow-stats">
@@ -363,7 +363,7 @@ function Top3Sidebar({ caborList }: { caborList: any[] }) {
       <div className="lp-top3-body">
         {top3.map((c, i) => (
           <div key={c.id || c.nama} className="lp-top3-item">
-            <span className="lp-top3-medal">{['🥇','🥈','🥉'][i]}</span>
+            <span className="lp-top3-medal">{['🥇', '🥈', '🥉'][i]}</span>
             <div className="lp-top3-info">
               <div className="lp-top3-name">{c.nama}</div>
               <div className="lp-top3-bar-wrap">
@@ -418,11 +418,11 @@ export default function LandingPage() {
   const navigate = useNavigate()
 
   /* ── Data fetching ── */
-  const [data, setData]       = useState<LandingData | null>(null)
+  const [data, setData] = useState<LandingData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState('')
+  const [error, setError] = useState('')
   const [selectedCaborDetail, setSelectedCaborDetail] = useState<CaborItem | null>(null)
-  
+
   const [modalSearch, setModalSearch] = useState('')
   const [modalClassFilter, setModalClassFilter] = useState('Semua')
 
@@ -433,20 +433,20 @@ export default function LandingPage() {
     }
   }, [selectedCaborDetail])
 
-  const modalClasses = selectedCaborDetail 
+  const modalClasses = selectedCaborDetail
     ? ['Semua', ...Array.from(new Set(selectedCaborDetail.siswa_list?.map(s => s.kelas) || []))].sort((a, b) => {
-        if (a === 'Semua') return -1;
-        if (b === 'Semua') return 1;
-        return a.localeCompare(b);
-      })
+      if (a === 'Semua') return -1;
+      if (b === 'Semua') return 1;
+      return a.localeCompare(b);
+    })
     : ['Semua'];
-    
+
   const filteredSiswaList = selectedCaborDetail
     ? (selectedCaborDetail.siswa_list || []).filter(s => {
-        const matchSearch = s.nama.toLowerCase().includes(modalSearch.toLowerCase())
-        const matchClass = modalClassFilter === 'Semua' || s.kelas === modalClassFilter
-        return matchSearch && matchClass
-      })
+      const matchSearch = s.nama.toLowerCase().includes(modalSearch.toLowerCase())
+      const matchClass = modalClassFilter === 'Semua' || s.kelas === modalClassFilter
+      return matchSearch && matchClass
+    })
     : [];
 
   const fetchData = async () => {
@@ -468,13 +468,13 @@ export default function LandingPage() {
 
   /* ── Navbar ── */
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [scrolled, setScrolled]     = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('beranda')
 
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 40)
-      const sections = ['beranda','cabor','klasemen','galeri','lokasi']
+      const sections = ['beranda', 'cabor', 'klasemen', 'galeri', 'lokasi']
       for (const sid of [...sections].reverse()) {
         const el = document.getElementById(sid)
         if (el && window.scrollY >= el.offsetTop - 80) { setActiveSection(sid); break }
@@ -485,7 +485,7 @@ export default function LandingPage() {
   }, [])
 
   /* ── Hero Carousel ── */
-  const [slide, setSlide]         = useState(0)
+  const [slide, setSlide] = useState(0)
   const [animating, setAnimating] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -503,9 +503,9 @@ export default function LandingPage() {
   })
 
   /* ── Klasemen state ── */
-  const [search, setSearch]           = useState('')
+  const [search, setSearch] = useState('')
   const [caborFilter, setCaborFilter] = useState('Semua')
-  const [page, setPage]               = useState(1)
+  const [page, setPage] = useState(1)
   const [selectedSiswaDetail, setSelectedSiswaDetail] = useState<KlasemenItem | null>(null)
 
   /* ── Riwayat Modal state ── */
@@ -531,102 +531,150 @@ export default function LandingPage() {
 
   /* ── Galeri state ── */
   const [galeriFilter, setGaleriFilter] = useState('Semua')
-  const [lightboxIdx, setLightboxIdx]   = useState<number | null>(null)
-  const [galeriPage, setGaleriPage]     = useState(1)
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
+  const [galeriPage, setGaleriPage] = useState(1)
   const PAGE_GALERI = 6
 
   useScrollAnimation([data, page, galeriPage, search, caborFilter, galeriFilter])
 
   const GALERI_ITEMS = [
     // ── Sepak Bola ─────────────────────────────────────────────────────────
-    { src: '/gal-sepakbola-intl.png', cabang: 'Sepak Bola', tingkat: 'Internasional',    tahun: '2024',
+    {
+      src: '/gal-sepakbola-intl.png', cabang: 'Sepak Bola', tingkat: 'Internasional', tahun: '2024',
       kejuaraan: 'ASEAN Schools Football Championship 2024',
-      deskripsi: 'Tim SMANKO meraih medali emas pada kejuaraan sepak bola pelajar tingkat ASEAN di Kuala Lumpur, mengalahkan tim dari 8 negara peserta.' },
-    { src: '/sepakbola_nasional.jpg', cabang: 'Sepak Bola', tingkat: 'Nasional',         tahun: '2024',
+      deskripsi: 'Tim SMANKO meraih medali emas pada kejuaraan sepak bola pelajar tingkat ASEAN di Kuala Lumpur, mengalahkan tim dari 8 negara peserta.'
+    },
+    {
+      src: '/sepakbola_nasional.jpg', cabang: 'Sepak Bola', tingkat: 'Nasional', tahun: '2024',
       kejuaraan: 'Popnas Sepak Bola 2024',
-      deskripsi: 'SMANKO meraih juara 2 pada Pekan Olahraga Pelajar Nasional cabang sepak bola yang diselenggarakan di Bandung, Jawa Barat.' },
-    { src: '/sepakbola_provinsi.jpg', cabang: 'Sepak Bola', tingkat: 'Provinsi',         tahun: '2024',
+      deskripsi: 'SMANKO meraih juara 2 pada Pekan Olahraga Pelajar Nasional cabang sepak bola yang diselenggarakan di Bandung, Jawa Barat.'
+    },
+    {
+      src: '/sepakbola_provinsi.jpg', cabang: 'Sepak Bola', tingkat: 'Provinsi', tahun: '2024',
       kejuaraan: 'Porprov Sulsel Pelajar 2024',
-      deskripsi: 'Tim sepak bola SMANKO menjuarai Pekan Olahraga Provinsi Sulawesi Selatan kategori pelajar dengan skor telak di babak final.' },
-    { src: '/sepakbola_kota.jpg', cabang: 'Sepak Bola', tingkat: 'Kabupaten/Kota',  tahun: '2024',
+      deskripsi: 'Tim sepak bola SMANKO menjuarai Pekan Olahraga Provinsi Sulawesi Selatan kategori pelajar dengan skor telak di babak final.'
+    },
+    {
+      src: '/sepakbola_kota.jpg', cabang: 'Sepak Bola', tingkat: 'Kabupaten/Kota', tahun: '2024',
       kejuaraan: 'Liga Pelajar Kota Makassar 2024',
-      deskripsi: 'SMANKO keluar sebagai juara Liga Pelajar Kota Makassar setelah melalui babak penyisihan melawan 16 sekolah dari seluruh wilayah kota.' },
-    { src: '/sepakbola_kecamatan.jpg', cabang: 'Sepak Bola', tingkat: 'Kecamatan',        tahun: '2024',
+      deskripsi: 'SMANKO keluar sebagai juara Liga Pelajar Kota Makassar setelah melalui babak penyisihan melawan 16 sekolah dari seluruh wilayah kota.'
+    },
+    {
+      src: '/sepakbola_kecamatan.jpg', cabang: 'Sepak Bola', tingkat: 'Kecamatan', tahun: '2024',
       kejuaraan: 'Turnamen Sepak Bola Kecamatan Biringkanaya 2024',
-      deskripsi: 'Tim sepak bola SMANKO menjadi juara pada turnamen antar pelajar tingkat kecamatan Biringkanaya dengan rekor tak terkalahkan.' },
-    { src: '/sepakbola_pelajar.jpg', cabang: 'Sepak Bola', tingkat: 'Pelajar/Sekolah',  tahun: '2024',
+      deskripsi: 'Tim sepak bola SMANKO menjadi juara pada turnamen antar pelajar tingkat kecamatan Biringkanaya dengan rekor tak terkalahkan.'
+    },
+    {
+      src: '/sepakbola_pelajar.jpg', cabang: 'Sepak Bola', tingkat: 'Pelajar/Sekolah', tahun: '2024',
       kejuaraan: 'Turnamen Internal Antar Angkatan 2024',
-      deskripsi: 'Kompetisi rutin antar angkatan SMANKO yang menjadi seleksi awal pembentukan tim inti untuk mengikuti kejuaraan tingkat kecamatan hingga nasional.' },
+      deskripsi: 'Kompetisi rutin antar angkatan SMANKO yang menjadi seleksi awal pembentukan tim inti untuk mengikuti kejuaraan tingkat kecamatan hingga nasional.'
+    },
     // ── Bulu Tangkis ───────────────────────────────────────────────────────
-    { src: '/gal-badminton-nas.png',  cabang: 'Bulu Tangkis', tingkat: 'Internasional',   tahun: '2023',
+    {
+      src: '/gal-badminton-nas.png', cabang: 'Bulu Tangkis', tingkat: 'Internasional', tahun: '2023',
       kejuaraan: 'BATC Youth International 2023',
-      deskripsi: 'Atlet bulu tangkis SMANKO mewakili Indonesia pada Badminton Asia Team Championship Youth 2023 dan berhasil mencapai babak semifinal.' },
-    { src: '/bulutangkis_nasional.jpg',  cabang: 'Bulu Tangkis', tingkat: 'Nasional',         tahun: '2024',
+      deskripsi: 'Atlet bulu tangkis SMANKO mewakili Indonesia pada Badminton Asia Team Championship Youth 2023 dan berhasil mencapai babak semifinal.'
+    },
+    {
+      src: '/bulutangkis_nasional.jpg', cabang: 'Bulu Tangkis', tingkat: 'Nasional', tahun: '2024',
       kejuaraan: 'O2SN Bulu Tangkis Nasional 2024',
-      deskripsi: 'Atlet bulu tangkis SMANKO meraih juara pertama tunggal putra pada Olimpiade Olahraga Siswa Nasional (O2SN) di Jakarta.' },
-    { src: '/badminton_provinsi.jpg',  cabang: 'Bulu Tangkis', tingkat: 'Provinsi',         tahun: '2024',
+      deskripsi: 'Atlet bulu tangkis SMANKO meraih juara pertama tunggal putra pada Olimpiade Olahraga Siswa Nasional (O2SN) di Jakarta.'
+    },
+    {
+      src: '/badminton_provinsi.jpg', cabang: 'Bulu Tangkis', tingkat: 'Provinsi', tahun: '2024',
       kejuaraan: 'O2SN Bulu Tangkis Provinsi Sulsel 2024',
-      deskripsi: 'SMANKO berhasil meloloskan 3 atlet ke O2SN Nasional setelah meraih juara umum pada seleksi O2SN tingkat Provinsi Sulawesi Selatan.' },
-    { src: '/badminton_kota.jpg',  cabang: 'Bulu Tangkis', tingkat: 'Kabupaten/Kota',  tahun: '2024',
+      deskripsi: 'SMANKO berhasil meloloskan 3 atlet ke O2SN Nasional setelah meraih juara umum pada seleksi O2SN tingkat Provinsi Sulawesi Selatan.'
+    },
+    {
+      src: '/badminton_kota.jpg', cabang: 'Bulu Tangkis', tingkat: 'Kabupaten/Kota', tahun: '2024',
       kejuaraan: 'Kejuaraan Bulu Tangkis Kota Makassar 2024',
-      deskripsi: 'Tim bulu tangkis SMANKO meraih 4 emas dari 6 nomor yang dipertandingkan pada kejuaraan kota Makassar antar pelajar.' },
-    { src: '/badminton_kecamatan.jpg',  cabang: 'Bulu Tangkis', tingkat: 'Kecamatan',        tahun: '2024',
+      deskripsi: 'Tim bulu tangkis SMANKO meraih 4 emas dari 6 nomor yang dipertandingkan pada kejuaraan kota Makassar antar pelajar.'
+    },
+    {
+      src: '/badminton_kecamatan.jpg', cabang: 'Bulu Tangkis', tingkat: 'Kecamatan', tahun: '2024',
       kejuaraan: 'Turnamen Bulu Tangkis Kec. Biringkanaya 2024',
-      deskripsi: 'Atlet bulu tangkis SMANKO mendominasi turnamen kecamatan dengan meraih seluruh gelar juara di semua kategori yang diperlombakan.' },
-    { src: '/badminton_pelajar.jpg',  cabang: 'Bulu Tangkis', tingkat: 'Pelajar/Sekolah',  tahun: '2024',
+      deskripsi: 'Atlet bulu tangkis SMANKO mendominasi turnamen kecamatan dengan meraih seluruh gelar juara di semua kategori yang diperlombakan.'
+    },
+    {
+      src: '/badminton_pelajar.jpg', cabang: 'Bulu Tangkis', tingkat: 'Pelajar/Sekolah', tahun: '2024',
       kejuaraan: 'Turnamen Bulu Tangkis Antar SMA Se-Makassar 2024',
-      deskripsi: 'SMANKO berhasil menjuarai turnamen bulu tangkis yang melibatkan 24 SMA dari wilayah Makassar Raya.' },
+      deskripsi: 'SMANKO berhasil menjuarai turnamen bulu tangkis yang melibatkan 24 SMA dari wilayah Makassar Raya.'
+    },
     // ── Karate ─────────────────────────────────────────────────────────────
-    { src: '/gal-karate-intl.png',    cabang: 'Karate', tingkat: 'Internasional',          tahun: '2023',
+    {
+      src: '/gal-karate-intl.png', cabang: 'Karate', tingkat: 'Internasional', tahun: '2023',
       kejuaraan: 'WKF Youth World Championship 2023',
-      deskripsi: 'Atlet karate SMANKO mewakili Indonesia di WKF Youth World Championship dan meraih medali perunggu pada nomor kata perorangan.' },
-    { src: '/gal-karate-nas.png',     cabang: 'Karate', tingkat: 'Nasional',               tahun: '2024',
+      deskripsi: 'Atlet karate SMANKO mewakili Indonesia di WKF Youth World Championship dan meraih medali perunggu pada nomor kata perorangan.'
+    },
+    {
+      src: '/gal-karate-nas.png', cabang: 'Karate', tingkat: 'Nasional', tahun: '2024',
       kejuaraan: 'Kejurnas Karate Pelajar 2024',
-      deskripsi: 'Dua atlet karate SMANKO meraih emas pada nomor kata dan kumite, membuktikan dominasi Sulawesi Selatan di pentas nasional.' },
-    { src: '/gal-karate-nas.png',     cabang: 'Karate', tingkat: 'Provinsi',               tahun: '2024',
+      deskripsi: 'Dua atlet karate SMANKO meraih emas pada nomor kata dan kumite, membuktikan dominasi Sulawesi Selatan di pentas nasional.'
+    },
+    {
+      src: '/gal-karate-nas.png', cabang: 'Karate', tingkat: 'Provinsi', tahun: '2024',
       kejuaraan: 'Kejurda Karate Sulsel 2024',
-      deskripsi: 'SMANKO meraih juara umum pada Kejuaraan Daerah Karate Sulawesi Selatan dengan total 6 medali emas.' },
-    { src: '/gal-karate-nas.png',     cabang: 'Karate', tingkat: 'Kabupaten/Kota',         tahun: '2024',
+      deskripsi: 'SMANKO meraih juara umum pada Kejuaraan Daerah Karate Sulawesi Selatan dengan total 6 medali emas.'
+    },
+    {
+      src: '/gal-karate-nas.png', cabang: 'Karate', tingkat: 'Kabupaten/Kota', tahun: '2024',
       kejuaraan: 'Kejuaraan Karate Kota Makassar 2024',
-      deskripsi: 'Tim karate SMANKO meraih podium di 8 dari 10 nomor yang dipertandingkan pada kejuaraan kota Makassar.' },
-    { src: '/gal-karate-nas.png',     cabang: 'Karate', tingkat: 'Kecamatan',              tahun: '2024',
+      deskripsi: 'Tim karate SMANKO meraih podium di 8 dari 10 nomor yang dipertandingkan pada kejuaraan kota Makassar.'
+    },
+    {
+      src: '/gal-karate-nas.png', cabang: 'Karate', tingkat: 'Kecamatan', tahun: '2024',
       kejuaraan: 'Open Tournament Karate Kec. Biringkanaya 2024',
-      deskripsi: 'Atlet karate SMANKO menyapu bersih gelar juara pada open tournament karate tingkat kecamatan.' },
-    { src: '/gal-karate-nas.png',     cabang: 'Karate', tingkat: 'Pelajar/Sekolah',        tahun: '2024',
+      deskripsi: 'Atlet karate SMANKO menyapu bersih gelar juara pada open tournament karate tingkat kecamatan.'
+    },
+    {
+      src: '/gal-karate-nas.png', cabang: 'Karate', tingkat: 'Pelajar/Sekolah', tahun: '2024',
       kejuaraan: 'Kompetisi Karate Antar SMA 2024',
-      deskripsi: 'SMANKO menjuarai kompetisi karate antar SMA se-Makassar dengan meraih posisi pertama di kategori kata beregu dan kumite.' },
+      deskripsi: 'SMANKO menjuarai kompetisi karate antar SMA se-Makassar dengan meraih posisi pertama di kategori kata beregu dan kumite.'
+    },
     // ── Pencak Silat ───────────────────────────────────────────────────────
-    { src: '/gal-silat-nas.png',      cabang: 'Pencak Silat', tingkat: 'Internasional',    tahun: '2023',
+    {
+      src: '/gal-silat-nas.png', cabang: 'Pencak Silat', tingkat: 'Internasional', tahun: '2023',
       kejuaraan: 'SEA Games Youth Pencak Silat 2023',
-      deskripsi: 'Atlet pencak silat SMANKO mewakili Indonesia pada SEA Games Youth dan berhasil meraih medali perak pada nomor tanding putri.' },
-    { src: '/gal-silat-nas.png',      cabang: 'Pencak Silat', tingkat: 'Nasional',         tahun: '2023',
+      deskripsi: 'Atlet pencak silat SMANKO mewakili Indonesia pada SEA Games Youth dan berhasil meraih medali perak pada nomor tanding putri.'
+    },
+    {
+      src: '/gal-silat-nas.png', cabang: 'Pencak Silat', tingkat: 'Nasional', tahun: '2023',
       kejuaraan: 'Popnas Pencak Silat 2023',
-      deskripsi: 'Atlet pencak silat SMANKO meraih emas pada Popnas cabang pencak silat nomor tanding putri kategori D.' },
-    { src: '/gal-silat-prov.png',     cabang: 'Pencak Silat', tingkat: 'Provinsi',         tahun: '2024',
+      deskripsi: 'Atlet pencak silat SMANKO meraih emas pada Popnas cabang pencak silat nomor tanding putri kategori D.'
+    },
+    {
+      src: '/gal-silat-prov.png', cabang: 'Pencak Silat', tingkat: 'Provinsi', tahun: '2024',
       kejuaraan: 'Kejuaraan Provinsi Sulsel 2024',
-      deskripsi: 'Tim pencak silat SMANKO meraih juara umum dengan 5 emas, 3 perak, dan 2 perunggu.' },
-    { src: '/gal-silat-prov.png',     cabang: 'Pencak Silat', tingkat: 'Kabupaten/Kota',  tahun: '2024',
+      deskripsi: 'Tim pencak silat SMANKO meraih juara umum dengan 5 emas, 3 perak, dan 2 perunggu.'
+    },
+    {
+      src: '/gal-silat-prov.png', cabang: 'Pencak Silat', tingkat: 'Kabupaten/Kota', tahun: '2024',
       kejuaraan: 'Kejuaraan Silat Kota Makassar 2024',
-      deskripsi: 'SMANKO mendominasi kejuaraan pencak silat kota Makassar dengan meraih 7 medali emas dari 12 nomor pertandingan.' },
-    { src: '/gal-silat-prov.png',     cabang: 'Pencak Silat', tingkat: 'Kecamatan',        tahun: '2024',
+      deskripsi: 'SMANKO mendominasi kejuaraan pencak silat kota Makassar dengan meraih 7 medali emas dari 12 nomor pertandingan.'
+    },
+    {
+      src: '/gal-silat-prov.png', cabang: 'Pencak Silat', tingkat: 'Kecamatan', tahun: '2024',
       kejuaraan: 'Open Tournament Silat Kec. Biringkanaya 2024',
-      deskripsi: 'Atlet pencak silat SMANKO mengikuti turnamen terbuka kecamatan sebagai ajang pemanasan dan berhasil meraih seluruh gelar juara.' },
-    { src: '/gal-silat-prov.png',     cabang: 'Pencak Silat', tingkat: 'Pelajar/Sekolah',  tahun: '2024',
+      deskripsi: 'Atlet pencak silat SMANKO mengikuti turnamen terbuka kecamatan sebagai ajang pemanasan dan berhasil meraih seluruh gelar juara.'
+    },
+    {
+      src: '/gal-silat-prov.png', cabang: 'Pencak Silat', tingkat: 'Pelajar/Sekolah', tahun: '2024',
       kejuaraan: 'Liga Silat Pelajar Makassar 2024',
-      deskripsi: 'SMANKO menjuarai liga pencak silat pelajar antar sekolah di Makassar yang diikuti oleh 30 sekolah dari berbagai kecamatan.' },
+      deskripsi: 'SMANKO menjuarai liga pencak silat pelajar antar sekolah di Makassar yang diikuti oleh 30 sekolah dari berbagai kecamatan.'
+    },
   ]
 
   const GALERI_FILTER_OPTS = ['Semua', 'Sepak Bola', 'Bulu Tangkis', 'Karate', 'Pencak Silat']
   const filteredGaleri = galeriFilter === 'Semua' ? GALERI_ITEMS : GALERI_ITEMS.filter(g => g.cabang === galeriFilter)
   const totalGaleriPages = Math.max(1, Math.ceil(filteredGaleri.length / PAGE_GALERI))
-  const paginatedGaleri  = filteredGaleri.slice((galeriPage - 1) * PAGE_GALERI, galeriPage * PAGE_GALERI)
+  const paginatedGaleri = filteredGaleri.slice((galeriPage - 1) * PAGE_GALERI, galeriPage * PAGE_GALERI)
 
   const TINGKAT_COLOR: Record<string, string> = {
-    'Internasional':   '#7c3aed',
-    'Nasional':        '#c1272d',
-    'Provinsi':        '#d97706',
-    'Kabupaten/Kota':  '#0369a1',
-    'Kecamatan':       '#16a34a',
+    'Internasional': '#7c3aed',
+    'Nasional': '#c1272d',
+    'Provinsi': '#d97706',
+    'Kabupaten/Kota': '#0369a1',
+    'Kecamatan': '#16a34a',
     'Pelajar/Sekolah': '#0891b2',
   }
 
@@ -663,21 +711,21 @@ export default function LandingPage() {
 
   const filtered = (data?.klasemen ?? []).filter(s => {
     const matchSearch = s.nama_siswa.toLowerCase().includes(search.toLowerCase())
-    const matchCabor  = caborFilter === 'Semua' || s.nama_cabang === caborFilter
+    const matchCabor = caborFilter === 'Semua' || s.nama_cabang === caborFilter
     return matchSearch && matchCabor
   })
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   useEffect(() => { setPage(1); setSelectedSiswaDetail(null) }, [search, caborFilter])
 
   /* ─── Stat numbers ─── */
   const stats = data?.stats
   const statCards = [
-    { icon: <Users size={18}/>,   val: loading ? '—' : <CountUp value={stats?.total_siswa ?? 0} suffix="+" />,         label: 'Siswa Aktif'         },
-    { icon: <Trophy size={18}/>,  val: loading ? '—' : <CountUp value={stats?.total_cabor ?? 0} />,                    label: 'Cabang Olahraga'     },
-    { icon: <Star size={18}/>,    val: loading ? '—' : <CountUp value={stats?.total_berprestasi ?? 0} suffix="+" />,   label: 'Siswa Berprestasi'   },
-    { icon: <Target size={18}/>,  val: loading ? '—' : <CountUp value={stats?.total_pelatih ?? 0} />,                  label: 'Pelatih Aktif'       },
+    { icon: <Users size={18} />, val: loading ? '—' : <CountUp value={stats?.total_siswa ?? 0} suffix="+" />, label: 'Siswa Aktif' },
+    { icon: <Trophy size={18} />, val: loading ? '—' : <CountUp value={stats?.total_cabor ?? 0} />, label: 'Cabang Olahraga' },
+    { icon: <Star size={18} />, val: loading ? '—' : <CountUp value={stats?.total_berprestasi ?? 0} suffix="+" />, label: 'Siswa Berprestasi' },
+    { icon: <Target size={18} />, val: loading ? '—' : <CountUp value={stats?.total_pelatih ?? 0} />, label: 'Pelatih Aktif' },
   ]
 
   /* ─── RENDER ─── */
@@ -789,8 +837,8 @@ export default function LandingPage() {
           background: 'linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(10,15,25,0.6) 50%, rgba(0,0,0,0.4) 100%)'
         }} />
         {/* Athlete images flanking */}
-        <img src="/hero-athlete-left.png" className="lp-athlete-left" alt="" onError={e => (e.currentTarget.style.display='none')} />
-        <img src="/hero-athlete-right.png" className="lp-athlete-right" alt="" onError={e => (e.currentTarget.style.display='none')} />
+        <img src="/hero-athlete-left.png" className="lp-athlete-left" alt="" onError={e => (e.currentTarget.style.display = 'none')} />
+        <img src="/hero-athlete-right.png" className="lp-athlete-right" alt="" onError={e => (e.currentTarget.style.display = 'none')} />
         {/* Glow orbs */}
         <div style={{
           position: 'absolute', top: '15%', left: '30%', width: 500, height: 500,
@@ -808,8 +856,8 @@ export default function LandingPage() {
         </div> */}
 
 
-          <div className="lp-hero-content" style={{
-            position: 'absolute', inset: 0, zIndex: 4,
+        <div className="lp-hero-content" style={{
+          position: 'absolute', inset: 0, zIndex: 4,
           display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 24px',
         }}>
           <div style={{ maxWidth: 760 }}>
@@ -863,14 +911,15 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Stats Bar — floating cards */}
+        {/* Stats Bar — single unified bar */}
         <div style={{
-          position: 'absolute', bottom: 20, left: 0, right: 0, zIndex: 5,
+          position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 5,
           padding: '16px 24px',
         }}>
-          <div className="lp-hero-stats-row" style={{ maxWidth: 960, margin: '0 auto', display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 14 }}>
-            {statCards.map(item => (
-              <div key={item.label} className="lp-stat-card-new">
+          <div className="lp-stats-unified-bar">
+            {statCards.map((item, idx) => (
+              <div key={item.label} className="lp-stats-unified-item">
+                {idx > 0 && <div className="lp-stats-unified-divider" />}
                 <div className="lp-stat-icon-new">
                   {item.icon}
                 </div>
@@ -974,7 +1023,7 @@ export default function LandingPage() {
                               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>📱 {p.no_telepon}</span>
                             )}
                             {p.keterangan && (
-                              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Target size={12}/> {p.keterangan}</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Target size={12} /> {p.keterangan}</span>
                             )}
                           </div>
                         </div>
@@ -994,7 +1043,7 @@ export default function LandingPage() {
                     <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1a2744', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Star size={18} style={{ color: '#c1272d' }} /> Daftar Siswa ({filteredSiswaList.length})
                     </h4>
-                    
+
                     <div style={{ display: 'flex', gap: 12 }}>
                       <div style={{ position: 'relative' }}>
                         <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#a0b0cc' }} />
@@ -1049,8 +1098,8 @@ export default function LandingPage() {
                     </div>
                   ) : (
                     <div style={{ padding: 24, textAlign: 'center', background: '#f8faff', borderRadius: 12, color: '#a0b0cc', border: '1px dashed #dce6f7' }}>
-                      {selectedCaborDetail.siswa_list?.length === 0 
-                        ? 'Belum ada data siswa untuk cabang olahraga ini.' 
+                      {selectedCaborDetail.siswa_list?.length === 0
+                        ? 'Belum ada data siswa untuk cabang olahraga ini.'
                         : 'Siswa tidak ditemukan.'}
                     </div>
                   )}
@@ -1091,7 +1140,7 @@ export default function LandingPage() {
                 <Skeleton h={40} w="60%" radius={10} />
                 <Skeleton h={40} w="30%" radius={10} />
               </div>
-              {[1,2,3,4,5].map(i => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} style={{ display: 'flex', gap: 16, padding: '16px 0', borderBottom: '1px solid #edf1fb' }}>
                   <Skeleton h={14} w={28} radius={4} />
                   <Skeleton h={14} w="30%" radius={4} />
@@ -1186,10 +1235,10 @@ export default function LandingPage() {
                             )
                             const TINGKATAN_COLOR: Record<string, string> = {
                               'Internasional': '#7c3aed',
-                              'Nasional':      '#c1272d',
-                              'Provinsi':      '#d97706',
-                              'Kabupaten/Kota':'#0369a1',
-                              'Pelajar/Sekolah':'#16a34a',
+                              'Nasional': '#c1272d',
+                              'Provinsi': '#d97706',
+                              'Kabupaten/Kota': '#0369a1',
+                              'Pelajar/Sekolah': '#16a34a',
                             }
                             const rowBg = idx % 2 === 0 ? '#fff' : '#fafcff'
                             return (
@@ -1452,12 +1501,12 @@ export default function LandingPage() {
         );
         const TINGKATAN_COLOR: Record<string, string> = {
           'Internasional': '#7c3aed',
-          'Nasional':      '#c1272d',
-          'Provinsi':      '#d97706',
-          'Kabupaten/Kota':'#0369a1',
-          'Pelajar/Sekolah':'#16a34a',
+          'Nasional': '#c1272d',
+          'Provinsi': '#d97706',
+          'Kabupaten/Kota': '#0369a1',
+          'Pelajar/Sekolah': '#16a34a',
         };
-        const BULAN = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+        const BULAN = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
         const caborColor = getCaborColor({ nama: s.nama_cabang, kode: s.kode_cabang } as CaborItem);
 
         return (
@@ -1471,7 +1520,7 @@ export default function LandingPage() {
               maxHeight: '90vh', display: 'flex', flexDirection: 'column',
               boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden'
             }} onClick={e => e.stopPropagation()}>
-              
+
               {/* Header Modal */}
               <div style={{
                 padding: '24px 32px', borderBottom: '1px solid #edf1fb',
@@ -1520,7 +1569,7 @@ export default function LandingPage() {
 
               {/* Content Modal */}
               <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
-                
+
                 {/* Info Utama */}
                 <div style={{ display: 'flex', gap: 20, marginBottom: 32, flexWrap: 'wrap' }}>
                   <div style={{
@@ -1608,7 +1657,7 @@ export default function LandingPage() {
                   <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1a2744', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Medal size={18} style={{ color: '#d97706' }} /> Riwayat Kejuaraan ({realPrestasi.length})
                   </h4>
-                  
+
                   {realPrestasi.length > 0 ? (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
                       {realPrestasi.map((p, pi) => {
@@ -1727,7 +1776,7 @@ export default function LandingPage() {
                 <X size={18} />
               </button>
             </div>
-            
+
             <div style={{ overflow: 'auto', flex: 1, padding: '24px' }}>
               {loadingRiwayat ? (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
@@ -2254,7 +2303,7 @@ export default function LandingPage() {
                 SMA Negeri Khusus Keberbakatan Olahraga Provinsi Sulawesi Selatan — mencetak atlet berprestasi tinggi yang juga unggul secara akademik.
               </p>
               <div style={{ display: 'flex', gap: 8 }}>
-                {[{ icon: <Facebook size={16}/>, label: 'Facebook' },{ icon: <Instagram size={16}/>, label: 'Instagram' },{ icon: <Youtube size={16}/>, label: 'YouTube' }].map(s => (
+                {[{ icon: <Facebook size={16} />, label: 'Facebook' }, { icon: <Instagram size={16} />, label: 'Instagram' }, { icon: <Youtube size={16} />, label: 'YouTube' }].map(s => (
                   <a key={s.label} href="#" aria-label={s.label} className="lp-social-btn">
                     {s.icon}
                   </a>
@@ -2265,7 +2314,7 @@ export default function LandingPage() {
             {/* Col 2 */}
             <div>
               <div style={{ fontWeight: 800, fontSize: '0.92rem', marginBottom: 18, letterSpacing: '0.04em' }}>Tautan Cepat</div>
-              {['Beranda','Cabang Olahraga','Papan Klasemen','Galeri Prestasi','Lokasi Sekolah','Login Portal'].map(l => (
+              {['Beranda', 'Cabang Olahraga', 'Papan Klasemen', 'Galeri Prestasi', 'Lokasi Sekolah', 'Login Portal'].map(l => (
                 <div key={l}>
                   <a href="#" className="lp-footer-link" onClick={e => {
                     e.preventDefault()
@@ -2287,9 +2336,9 @@ export default function LandingPage() {
             <div>
               <div style={{ fontWeight: 800, fontSize: '0.92rem', marginBottom: 18, letterSpacing: '0.04em' }}>Kontak &amp; Alamat</div>
               {[
-                { icon: <MapPin size={14}/>, text: 'Jl. Pajjaiang, Sudiang Raya, Makassar, Sul-Sel 90552' },
-                { icon: <Phone size={14}/>,  text: '(0411) 555-1234' },
-                { icon: <Mail size={14}/>,   text: 'info@smanko.sch.id' },
+                { icon: <MapPin size={14} />, text: 'Jl. Pajjaiang, Sudiang Raya, Makassar, Sul-Sel 90552' },
+                { icon: <Phone size={14} />, text: '(0411) 555-1234' },
+                { icon: <Mail size={14} />, text: 'info@smanko.sch.id' },
               ].map((c, i) => (
                 <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 14, alignItems: 'flex-start' }}>
                   <span style={{ color: '#f9c74f', marginTop: 2, flexShrink: 0 }}>{c.icon}</span>

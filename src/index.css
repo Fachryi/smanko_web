@@ -1859,29 +1859,51 @@ tbody td {
   .lp-top3-card { width: 100%; margin-top: 0; }
 }
 
-/* ══════════════════ Hero Tech Stat Cards ══════════════════ */
-.lp-stat-card-new {
+/* ══════════════════ Hero Unified Stats Bar ══════════════════ */
+.lp-stats-unified-bar {
+  max-width: 860px;
+  margin: 0 auto;
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 16px; padding: 18px 22px;
-  display: flex; align-items: center; gap: 14px;
-  transition: all 0.3s ease; position: relative; overflow: hidden;
+  border-radius: 20px;
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
   animation: lpNeonPulse 3s ease-in-out infinite;
 }
-.lp-stat-card-new::before {
+.lp-stats-unified-bar::before {
   content: '';
   position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   transform: skewX(-15deg);
   animation: lpShineWave 4s ease-in-out infinite;
 }
-.lp-stat-card-new:hover {
-  background: rgba(255,255,255,0.16);
-  border-color: #e84a4f;
-  transform: translateY(-3px);
-  box-shadow: 0 0 30px rgba(232,74,79,0.45), 0 0 60px rgba(232,74,79,0.15);
-  animation-play-state: paused;
+.lp-stats-unified-bar:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(232,74,79,0.5);
+  box-shadow: 0 0 30px rgba(232,74,79,0.3), 0 0 60px rgba(232,74,79,0.1);
+}
+.lp-stats-unified-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  flex: 1;
+  justify-content: center;
+}
+.lp-stats-unified-divider {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25), transparent);
 }
 .lp-stat-icon-new {
   width: 44px; height: 44px; border-radius: 12px;
@@ -1973,18 +1995,22 @@ tbody td {
 
 @media (max-width: 768px) {
   .lp-athlete-left, .lp-athlete-right { height: 50%; opacity: 0.35; }
-  .lp-stat-card-new { padding: 12px 16px; }
-  .lp-stat-val-new { font-size: 1.2rem; }
-
-  .lp-hero-stats-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
-    max-width: 400px !important;
+  .lp-stats-unified-bar {
+    padding: 14px 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-radius: 16px;
   }
-  .lp-hero-stats-row .lp-stat-card-new {
+  .lp-stats-unified-item {
+    flex: 0 0 calc(50% - 6px);
     justify-content: flex-start;
+    gap: 10px;
   }
+  .lp-stats-unified-divider {
+    display: none;
+  }
+  .lp-stat-val-new { font-size: 1.2rem; }
+  .lp-stat-icon-new { width: 36px; height: 36px; border-radius: 10px; }
   .lp-hero-content {
     padding: 0 16px !important;
   }
