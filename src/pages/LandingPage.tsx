@@ -296,7 +296,8 @@ function CaborCoverflow({ caborList, onSelect }: { caborList: any[], onSelect: (
         else if (diff === -2) positionClass = 'prev-2';
         else if (diff === 2) positionClass = 'next-2';
 
-        const imagePath = `/gambar-cabor/${item.nama.toLowerCase().replace(/\s+/g, '-')}.jpg`;
+        let caborKey = item.nama.toLowerCase().replace(/\s+/g, '-');
+        const imagePath = `/gambar-cabor/${caborKey}.jpg`;
         const hasImgError = imgErrors[item.nama];
 
         return (

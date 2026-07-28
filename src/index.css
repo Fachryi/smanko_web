@@ -1862,7 +1862,7 @@ tbody td {
 /* ══════════════════ Hero Unified Stats Bar ══════════════════ */
 .lp-hero-stats-wrapper {
   position: absolute;
-  bottom: 60px;
+  bottom: 30px;
   left: 0;
   right: 0;
   z-index: 5;
