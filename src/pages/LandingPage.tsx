@@ -912,10 +912,7 @@ export default function LandingPage() {
         </div>
 
         {/* Stats Bar — single unified bar */}
-        <div style={{
-          position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 5,
-          padding: '16px 24px',
-        }}>
+        <div className="lp-hero-stats-wrapper">
           <div className="lp-stats-unified-bar">
             {statCards.map((item, idx) => (
               <div key={item.label} className="lp-stats-unified-item">
@@ -1549,7 +1546,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginBottom: 20 }}>
                   <button onClick={() => openRiwayat(s.siswa_id)} style={{
                     background: '#1155a8', color: '#fff', border: 'none', borderRadius: 8,
                     padding: '8px 16px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer',
