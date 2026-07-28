@@ -8,6 +8,26 @@ import {
   Dumbbell, AlertCircle, RefreshCw, ChevronDown, Medal, Images, Eye
 } from 'lucide-react'
 
+/* ────────────────────────── HOOKS ────────────────────────── */
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia(query).matches
+    }
+    return false
+  })
+
+  useEffect(() => {
+    const mql = window.matchMedia(query)
+    const handler = (e: MediaQueryListEvent) => setMatches(e.matches)
+    mql.addEventListener('change', handler)
+    return () => mql.removeEventListener('change', handler)
+  }, [query])
+
+  return matches
+}
+
 /* ────────────────────────── TYPES ────────────────────────── */
 
 interface CaborSiswa {
@@ -417,6 +437,7 @@ function CountUp({ value, suffix = '', duration = 2000 }: { value: number; suffi
    ════════════════════════════════════════════════════════════ */
 export default function LandingPage() {
   const navigate = useNavigate()
+  const isDesktop = useMediaQuery('(min-width: 769px)')
 
   /* ── Data fetching ── */
   const [data, setData] = useState<LandingData | null>(null)
@@ -960,7 +981,7 @@ export default function LandingPage() {
             <div className="lp-cabor-coverflow-wrap">
               <CaborCoverflow caborList={data?.cabor || []} onSelect={setSelectedCaborDetail} />
             </div>
-            <Top3Sidebar caborList={data?.cabor || []} />
+            {isDesktop && <Top3Sidebar caborList={data?.cabor || []} />}
           </div>
         </div>
 

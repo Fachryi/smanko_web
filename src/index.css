@@ -1805,8 +1805,8 @@ tbody td {
   background: linear-gradient(to bottom, rgba(255,255,255,0.98), rgba(240,252,255,0.95));
 }
 .lp-coverflow-name {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800; font-size: 1.1rem; color: #0b2d6b; margin-bottom: 4px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 700; font-size: 1.35rem; color: #0b2d6b; margin-bottom: 4px;
 }
 .lp-coverflow-pelatih { font-size: 0.75rem; color: #6b7faa; margin-bottom: 12px; }
 .lp-coverflow-stats { display: flex; gap: 8px; }
@@ -1855,7 +1855,8 @@ tbody td {
 .lp-top3-item:nth-child(2) .lp-top3-bar { background: linear-gradient(90deg, #64748b, #94a3b8); }
 .lp-top3-item:nth-child(3) .lp-top3-bar { background: linear-gradient(90deg, #b45309, #d97706); }
 @media (max-width: 768px) {
-  .lp-cabor-row { flex-direction: column; }
+  .lp-cabor-row { flex-direction: column; align-items: center; }
+  .lp-cabor-coverflow-wrap { width: 100%; }
   .lp-top3-card { display: none; }
 }
 
@@ -2038,29 +2039,36 @@ tbody td {
   #cabor, #klasemen, #galeri, #lokasi {
     padding: 48px 16px !important;
   }
+  #cabor {
+    overflow-x: hidden !important;
+  }
   .lp-coverflow-container {
     height: 320px !important;
+    overflow: visible !important;
+    perspective: 800px !important;
+    padding: 10px 0 !important;
   }
   .lp-coverflow-card {
     width: 200px !important;
-    height: 280px !important;
+    height: 270px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
   }
   .lp-coverflow-card.prev-1 {
-    transform: translateX(-120px) scale(0.9) rotateY(15deg) !important;
+    transform: translateX(-110px) scale(0.82) rotateY(12deg) !important;
+    opacity: 0.5 !important;
   }
   .lp-coverflow-card.next-1 {
-    transform: translateX(120px) scale(0.9) rotateY(-15deg) !important;
+    transform: translateX(110px) scale(0.82) rotateY(-12deg) !important;
+    opacity: 0.5 !important;
   }
-  .lp-coverflow-card.prev-2 {
-    transform: translateX(-220px) scale(0.75) rotateY(25deg) !important;
-    opacity: 0.4 !important;
-  }
+  .lp-coverflow-card.prev-2,
   .lp-coverflow-card.next-2 {
-    transform: translateX(220px) scale(0.75) rotateY(-25deg) !important;
-    opacity: 0.4 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
   .lp-coverflow-card.active {
-    transform: translateX(0) scale(1.05) !important;
+    transform: translateX(0) scale(1.08) !important;
   }
   .lp-footer {
     padding: 40px 16px 0 !important;
