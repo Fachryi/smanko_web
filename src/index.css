@@ -1665,10 +1665,19 @@ tbody td {
 
 /* ── Responsive Landing ── */
 @media (max-width: 768px) {
+  body { overflow-x: hidden; }
   .lp-nav-links  { display: none !important; }
   .lp-hamburger  { display: flex !important; }
   .lp-cabor-grid { grid-template-columns: 1fr !important; }
   .lp-hero-nav   { display: none !important; }
+  .lp-map-info-card {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    margin: 16px 16px 0;
+    width: calc(100% - 32px) !important;
+    min-width: unset !important;
+  }
 }
 @media (min-width: 769px) {
   .lp-hamburger { display: none !important; }
@@ -2085,14 +2094,4 @@ tbody td {
   50%       { transform: scale(1.6); opacity: 0; }
 }
 
-/* Lokasi map responsive */
-@media (max-width: 640px) {
-  .lp-map-info-card {
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
-    margin: 16px 16px 0;
-    width: calc(100% - 32px) !important;
-    min-width: unset !important;
-  }
-}
+/* ── Lokasi Map Glowing Pin Rings ── */

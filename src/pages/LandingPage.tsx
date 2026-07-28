@@ -2256,7 +2256,7 @@ export default function LandingPage() {
             />
 
             {/* INFO SEKOLAH Glass Card — overlaid top right */}
-            <div style={{
+            <div className="lp-map-info-card" style={{
               position: 'absolute', top: 20, right: 20, zIndex: 3,
               background: 'rgba(255,255,255,0.82)',
               backdropFilter: 'blur(16px)',
