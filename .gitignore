@@ -34,3 +34,4 @@ yarn-error.log*
 # Temp/debug scripts (generated during development)
 update_db.php
 info_db.php
+update_hosting.sql
