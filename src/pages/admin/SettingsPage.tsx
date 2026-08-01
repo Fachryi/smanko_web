@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Layout from '../../components/Layout'
 import Modal from '../../components/Modal'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -49,6 +49,11 @@ function SekolahTab() {
   const [error,   setError]   = useState('')
   const [success, setSuccess] = useState(false)
   const [form, setForm] = useState({ nama: '', nip: '' })
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => { if (successTimerRef.current) clearTimeout(successTimerRef.current) }
+  }, [])
 
   useEffect(() => {
     api.get<ApiResponse<{kepala_sekolah_nama:string; kepala_sekolah_nip:string}>>('/settings/sekolah.php')
@@ -66,7 +71,9 @@ function SekolahTab() {
         kepala_sekolah_nama: form.nama.trim(),
         kepala_sekolah_nip:  form.nip.trim(),
       })
-      setSuccess(true); setTimeout(()=>setSuccess(false), 3000)
+      setSuccess(true)
+      if (successTimerRef.current) clearTimeout(successTimerRef.current)
+      successTimerRef.current = setTimeout(()=>setSuccess(false), 3000)
     } catch (e: unknown) { setError(e instanceof Error ? e.message : 'Gagal menyimpan.') }
     finally { setSaving(false) }
   }
@@ -164,6 +171,11 @@ function BobotTab() {
   const [error,   setError]   = useState('')
   const [success, setSuccess] = useState(false)
   const [form,    setForm]    = useState({ keterampilan:'50', prestasi:'30', kehadiran:'20' })
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => { if (successTimerRef.current) clearTimeout(successTimerRef.current) }
+  }, [])
 
   useEffect(() => {
     api.get<ApiResponse<SettingBobotUtama>>('/settings/bobot.php')
@@ -192,7 +204,9 @@ function BobotTab() {
         bobot_prestasi:     parseFloat(form.prestasi),
         bobot_kehadiran:    parseFloat(form.kehadiran),
       })
-      setSuccess(true); setTimeout(()=>setSuccess(false), 3000)
+      setSuccess(true)
+      if (successTimerRef.current) clearTimeout(successTimerRef.current)
+      successTimerRef.current = setTimeout(()=>setSuccess(false), 3000)
     } catch (e:unknown) { setError(e instanceof Error ? e.message : 'Gagal menyimpan.') }
     finally { setSaving(false) }
   }

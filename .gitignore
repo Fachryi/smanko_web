@@ -35,3 +35,6 @@ yarn-error.log*
 update_db.php
 info_db.php
 update_hosting.sql
+
+# Runtime uploads (user-uploaded files - never commit these!)
+api/uploads/

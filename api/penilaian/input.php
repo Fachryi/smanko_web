@@ -41,6 +41,52 @@ function hitungNilaiAkhir(PDO $pdo, float $keterampilan, float $prestasi, float 
     ];
 }
 
+// ── Fungsi: Kompres/resize gambar (JPG/PNG) via GD ───────────
+function kompresGambar(string $srcPath, string $dstPath, int $maxDim = 1600, int $quality = 80): bool {
+    if (!extension_loaded('gd')) return false;
+    $info = @getimagesize($srcPath);
+    if (!$info) return false;
+    $mime = $info['mime'] ?? '';
+    if ($mime === 'image/jpeg')    $img = @imagecreatefromjpeg($srcPath);
+    elseif ($mime === 'image/png') $img = @imagecreatefrompng($srcPath);
+    else return false;
+    if (!$img) return false;
+
+    $w = imagesx($img); $h = imagesy($img);
+    if ($w <= 0 || $h <= 0) { imagedestroy($img); return false; }
+
+    // Koreksi orientasi EXIF (foto dari HP sering miring)
+    if (function_exists('exif_read_data')) {
+        $exif = @exif_read_data($srcPath);
+        $orientation = isset($exif['Orientation']) ? (int)$exif['Orientation'] : 1;
+        $transparent = $mime === 'image/png' ? imagecolorallocatealpha($img, 0, 0, 0, 127) : 0;
+        if ($orientation === 3)     $img = imagerotate($img, 180, $transparent);
+        elseif ($orientation === 6) $img = imagerotate($img, -90, $transparent);
+        elseif ($orientation === 8) $img = imagerotate($img, 90, $transparent);
+    }
+
+    // Resize proporsional jika melebihi maxDim
+    $scale = min(1, $maxDim / max($w, $h));
+    if ($scale < 1) {
+        $nw = (int)round($w * $scale); $nh = (int)round($h * $scale);
+        $resized = imagecreatetruecolor($nw, $nh);
+        if ($mime === 'image/png') {
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+            imagefill($resized, 0, 0, imagecolorallocatealpha($resized, 0, 0, 0, 127));
+        }
+        imagecopyresampled($resized, $img, 0, 0, 0, 0, $nw, $nh, $w, $h);
+        imagedestroy($img);
+        $img = $resized;
+    }
+
+    $ok = $mime === 'image/png'
+        ? imagepng($img, $dstPath, 8)
+        : imagejpeg($img, $dstPath, $quality);
+    imagedestroy($img);
+    return $ok;
+}
+
 switch ($method) {
 
 // ── GET: Ambil penilaian yang sudah ada ────────────────────────
@@ -292,18 +338,32 @@ case 'POST':
                 $allowedExt = ['jpg','jpeg','png','pdf'];
                 $ext        = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-                if ($file['size'] > $maxSize)           errorResponse('Ukuran file maksimal 2 MB.', 422);
-                if (!in_array($ext, $allowedExt, true)) errorResponse('Format file harus JPG, PNG, atau PDF.', 422);
+                if (!in_array($ext, $allowedExt, true)) {
+                    errorResponse('Format file harus JPG, PNG, atau PDF. Foto HEIC/HEIF dari kamera iPhone belum didukung — pilih format JPG di pengaturan kamera HP Anda.', 422);
+                }
 
                 $uploadDir = dirname(__DIR__) . '/uploads/prestasi/';
                 if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
                 if ($ext === 'jpeg') $ext = 'jpg';
-                $fileName  = 'siswa_' . $siswaId . '_' . time() . '_' . $i . '.' . $ext;
-                if (!move_uploaded_file($file['tmp_name'], $uploadDir . $fileName)) {
-                    errorResponse('Gagal menyimpan file upload ke-' . ($i + 1) . '.', 500);
+                $fileName   = 'siswa_' . $siswaId . '_' . time() . '_' . $i . '.' . $ext;
+                $targetPath = $uploadDir . $fileName;
+
+                if ($file['size'] > $maxSize) {
+                    // Jaring pengaman: gambar besar otomatis dikompres via GD
+                    if (in_array($ext, ['jpg','png'], true) && kompresGambar($file['tmp_name'], $targetPath, 1600, 80)) {
+                        // berhasil dikompres
+                    } else {
+                        errorResponse('Ukuran file maksimal 2 MB.' . (in_array($ext, ['jpg','png'], true) ? ' Gambar gagal dikompres otomatis, silakan perkecil foto terlebih dahulu.' : ''), 422);
+                    }
+                } else {
+                    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+                        errorResponse('Gagal menyimpan file upload ke-' . ($i + 1) . '.', 500);
+                    }
                 }
                 $dp['bukti_foto'] = 'uploads/prestasi/' . $fileName;
+            } elseif (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_INI_SIZE) {
+                errorResponse('Ukuran file melebihi batas upload server (maksimal 2 MB). Perkecil foto atau pilih file lain.', 422);
             }
         }
         unset($dp);

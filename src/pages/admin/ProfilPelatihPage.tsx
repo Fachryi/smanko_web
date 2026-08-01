@@ -43,6 +43,14 @@ export default function ProfilPelatihPage() {
   const [preview, setPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    return () => {
+      if (preview && preview.startsWith('blob:')) {
+        URL.revokeObjectURL(preview)
+      }
+    }
+  }, [preview])
+
   const loadData = useCallback(async () => {
     setLoading(true)
     try {

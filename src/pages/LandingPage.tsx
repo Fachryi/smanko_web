@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toTitleCase } from '../utils/format'
 import {
@@ -510,19 +510,32 @@ export default function LandingPage() {
   const [slide, setSlide] = useState(0)
   const [animating, setAnimating] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const goSlideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const goSlide = (idx: number) => {
-    if (animating) return
-    setAnimating(true)
-    setTimeout(() => { setSlide(idx); setAnimating(false) }, 400)
-  }
-  const nextSlide = () => goSlide((slide + 1) % HERO_SLIDES.length)
-  const prevSlide = () => goSlide((slide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
+  const goSlide = useCallback((idx: number) => {
+    setAnimating(prev => {
+      if (prev) return prev
+      if (goSlideTimeoutRef.current) clearTimeout(goSlideTimeoutRef.current)
+      goSlideTimeoutRef.current = setTimeout(() => { setSlide(idx); setAnimating(false) }, 400)
+      return true
+    })
+  }, [])
+  const nextSlide = useCallback(() => setSlide(s => { const next = (s + 1) % HERO_SLIDES.length; goSlide(next); return s }), [goSlide])
+  const prevSlide = useCallback(() => setSlide(s => { const prev = (s - 1 + HERO_SLIDES.length) % HERO_SLIDES.length; goSlide(prev); return s }), [goSlide])
 
   useEffect(() => {
-    timerRef.current = setInterval(nextSlide, 5000)
-    return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  })
+    timerRef.current = setInterval(() => {
+      setSlide(s => {
+        const next = (s + 1) % HERO_SLIDES.length
+        goSlide(next)
+        return s
+      })
+    }, 5000)
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+      if (goSlideTimeoutRef.current) clearTimeout(goSlideTimeoutRef.current)
+    }
+  }, [goSlide])
 
   /* ── Klasemen state ── */
   const [search, setSearch] = useState('')
@@ -719,14 +732,18 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (allPelatih.length <= 1) return
+    let fadeTimeout: ReturnType<typeof setTimeout> | null = null
     const timer = setInterval(() => {
       setPelatihFade(false)
-      setTimeout(() => {
+      fadeTimeout = setTimeout(() => {
         setPelatihSlide(prev => (prev + 1) % allPelatih.length)
         setPelatihFade(true)
       }, 400)
     }, 2 * 60 * 1000)
-    return () => clearInterval(timer)
+    return () => {
+      clearInterval(timer)
+      if (fadeTimeout) clearTimeout(fadeTimeout)
+    }
   }, [allPelatih.length])
 
   const caborOptions = ['Semua', ...(data?.cabor.map(c => c.nama) ?? [])]

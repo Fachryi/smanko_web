@@ -16,6 +16,21 @@ interface SuccessResult {
   status: string
 }
 
+function FileImagePreview({ file }: { file: File }) {
+  const [url, setUrl] = useState<string>('')
+
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(file)
+    setUrl(objectUrl)
+    return () => {
+      URL.revokeObjectURL(objectUrl)
+    }
+  }, [file])
+
+  if (!url) return null
+  return <img src={url} alt="Preview" style={{ width: '100%', maxHeight: 180, objectFit: 'contain', display: 'block' }} />
+}
+
 function SuccessModal({ result, onGo }: { result: SuccessResult; onGo: () => void }) {
   const [countdown, setCountdown] = useState(3)
 
@@ -181,6 +196,47 @@ const PREDIKAT_COLOR: Record<string, string> = {
   'C (Cukup)': '#3b82f6',   'D (Kurang)': '#f59e0b', 'E (Sangat Kurang)': '#ef4444',
 }
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024
+const ALLOWED_FILE_EXT = ['jpg', 'jpeg', 'png', 'pdf']
+
+// Kompres foto (JPG/PNG) agar ukurannya turun di bawah 2 MB sebelum diupload
+async function compressImageFile(file: File, maxDim = 1600, quality = 0.8): Promise<File | null> {
+  try {
+    const img = new Image()
+    img.src = URL.createObjectURL(file)
+    await img.decode()
+
+    let { width, height } = img
+    if (!width || !height) { URL.revokeObjectURL(img.src); return null }
+    const scale = Math.min(1, maxDim / Math.max(width, height))
+    if (scale < 1) { width = Math.round(width * scale); height = Math.round(height * scale) }
+
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx) { URL.revokeObjectURL(img.src); return null }
+
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, width, height)
+    ctx.drawImage(img, 0, 0, width, height)
+    URL.revokeObjectURL(img.src)
+
+    const baseName = file.name.replace(/\.(jpe?g|png)$/i, '')
+    let q = quality
+    let blob: Blob | null = null
+    do {
+      blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', q))
+      q -= 0.15
+    } while (blob && blob.size > MAX_FILE_SIZE && q > 0.3)
+
+    if (!blob) return null
+    return new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' })
+  } catch {
+    return null
+  }
+}
+
 export default function FormNilaiPage() {
   const { siswaId }         = useParams<{ siswaId: string }>()
   const [searchParams]      = useSearchParams()
@@ -196,6 +252,7 @@ export default function FormNilaiPage() {
   const [loading, setLoading]           = useState(true)
   const [saving, setSaving]             = useState(false)
   const [saveError, setSaveError]       = useState<string | null>(null)
+  const [fileErrors, setFileErrors]     = useState<Record<number, string>>({})
   const [successResult, setSuccessResult] = useState<SuccessResult | null>(null)
 
   // Bobot dari pengaturan global (default fallback 50/30/20)
@@ -388,10 +445,41 @@ export default function FormNilaiPage() {
     return !isNaN(v) && v >= 0 && v <= 100
   })
 
+  // ── Pilih & validasi file bukti (format + ukuran + kompres otomatis) ──
+  const handleFileSelect = async (idx: number, f: File | null | undefined) => {
+    if (!f) return
+    setFileErrors(prev => ({ ...prev, [idx]: '' }))
+
+    const ext = (f.name.split('.').pop() ?? '').toLowerCase()
+    if (!ALLOWED_FILE_EXT.includes(ext)) {
+      setFileErrors(prev => ({ ...prev, [idx]: 'Format file harus JPG, PNG, atau PDF. Foto HEIC/HEIF dari kamera iPhone belum didukung — pilih format JPG di pengaturan kamera HP Anda.' }))
+      return
+    }
+    if (ext === 'pdf' && f.size > MAX_FILE_SIZE) {
+      setFileErrors(prev => ({ ...prev, [idx]: 'Ukuran PDF maksimal 2 MB.' }))
+      return
+    }
+
+    let file = f
+    if (ext !== 'pdf') {
+      const compressed = await compressImageFile(f)
+      if (compressed) {
+        file = compressed
+      } else if (f.size > MAX_FILE_SIZE) {
+        setFileErrors(prev => ({ ...prev, [idx]: 'Foto tidak dapat dikompres otomatis. Pilih foto berukuran maksimal 2 MB.' }))
+        return
+      }
+    }
+    setPrestasiList(list => list.map((item, i) => i === idx ? { ...item, bukti_foto: file } : item))
+  }
+
   // ── Submit ─────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (Object.values(fileErrors).some(Boolean)) {
+      setSaveError('Perbaiki error pada file bukti terlebih dahulu.'); return
+    }
     if (!allKriteriaFilled) { setSaveError('Semua nilai keterampilan wajib diisi (0-100).'); return }
     if (prestasiList.some(p => !p.tingkatan)) {
       setSaveError('Pilih tingkatan kejuaraan untuk setiap entri prestasi.'); return
@@ -897,7 +985,7 @@ export default function FormNilaiPage() {
                           {p.bukti_foto && (
                             <div style={{ position: 'relative', marginBottom: 'var(--sp-3)', borderRadius: 'var(--r-md)', overflow: 'hidden', border: '1px solid var(--clr-success)', background: 'var(--clr-bg-3)' }}>
                               {p.bukti_foto.type.startsWith('image/') ? (
-                                <img src={URL.createObjectURL(p.bukti_foto)} alt="Preview" style={{ width: '100%', maxHeight: 180, objectFit: 'contain', display: 'block' }} />
+                                <FileImagePreview file={p.bukti_foto} />
                               ) : (
                                 <div style={{ padding: 'var(--sp-4)', display: 'flex', alignItems: 'center', gap: 10 }}>
                                   <span style={{ fontSize: '2rem' }}>📄</span>
@@ -939,8 +1027,7 @@ export default function FormNilaiPage() {
                             onDragOver={e => e.preventDefault()}
                             onDrop={e => {
                               e.preventDefault()
-                              const f = e.dataTransfer.files[0]
-                              if (!isReadOnly && f) setPrestasiList(list => list.map((item, i) => i === idx ? { ...item, bukti_foto: f } : item))
+                              if (!isReadOnly) handleFileSelect(idx, e.dataTransfer.files[0])
                             }}
                           >
                             <Upload size={20} style={{ margin: '0 auto 6px', color: 'var(--clr-text-4)' }} />
@@ -953,11 +1040,20 @@ export default function FormNilaiPage() {
                             id={`bukti-input-${idx}`}
                             type="file" accept=".jpg,.jpeg,.png,.pdf" style={{ display: 'none' }}
                             onChange={e => {
-                              const f = e.target.files?.[0]
-                              if (f) setPrestasiList(list => list.map((item, i) => i === idx ? { ...item, bukti_foto: f } : item))
+                              handleFileSelect(idx, e.target.files?.[0])
                               e.target.value = ''
                             }}
                           />
+                          {fileErrors[idx] && (
+                            <div style={{
+                              marginTop: 'var(--sp-3)', display: 'flex', alignItems: 'center', gap: 6,
+                              fontSize: '0.8rem', color: 'var(--clr-danger)',
+                              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+                              borderRadius: 'var(--r-sm)', padding: '8px 12px',
+                            }}>
+                              <AlertCircle size={14} style={{ flexShrink: 0 }} /> {fileErrors[idx]}
+                            </div>
+                          )}
                         </div>
                       </>
                     )}

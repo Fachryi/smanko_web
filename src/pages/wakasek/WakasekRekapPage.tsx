@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Layout from '../../components/Layout'
 import { api } from '../../lib/apiClient'
 import type { TahunAjaran, ApiResponse } from '../../types'
@@ -302,6 +302,7 @@ export default function WakasekRekapPage() {
   const [dash,            setDash]            = useState<DashboardData | null>(null)
   const [loading,         setLoading]         = useState(true)
   const [printing,        setPrinting]        = useState(false)
+  const printTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [drillDown,       setDrillDown]       = useState<PrestasiDist | null>(null)
   const [activeChart,     setActiveChart]     = useState<'akhir' | 'keterampilan' | 'prestasi' | 'kehadiran'>('akhir')
   
@@ -388,6 +389,10 @@ export default function WakasekRekapPage() {
   }
 
   useEffect(() => {
+    return () => { if (printTimerRef.current) clearTimeout(printTimerRef.current) }
+  }, [])
+
+  useEffect(() => {
     setLeaderboardPage(1)
   }, [dash])
 
@@ -434,7 +439,8 @@ export default function WakasekRekapPage() {
         wakasekNama: user?.nama ?? 'Wakasek Kesiswaan',
       })
     } finally {
-      setTimeout(() => setPrinting(false), 1000)
+      if (printTimerRef.current) clearTimeout(printTimerRef.current)
+      printTimerRef.current = setTimeout(() => setPrinting(false), 1000)
     }
   }
 
