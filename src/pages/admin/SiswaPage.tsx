@@ -5,7 +5,7 @@ import Modal from '../../components/Modal'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { api } from '../../lib/apiClient'
 import type { Siswa, CabangOlahraga, ApiResponse } from '../../types'
-import { Search, Plus, Pencil, Trash2, GraduationCap, TrendingUp, CheckCircle, AlertTriangle, Users } from 'lucide-react'
+import { Search, Plus, Pencil, Trash2, GraduationCap, TrendingUp, CheckCircle, AlertTriangle, Users, ArrowLeft, ChevronRight } from 'lucide-react'
 import { toTitleCase } from '../../utils/format'
 
 type FormData = {
@@ -17,7 +17,6 @@ export default function SiswaPage() {
   const [siswa,   setSiswa]   = useState<Siswa[]>([])
   const [cabang,  setCabang]  = useState<CabangOlahraga[]>([])
   const [pelatihList, setPelatihList] = useState<{id:number, nama:string, cabang_olahraga_id:number}[]>([])
-  const [kelasList, setKelasList] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [search,  setSearch]  = useState('')
   const [kelasFilter, setKelasFilter] = useState('')
@@ -49,16 +48,15 @@ export default function SiswaPage() {
       if (search)      params.set('search', search)
       if (kelasFilter) params.set('kelas',  kelasFilter)
       if (caborFilter) params.set('cabang_olahraga_id', caborFilter)
-      const res = await api.get<ApiResponse<{siswa:Siswa[];kelas_list:string[]}>>(`/master/siswa.php?${params}`)
+      const res = await api.get<ApiResponse<{siswa:Siswa[]}>>(`/master/siswa.php?${params}`)
       setSiswa(res.data?.siswa ?? [])
-      setKelasList(res.data?.kelas_list ?? [])
     } catch { } finally { setLoading(false) }
   }, [search, kelasFilter, caborFilter])
   useEffect(() => { const t = setTimeout(load, 300); return () => clearTimeout(t) }, [load])
 
   const openAdd = () => {
     setSelected(null)
-    setForm({nisn:'',nis:'',nama:'',kelas:'',jenis_kelamin:'L',cabang_olahraga_id: cabang[0]?.id?.toString()||'', pelatih_id:''})
+    setForm({nisn:'',nis:'',nama:'',kelas: kelasFilter || '',jenis_kelamin:'L',cabang_olahraga_id: cabang[0]?.id?.toString()||'', pelatih_id:''})
     setError(''); setModal('add')
   }
   const openEdit = (s: Siswa) => {
@@ -114,33 +112,43 @@ export default function SiswaPage() {
           <h1>Manajemen Data Siswa</h1>
           <p>Setiap siswa hanya boleh mengikuti <strong>1 (satu)</strong> Cabang Olahraga.</p>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
-          <button className="btn btn-secondary" onClick={() => navigate('/admin/kenaikan-kelas')}>
-            <TrendingUp size={18} /> Proses Kenaikan Kelas
-          </button>
-          <button className="btn btn-primary" onClick={openAdd}>
-            <Plus size={18} /> Tambah Siswa
-          </button>
-        </div>
+        {kelasFilter && (
+          <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
+            <button className="btn btn-secondary" onClick={() => navigate('/admin/kenaikan-kelas')}>
+              <TrendingUp size={18} /> Proses Kenaikan Kelas
+            </button>
+            <button className="btn btn-primary" onClick={openAdd}>
+              <Plus size={18} /> Tambah Siswa
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Filters */}
-      <div className="filter-bar">
-        <div className="search-wrapper">
-          <Search size={16}/>
-          <input className="search-input" placeholder="Cari nama atau NIS..."
-            value={search} onChange={e => setSearch(e.target.value)}/>
+      {/* Detail header kelas */}
+      {kelasFilter && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', marginBottom: 'var(--sp-4)', flexWrap: 'wrap' }}>
+          <button className="btn btn-ghost" onClick={() => { setKelasFilter(''); setSearch(''); setCaborFilter('') }}>
+            <ArrowLeft size={16} /> Semua Kelas
+          </button>
+          <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Kelas {kelasFilter}</h2>
+          <span className="badge badge-neutral">{siswa.length} siswa</span>
         </div>
-        <select className="filter-select" value={kelasFilter} onChange={e => setKelasFilter(e.target.value)}>
-          <option value="">Semua Kelas</option>
-          {[...new Set([...kelasOptions,...kelasList])].map(k => <option key={k} value={k}>{k}</option>)}
-        </select>
-        <select className="filter-select" value={caborFilter} onChange={e => setCaborFilter(e.target.value)}>
-          <option value="">Semua Cabor</option>
-          {cabang.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
-        </select>
-        <span className="badge badge-neutral">{siswa.length} siswa</span>
-      </div>
+      )}
+
+      {/* Filters */}
+      {kelasFilter && (
+        <div className="filter-bar">
+          <div className="search-wrapper">
+            <Search size={16}/>
+            <input className="search-input" placeholder="Cari nama atau NIS..."
+              value={search} onChange={e => setSearch(e.target.value)}/>
+          </div>
+          <select className="filter-select" value={caborFilter} onChange={e => setCaborFilter(e.target.value)}>
+            <option value="">Semua Cabor</option>
+            {cabang.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
+          </select>
+        </div>
+      )}
 
       {/* Info banner kapasitas */}
       <div style={{
@@ -154,16 +162,25 @@ export default function SiswaPage() {
       }}>
         <Users size={16} style={{color:'#1155a8', flexShrink:0}} />
         <span>
-          <strong>Kapasitas Kelas:</strong> Setiap kelas dibatasi maksimal{' '}
-          <strong style={{color:'#c1272d'}}>40 siswa</strong> aktif.
-          Sistem akan menolak penambahan siswa jika kelas sudah penuh.
+          {kelasFilter ? (
+            <>
+              <strong>Kapasitas Kelas:</strong> Setiap kelas dibatasi maksimal{' '}
+              <strong style={{color:'#c1272d'}}>40 siswa</strong> aktif.
+              Sistem akan menolak penambahan siswa jika kelas sudah penuh.
+            </>
+          ) : (
+            <>
+              <strong>Tambah Siswa:</strong> Pilih kelas untuk menambahkan siswa di dalam kelas tersebut.
+            </>
+          )}
         </span>
       </div>
 
-      <div className="card" style={{padding:0}}>
-        {loading ? (
-          <div className="flex-center" style={{padding:60}}><div className="spinner spinner-lg"/></div>
-        ) : (
+      {kelasFilter ? (
+        <div className="card" style={{padding:0}}>
+          {loading ? (
+            <div className="flex-center" style={{padding:60}}><div className="spinner spinner-lg"/></div>
+          ) : (
           <div className="table-wrapper">
             <table>
               <thead>
@@ -218,8 +235,59 @@ export default function SiswaPage() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+          )}
+        </div>
+      ) : loading ? (
+        <div className="flex-center" style={{padding:60}}><div className="spinner spinner-lg"/></div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--sp-5)' }}>
+          {kelasOptions.map(kelas => {
+            const cnt = siswa.filter(s => s.kelas === kelas)
+            const l = cnt.filter(s => s.jenis_kelamin === 'L').length
+            const p = cnt.length - l
+            const empty = cnt.length === 0
+            return (
+              <button
+                key={kelas}
+                className="card"
+                style={{
+                  cursor: 'pointer', textAlign: 'left', border: '1px solid var(--clr-border)',
+                  transition: 'all 0.2s ease', background: 'var(--clr-surface)',
+                  display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)',
+                  opacity: empty ? 0.55 : 1,
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--clr-primary)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--clr-border)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
+                onClick={() => setKelasFilter(kelas)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
+                    <div className="stat-icon primary" style={{ width: 44, height: 44 }}>
+                      <GraduationCap size={20} />
+                    </div>
+                    <div>
+                      <strong style={{ fontSize: '1.1rem', display: 'block' }}>Kelas {kelas}</strong>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--clr-text-3)' }}>
+                        {empty ? 'Tidak ada siswa' : `${cnt.length} siswa`}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} style={{ color: 'var(--clr-text-4)' }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
+                    <span className="badge badge-primary">{l} L</span>
+                    <span className="badge badge-accent">{p} P</span>
+                  </div>
+                  {empty && (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--clr-text-4)', fontStyle: 'italic' }}>Kosong</span>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Modal */}
       <Modal open={!!modal} onClose={()=>setModal(null)}
@@ -287,7 +355,8 @@ export default function SiswaPage() {
           <div className="form-group">
             <label className="form-label">Kelas <span className="required">*</span></label>
             <select className="form-control" value={form.kelas}
-              onChange={e=>setForm(f=>({...f,kelas:e.target.value}))}>
+              onChange={e=>setForm(f=>({...f,kelas:e.target.value}))}
+              disabled={!!kelasFilter && modal === 'add'}>
               <option value="">-- Pilih Kelas --</option>
               {kelasOptions.map(k=><option key={k} value={k}>{k}</option>)}
             </select>
