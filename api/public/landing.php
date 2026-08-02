@@ -213,7 +213,9 @@ $prestasiStats = $pdo->query("
     SELECT COUNT(DISTINCT ph.siswa_id) AS total_berprestasi
     FROM penilaian_prestasi pp
     JOIN penilaian_header ph ON ph.id = pp.penilaian_id
-    WHERE pp.tingkatan IN ('Nasional','Internasional')
+    JOIN siswa s ON s.id = ph.siswa_id
+    WHERE pp.tingkatan NOT IN ('Tidak Ada Prestasi','')
+      AND s.status != 'alumni'
 ")->fetch(PDO::FETCH_ASSOC);
 
 $stats['total_berprestasi'] = (int)($prestasiStats['total_berprestasi'] ?? 0);

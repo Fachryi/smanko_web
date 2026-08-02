@@ -119,27 +119,31 @@ const NAV_LINKS = [
 const HERO_SLIDES = [
   {
     bg: '/video/video1.mp4',
-    headline: 'Cetak Juara Dunia',
-    headline2: 'Tanpa Lupakan Akademik',
-    sub: 'SMA Negeri Khusus Keberbakatan Olahraga Sulawesi Selatan — tempat di mana prestasi atletik dan keunggulan akademik berjalan beriringan.',
-    cta: 'Lihat Cabang Olahraga',
-    ctaTarget: 'cabor',
+    headline: 'Bergabung Bersama',
+    headline2: 'Juara Kami',
+    sub: 'Menjadi Legenda Olahraga Masa Depan.',
+    ctas: [
+      { label: 'Cabang Olahraga', target: 'cabor' },
+    ],
   },
   {
     bg: '/video/video2.mp4',
     headline: 'Sistem Penilaian',
     headline2: 'Terukur & Transparan',
     sub: 'Setiap perkembangan siswa dicatat secara digital — dari keterampilan teknis hingga prestasi kompetisi nasional dan internasional.',
-    cta: 'Masuk Portal',
-    ctaTarget: 'login',
+    ctas: [
+      { label: 'Klasemen', target: 'klasemen' },
+    ],
   },
   {
     bg: '/video/video3.mp4',
-    headline: 'Bergabunglah',
-    headline2: 'Bersama Juara Kami',
-    sub: 'Siswa berbakat dari seluruh Sulawesi Selatan telah membuktikan diri di pentas nasional dan internasional.',
-    cta: 'Lihat Klasemen',
-    ctaTarget: 'klasemen',
+    headline: 'Galeri Juara',
+    headline2: 'Di Pentas Dunia',
+    sub: 'Dokumentasi prestasi siswa SMANKO dari pentas kecamatan hingga internasional.',
+    ctas: [
+      { label: 'Galeri', target: 'galeri' },
+      { label: 'Lokasi', target: 'lokasi' },
+    ],
   },
 ]
 
@@ -761,10 +765,10 @@ export default function LandingPage() {
   /* ─── Stat numbers ─── */
   const stats = data?.stats
   const statCards = [
-    { icon: <Users size={18} />, val: loading ? '—' : <CountUp value={stats?.total_siswa ?? 0} suffix="+" />, label: 'Siswa Aktif' },
-    { icon: <Trophy size={18} />, val: loading ? '—' : <CountUp value={stats?.total_cabor ?? 0} />, label: 'Cabang Olahraga' },
-    { icon: <Star size={18} />, val: loading ? '—' : <CountUp value={stats?.total_berprestasi ?? 0} suffix="+" />, label: 'Siswa Berprestasi' },
-    { icon: <Target size={18} />, val: loading ? '—' : <CountUp value={stats?.total_pelatih ?? 0} />, label: 'Pelatih Aktif' },
+    { icon: <Users size={18} />, val: loading ? '—' : <CountUp value={stats?.total_siswa ?? 0} />, label: 'Siswa Aktif' },
+    { icon: <Zap size={18} />, val: loading ? '—' : <CountUp value={stats?.total_cabor ?? 0} />, label: 'Cabang Olahraga' },
+    { icon: <Trophy size={18} />, val: loading ? '—' : <CountUp value={stats?.total_berprestasi ?? 0} />, label: 'Siswa Berprestasi' },
+    { icon: <Medal size={18} />, val: loading ? '—' : <CountUp value={stats?.total_pelatih ?? 0} />, label: 'Pelatih Aktif' },
   ]
 
   /* ─── RENDER ─── */
@@ -782,18 +786,20 @@ export default function LandingPage() {
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', height: 68 }}>
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
-            <div style={{ width: 42, height: 42, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.4)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 12, overflow: 'hidden', border: '2px solid #e84a4f', flexShrink: 0, boxShadow: '0 0 18px rgba(232,74,79,0.35)' }}>
               <img src="/logo-smanko.jpg" alt="Logo SMANKO" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <div>
-              <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>SMANKO</div>
-              <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.3 }}>Keberbakatan Olahraga Sul-Sel</div>
+              <div style={{ fontSize: '1rem', fontWeight: 900, color: '#fff', lineHeight: 1.1, letterSpacing: '0.04em' }}>SMANKO</div>
+              <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.3, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600, letterSpacing: '0.02em' }}>
+                <MapPin size={10} style={{ color: '#e84a4f' }} /> Sulawesi Selatan
+              </div>
             </div>
           </div>
 
           {/* Nav Links – desktop */}
-          <div className="lp-nav-links" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <div className="lp-nav-links" style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto', flexShrink: 0 }}>
             {NAV_LINKS.map(link => (
               <button key={link.id} onClick={() => scrollTo(link.id)} style={{
                 background: 'none', border: 'none',
@@ -809,16 +815,7 @@ export default function LandingPage() {
           </div>
 
           {/* CTA + hamburger */}
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 12, alignItems: 'center' }}>
-            <button
-              onClick={() => navigate('/login')}
-              id="lp-btn-login-nav"
-              className="lp-nav-links lp-nav-login-btn"
-            >
-              <ExternalLink size={14} />
-              Login Portal
-            </button>
-
+          <div className="lp-nav-cta" style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, alignItems: 'center' }}>
             <button
               id="lp-hamburger"
               className="lp-hamburger"
@@ -854,121 +851,71 @@ export default function LandingPage() {
         )}
       </nav>
 
-      {/* ══════════════════════ HERO CAROUSEL ══════════════════════ */}
-      <section id="beranda" style={{ position: 'relative', height: '100vh', minHeight: 580, overflow: 'hidden' }}>
-        {/* Video background */}
-        <video
-          key={slide}
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{
-            position: 'absolute', inset: 0, width: '100%', height: '100%',
-            objectFit: 'cover', zIndex: 1,
-          }}
-        >
-          <source src={HERO_SLIDES[slide].bg} type="video/mp4" />
-        </video>
-        {/* Primary overlay — neutral dark gradient */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 2,
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(10,15,25,0.6) 50%, rgba(0,0,0,0.4) 100%)'
-        }} />
-        {/* Athlete images flanking */}
-        <img src="/hero-athlete-left.png" className="lp-athlete-left" alt="" onError={e => (e.currentTarget.style.display = 'none')} />
-        <img src="/hero-athlete-right.png" className="lp-athlete-right" alt="" onError={e => (e.currentTarget.style.display = 'none')} />
-        {/* Glow orbs */}
-        <div style={{
-          position: 'absolute', top: '15%', left: '30%', width: 500, height: 500,
-          background: 'radial-gradient(circle, rgba(232,74,79,0.12) 0%, transparent 70%)',
-          borderRadius: '50%', zIndex: 2, pointerEvents: 'none',
-        }} />
+      {/* ══════════════════════ HERO SPLIT-SCREEN ══════════════════════ */}
+      <section id="beranda" className="lp-hero-split">
 
-        {/* Floating Icons Animation
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 3 }}>
-          <div style={{ position: 'absolute', top: '20%', left: '12%', fontSize: 45, opacity: 0.8, animation: 'float1 7s ease-in-out infinite' }}>⚽</div>
-          <div style={{ position: 'absolute', top: '25%', right: '15%', fontSize: 50, opacity: 0.8, animation: 'float2 9s ease-in-out infinite' }}>🏀</div>
-          <div style={{ position: 'absolute', bottom: '25%', left: '8%', fontSize: 40, opacity: 0.8, animation: 'float3 8s ease-in-out infinite' }}>🎯</div>
-          <div style={{ position: 'absolute', bottom: '30%', right: '10%', fontSize: 45, opacity: 0.8, animation: 'float4 6s ease-in-out infinite' }}>🏸</div>
-          <div style={{ position: 'absolute', top: '10%', left: '40%', fontSize: 35, opacity: 0.6, animation: 'float2 10s ease-in-out infinite' }}>🏐</div>
-        </div> */}
-
-
-        <div className="lp-hero-content" style={{
-          position: 'absolute', inset: 0, zIndex: 4,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 24px',
-        }}>
-          <div style={{ maxWidth: 760 }}>
+        {/* ── Left panel: dark, bold copy ── */}
+        <div className="lp-hero-left">
+          <div className="lp-hero-left-inner">
             {/* Badge pill */}
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 7,
-              background: 'rgba(17,85,168,0.15)', backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(232,74,79,0.45)',
-              borderRadius: 30, padding: '6px 18px', marginBottom: 28,
-              color: '#fff', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em',
-            }}>
-              <MapPin size={13} className="lp-badge-icon" />
+            <div className="lp-hero-badge">
+              <MapPin size={13} />
               SMANKO — Sulawesi Selatan
             </div>
+
             {/* Headline */}
-            <h1 style={{
-              fontSize: 'clamp(1.8rem, 6vw, 4rem)', fontWeight: 900, color: '#fff',
-              lineHeight: 1.12, fontFamily: "'Bebas Neue',sans-serif",
-              marginBottom: 14,
-              textShadow: '0 0 40px rgba(232,74,79,0.25), 0 2px 20px rgba(0,0,0,0.5)',
-              wordWrap: 'break-word', letterSpacing: '0.02em'
-            }}>
+            <h1 key={`title-${slide}`} className="lp-hero-title lp-slide-fade">
               {HERO_SLIDES[slide].headline}<br />
-              <span style={{
-                color: '#e84a4f',
-                textShadow: '0 0 30px rgba(232,74,79,0.6), 0 0 60px rgba(232,74,79,0.3)',
-              }}>{HERO_SLIDES[slide].headline2}</span>
+              <span className="lp-hero-title-accent">{HERO_SLIDES[slide].headline2}</span>
             </h1>
-            {/* Sub */}
-            <p style={{
-              fontSize: 'clamp(0.9rem, 2vw, 1.05rem)', color: 'rgba(255,255,255,0.78)',
-              lineHeight: 1.75, maxWidth: 580, margin: '0 auto 38px',
-            }}>
+
+            {/* Sub-headline */}
+            <p key={`sub-${slide}`} className="lp-hero-sub lp-slide-fade">
               {HERO_SLIDES[slide].sub}
             </p>
-            {/* CTA Buttons */}
-            <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button
-                className="lp-btn-primary-new"
-                onClick={() => {
-                  if (HERO_SLIDES[slide].ctaTarget === 'login') navigate('/login')
-                  else scrollTo(HERO_SLIDES[slide].ctaTarget)
-                }}
-              >
-                {HERO_SLIDES[slide].cta}
-              </button>
-              <button onClick={() => navigate('/login')} className="lp-btn-ghost-new">
+
+            {/* CTA buttons */}
+            <div key={`cta-${slide}`} className="lp-hero-cta-row lp-slide-fade">
+              {HERO_SLIDES[slide].ctas.map(cta => (
+                <button
+                  key={cta.target}
+                  className="lp-btn-hero-red"
+                  onClick={() => scrollTo(cta.target)}
+                >
+                  {cta.label}
+                  <ChevronRight size={18} />
+                </button>
+              ))}
+              <button onClick={() => navigate('/login')} className="lp-btn-hero-ghost">
                 Login Portal →
               </button>
             </div>
           </div>
         </div>
 
-        {/* Stats Bar — single unified bar */}
+        {/* Diagonal divider */}
+        <div className="lp-hero-diag-line" />
+
+        {/* ── Right panel: dynamic athletic media ── */}
+        <div className="lp-hero-media">
+          <video key={slide} autoPlay muted loop playsInline>
+            <source src={HERO_SLIDES[slide].bg} type="video/mp4" />
+          </video>
+          <div className="lp-hero-media-overlay" />
+        </div>
+
+        {/* ── Stats bar — satu elemen marquee ── */}
         <div className="lp-hero-stats-wrapper">
-          <div className="lp-stats-unified-bar">
-            {statCards.map((item, idx) => (
-              <div key={item.label} className="lp-stats-unified-item">
-                {idx > 0 && <div className="lp-stats-unified-divider" />}
-                <div className="lp-stat-icon-new">
-                  {item.icon}
+          <div className="lp-stats-marquee">
+            <div className="lp-stats-marquee-track">
+              {Array.from({ length: 5 }, () => statCards).flat().map((item, i) => (
+                <div key={`${item.label}-${i}`} className="lp-stats-marquee-item">
+                  <span className="lp-stats-marquee-icon">{item.icon}</span>
+                  <span className="lp-stats-marquee-num">{item.val}</span>
+                  <span className="lp-stats-marquee-label">{item.label}</span>
                 </div>
-                <div>
-                  <div className="lp-stat-val-new">
-                    {item.val}
-                  </div>
-                  <div className="lp-stat-label-new">
-                    {item.label}
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
